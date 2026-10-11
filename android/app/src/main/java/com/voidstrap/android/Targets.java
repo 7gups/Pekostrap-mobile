@@ -15,7 +15,8 @@ import java.util.List;
 public final class Targets {
     public static final String GLOBAL = "com.roblox.client";
     public static final String VN = "com.roblox.client.vnggames";
-    public static final String[] ALL = {GLOBAL, VN};
+    public static final String PEKORA = "pro.pekora.client";
+    public static final String[] ALL = {GLOBAL, VN, PEKORA};
 
     public static final class State {
         public String pkg;
@@ -32,6 +33,7 @@ public final class Targets {
     }
 
     public static int nameRes(String pkg) {
+        if (PEKORA.equals(pkg)) return R.string.target_pekora;
         return VN.equals(pkg) ? R.string.target_vn : R.string.target_global;
     }
 

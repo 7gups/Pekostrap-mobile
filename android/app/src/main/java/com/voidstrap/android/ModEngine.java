@@ -239,6 +239,7 @@ public final class ModEngine {
                 if (!plan.pristine) return Result.FAILED;
             }
             long originalSize;
+            File obbTmp = null;
             File build = new File(stateDir(c), "build_" + pkg + ".apk");
             build.delete();
             if (Mods.lowSpace(c.getSystemService(android.os.storage.StorageManager.class), stateDir(c), plan.base.length())) return Result.NO_SPACE;
@@ -246,10 +247,13 @@ public final class ModEngine {
                 if (progress != null) progress.on(1);
                 convertSky(plan);
                 originalSize = plan.base.length();
+                obbTmp = ObbRemap.remap(plan.base, stateDir(c), plan.changes, plan.fingerprint, cancel);
                 ApkPatcher.patch(plan.base, build, plan.changes, cancel);
             } catch (IOException | RuntimeException e) {
                 build.delete();
                 return cancel != null && cancel.get() ? Result.CANCELLED : Result.FAILED;
+            } finally {
+                if (obbTmp != null) obbTmp.delete();
             }
             if (cancel != null && cancel.get()) {
                 build.delete();

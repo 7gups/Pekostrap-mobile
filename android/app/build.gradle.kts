@@ -1,4 +1,3 @@
-import org.gradle.api.file.FileSystemOperations
 import org.gradle.process.ExecOperations
 import javax.inject.Inject
 
@@ -154,41 +153,10 @@ val cargoBuildPlay = cargoTask("play", emptyList())
 val cargoBuildDirect = cargoTask("direct", listOf("voidstrap_core/matchmaker", "voidstrap_core/updates"))
 cargoBuildDirect.configure { mustRunAfter(cargoBuildPlay) }
 
-abstract class BundleLicenseNotices : DefaultTask() {
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.NONE)
-    abstract val notices: RegularFileProperty
-
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.NONE)
-    abstract val cursorSources: RegularFileProperty
-
-    @get:OutputDirectory
-    abstract val output: DirectoryProperty
-
-    @get:Inject
-    abstract val fileSystemOperations: FileSystemOperations
-
-    @TaskAction
-    fun bundle() {
-        fileSystemOperations.sync {
-            from(notices, cursorSources)
-            into(output.dir("licenses"))
-        }
-    }
-}
-
-val bundleLicenseNotices = tasks.register<BundleLicenseNotices>("bundleLicenseNotices") {
-    notices.set(rootProject.layout.projectDirectory.file("../THIRD-PARTY-NOTICES.txt"))
-    cursorSources.set(rootProject.layout.projectDirectory.file("../legal/sources/Bibata-Cursor-v2.0.7.tar.gz"))
-    output.set(rootProject.layout.buildDirectory.dir("licenseAssets"))
-}
-
 androidComponents {
     onVariants { variant ->
         val cargo = if (variant.flavorName == "direct") cargoBuildDirect else cargoBuildPlay
         variant.sources.jniLibs?.addGeneratedSourceDirectory(cargo, CargoBuild::output)
-        variant.sources.assets?.addGeneratedSourceDirectory(bundleLicenseNotices, BundleLicenseNotices::output)
     }
 }
 

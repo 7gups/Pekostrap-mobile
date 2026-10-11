@@ -12,6 +12,7 @@
     <queries>
         <package android:name="com.roblox.client" />
         <package android:name="com.roblox.client.vnggames" />
+        <package android:name="pro.pekora.client" />
         <package android:name="com.discord" />
         <package android:name="moe.shizuku.privileged.api" />
         <intent>
