@@ -13,10 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Targets {
-    public static final String GLOBAL = "com.roblox.client";
-    public static final String VN = "com.roblox.client.vnggames";
     public static final String PEKORA = "pro.pekora.client";
-    public static final String[] ALL = {GLOBAL, VN, PEKORA};
+    public static final String[] ALL = {PEKORA};
 
     public static final class State {
         public String pkg;
@@ -33,8 +31,7 @@ public final class Targets {
     }
 
     public static int nameRes(String pkg) {
-        if (PEKORA.equals(pkg)) return R.string.target_pekora;
-        return VN.equals(pkg) ? R.string.target_vn : R.string.target_global;
+        return R.string.target_pekora;
     }
 
     public static State resolve(Context c, String pkg) {
@@ -59,20 +56,12 @@ public final class Targets {
     }
 
     public static String selected(Context c) {
-        String chosen = Store.get(c).setting("target", null);
-        if (chosen != null) {
-            for (String p : ALL) if (p.equals(chosen)) return p;
-        }
-        for (String p : ALL) if (resolve(c, p).installed) return p;
-        return GLOBAL;
+        return PEKORA;
     }
 
     public static List<String> offered(Context c) {
         List<String> out = new ArrayList<>();
-        String sel = selected(c);
-        for (String p : ALL) {
-            if (p.equals(GLOBAL) || p.equals(sel) || resolve(c, p).installed) out.add(p);
-        }
+        out.add(PEKORA);
         return out;
     }
 }

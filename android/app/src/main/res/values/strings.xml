@@ -38,8 +38,6 @@
     <string name="export_failed">Saving failed. Try a different location.</string>
     <string name="export_denied">That location did not let Voidstrap save the file. Choose a folder on your device storage instead.</string>
 
-    <string name="target_global">Roblox</string>
-    <string name="target_vn">Roblox VN</string>
     <string name="target_pekora">Pekora (2021)</string>
     <string name="target_version">Installed · version %1$s</string>
     <string name="target_not_installed">Not installed on this device</string>

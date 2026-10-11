@@ -30,7 +30,7 @@ public final class HelperServer {
             + "done\n"
             + "rm -f " + PORT_FILE + " " + BINARY + "\n"
             + "rm -rf " + ModEngine.REMOTE_DIR + "\n"
-            + "if [ $K = 1 ]; then for p in " + Targets.GLOBAL + " " + Targets.VN + "; do am force-stop $p 2>/dev/null; done; fi\n"
+            + "if [ $K = 1 ]; then for p in " + Targets.PEKORA + "; do am force-stop $p 2>/dev/null; done; fi\n"
             + "exit 0\n";
 
     private HelperServer() {
