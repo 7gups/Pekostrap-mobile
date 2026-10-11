@@ -7,7 +7,7 @@ use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
-pub const FORMAT: i64 = 1;
+pub const FORMAT: i64 = 2;
 pub const REMOTE_DIR: &str = "/data/local/tmp/voidstrap_mods";
 pub const CACHE_LIST: &str = "/data/local/tmp/voidstrap_cache_";
 
@@ -158,10 +158,21 @@ pub fn plan(roots: &Roots, pkg: &str, identity: &str, target: Option<&str>) -> s
         return Ok(None);
     };
     let original = original_apk(roots, pkg, Some(target));
-    let dir = crate::apk::read(Path::new(original.as_deref().unwrap_or(target)))?;
+    let base_path = original.as_deref().unwrap_or(target);
+    let dir = crate::apk::read(Path::new(base_path))?;
     let mut lower: HashMap<String, String> = HashMap::new();
     for e in &dir.entries {
         lower.insert(java::lower(&e.name), e.name.clone());
+    }
+    // Pekora keeps its game files in an OBB stored inside the APK; its entries have no "assets/" prefix.
+    // Count them as existing so mods replace them there instead of being added as unused APK entries.
+    if let Some(obb) = dir.entries.iter().find(|e| e.name.starts_with("assets/") && e.name.ends_with(".obb"))
+        && let Ok(inner) = crate::apk::nested_names(Path::new(base_path), obb)
+    {
+        for n in inner.into_iter().filter(|n| !n.ends_with('/')) {
+            let full = format!("assets/{n}");
+            lower.entry(java::lower(&full)).or_insert(full);
+        }
     }
     let mut md = Sha256::new();
     md.update(format!("v{FORMAT}\n{pkg}\n{identity}\n").as_bytes());
@@ -176,25 +187,38 @@ pub fn plan(roots: &Roots, pkg: &str, identity: &str, target: Option<&str>) -> s
         log: Vec::new(),
     };
     let mut unknown = Vec::new();
+    let mut redirected: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut existing_keys: std::collections::HashSet<String> = std::collections::HashSet::new();
     for (rel, f) in collect(roots) {
-        let Some(asset) = paths::asset_path(&rel) else {
+        let (assets, redirect) = paths::asset_paths(&rel);
+        if assets.is_empty() {
             plan.skipped.push(rel);
             continue;
-        };
-        match lower.get(&java::lower(&asset)) {
-            Some(existing) => {
-                plan.changes.insert(Key(existing.clone()), f);
-                plan.replaced += 1;
-            }
-            None => {
-                plan.changes.insert(Key(asset), f);
-                plan.added += 1;
-                if unknown.len() < 10 {
-                    unknown.push(rel);
+        }
+        for asset in assets {
+            let (key, exists) = match lower.get(&java::lower(&asset)) {
+                Some(existing) => (existing.clone(), true),
+                None => (asset, false),
+            };
+            if redirect {
+                // an explicit file for the same target wins over a redirect
+                if plan.changes.contains_key(&Key(key.clone())) && !redirected.contains(&key) {
+                    continue;
                 }
+                redirected.insert(key.clone());
+            } else {
+                redirected.remove(&key);
             }
+            if exists {
+                existing_keys.insert(key.clone());
+            } else if unknown.len() < 10 {
+                unknown.push(rel.clone());
+            }
+            plan.changes.insert(Key(key), f.clone());
         }
     }
+    plan.replaced = existing_keys.len() as i64;
+    plan.added = plan.changes.len() as i64 - plan.replaced;
     for (name, f) in &plan.changes {
         md.update(format!("{}\t{}\t{}\t{}\n", name.0, f.display(), fs::length(f), fs::modified_ms(f)).as_bytes());
     }

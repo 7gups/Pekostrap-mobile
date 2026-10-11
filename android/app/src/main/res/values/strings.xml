@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Voidstrap</string>
+    <string name="app_name" translatable="false">Pekostrap</string>
     <string name="url_website" translatable="false">https://voidstrapp.pages.dev</string>
     <string name="url_releases" translatable="false">https://github.com/KloBraticc/Voidstrap/releases</string>
     <string name="pair">%1$s · %2$s</string>
@@ -36,7 +36,7 @@
     <string name="common_share">Share</string>
     <string name="error_no_browser">No app can open this link.</string>
     <string name="export_failed">Saving failed. Try a different location.</string>
-    <string name="export_denied">That location did not let Voidstrap save the file. Choose a folder on your device storage instead.</string>
+    <string name="export_denied">That location did not let Pekostrap save the file. Choose a folder on your device storage instead.</string>
 
     <string name="target_pekora">Pekora (2021)</string>
     <string name="target_version">Installed · version %1$s</string>
@@ -44,7 +44,7 @@
     <string name="target_disabled">Disabled in Android settings</string>
     <string name="target_no_launcher">Version %1$s · cannot be opened</string>
     <string name="target_sheet_title">Roblox app</string>
-    <string name="target_sheet_body">Choose which official Roblox app Voidstrap opens. Your choice applies to the next launch.</string>
+    <string name="target_sheet_body">Choose which official Roblox app Pekostrap opens. Your choice applies to the next launch.</string>
     <string name="target_button_description">Roblox app: %1$s, %2$s. Double tap to change.</string>
     <string name="target_row">%1$s, %2$s</string>
     <string name="target_row_selected">%1$s, %2$s, selected</string>
@@ -57,11 +57,11 @@
     <string name="launch_busy">Already opening Roblox</string>
     <string name="launch_failed">Android blocked the launch</string>
 
-    <string name="install_opening_plain">Install %1$s from the store, then come back to Voidstrap.</string>
+    <string name="install_opening_plain">Install %1$s from the store, then come back to Pekostrap.</string>
     <string name="install_opening_pending">Install %1$s from the store. Your game launches as soon as it finishes.</string>
     <string name="install_get">Install %1$s</string>
     <string name="disabled_title">%1$s is disabled</string>
-    <string name="disabled_body">Enable the app in Android settings to launch it from Voidstrap.</string>
+    <string name="disabled_body">Enable the app in Android settings to launch it from Pekostrap.</string>
     <string name="unsupported_title">Link not accepted</string>
     <string name="unsupported_body">%1$s did not accept this game link. You can open the app and find the game there instead.</string>
 
@@ -73,7 +73,7 @@
     <string name="bar_saved_mods_removed">Changes saved. Roblox is back to its original files.</string>
     <string name="bar_target_description">Launch target: %1$s, %2$s. Double tap to change.</string>
     <string name="save_failed_title">Settings not saved</string>
-    <string name="save_failed_body">Voidstrap could not write your settings to storage. Free up some space and try again.</string>
+    <string name="save_failed_body">Pekostrap could not write your settings to storage. Free up some space and try again.</string>
     <string name="home_news_title">Latest Roblox News</string>
     <plurals name="home_news_count">
         <item quantity="one">(%1$d new)</item>
@@ -98,12 +98,12 @@
     <string name="home_limited">Limited</string>
     <string name="home_continue_title">Continue Playing</string>
     <string name="home_continue_empty_title">No history yet</string>
-    <string name="home_continue_empty_body">Games you launch from Voidstrap will show up here so you can jump back in.</string>
+    <string name="home_continue_empty_body">Games you launch from Pekostrap will show up here so you can jump back in.</string>
     <string name="home_launched">Launched: %1$s</string>
     <string name="home_game_page">View the %1$s game page</string>
     <string name="home_play">Play %1$s</string>
     <string name="history_clear_title">Clear launch history?</string>
-    <string name="history_clear_body">This removes the list of launches started from Voidstrap. Pinned games stay.</string>
+    <string name="history_clear_body">This removes the list of launches started from Pekostrap. Pinned games stay.</string>
     <string name="history_cleared">Launch history cleared</string>
 
     <string name="library_home">Library Home</string>
@@ -117,7 +117,7 @@
     <string name="library_group_pinned">PINNED</string>
     <string name="library_group_all">ALL</string>
     <string name="library_group_count">(%1$d)</string>
-    <string name="library_empty_all">Your library is empty. Play a game through Voidstrap or add one by PlaceId.</string>
+    <string name="library_empty_all">Your library is empty. Play a game through Pekostrap or add one by PlaceId.</string>
     <string name="library_events">Events</string>
     <string name="library_whats_new">What\'s New</string>
     <string name="library_recent">Recent Games</string>
@@ -172,7 +172,7 @@
     <string name="game_link_copied">Game link copied</string>
     <string name="game_unpinned">Removed %1$s from your library</string>
 
-    <string name="shortcut_unsupported">Your home screen app cannot add shortcuts. Pinned games still show when you long press the Voidstrap icon.</string>
+    <string name="shortcut_unsupported">Your home screen app cannot add shortcuts. Pinned games still show when you long press the Pekostrap icon.</string>
     <string name="shortcut_requested">Confirm the shortcut on your home screen.</string>
     <string name="shortcut_failed">The shortcut could not be requested.</string>
     <string name="shortcut_already">%1$s is already on your home screen. Its icon and name were updated.</string>
@@ -204,7 +204,7 @@
     <string name="mods_import_partial">Imported: %1$d. Skipped: %2$d, because %3$s.</string>
     <string name="mods_exported">Exported %1$s</string>
     <string name="mods_remove_title">Remove from workspace?</string>
-    <string name="mods_remove_file">%1$s will be deleted from the Voidstrap workspace. Exported copies are not affected.</string>
+    <string name="mods_remove_file">%1$s will be deleted from the Pekostrap workspace. Exported copies are not affected.</string>
     <string name="mods_removed">Removed %1$s</string>
     <string name="mods_remove_failed">Some files could not be removed.</string>
     <string name="mods_error_name">Use a name without slashes or special characters.</string>
@@ -297,7 +297,7 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_accent">Accent color</string>
     <string name="settings_accent_system">Device accent color</string>
-    <string name="settings_accent_brand">Voidstrap purple</string>
+    <string name="settings_accent_brand">Pekostrap purple</string>
     <string name="settings_accent_note">Device accent colors need Android 12 or newer.</string>
     <string name="settings_roblox">Roblox</string>
     <string name="settings_clear_history">Clear launch history</string>
@@ -311,29 +311,29 @@
     <string name="settings_diagnostics_body">A report you can copy or share for support</string>
     <string name="settings_licenses">Licenses</string>
     <string name="settings_licenses_body">Open source notices</string>
-    <string name="settings_website">Voidstrap website</string>
+    <string name="settings_website">Pekostrap website</string>
     <string name="settings_website_body">voidstrapp.pages.dev</string>
     <string name="settings_updates">Check for updates</string>
-    <string name="settings_updates_body">Open the Voidstrap releases page</string>
+    <string name="settings_updates_body">Open the Pekostrap releases page</string>
     <string name="update_section">Updates</string>
     <string name="update_auto">Check automatically</string>
-    <string name="update_auto_body">Looks for a new Voidstrap a few times a day</string>
+    <string name="update_auto_body">Looks for a new Pekostrap a few times a day</string>
     <string name="update_auto_direct">Update automatically</string>
     <string name="update_auto_direct_body">Downloads new releases and opens any Android approval needed to install them</string>
-    <string name="update_channel_releases">Voidstrap releases</string>
+    <string name="update_channel_releases">Pekostrap releases</string>
     <string name="update_channel_play">Google Play</string>
     <string name="update_check">Check now</string>
     <string name="update_local">Install from APK</string>
-    <string name="update_local_body">Choose a newer Voidstrap APK saved on this device</string>
+    <string name="update_local_body">Choose a newer Pekostrap APK saved on this device</string>
     <string name="update_local_reading">Checking the selected APK</string>
     <string name="update_local_missing">No APK file was provided</string>
     <string name="update_local_too_large">The selected APK is too large</string>
     <string name="update_local_ready">APK checked, installing</string>
     <string name="update_checking">Checking for a new version</string>
-    <string name="update_current">Voidstrap %1$s, the newest build</string>
-    <string name="update_never_checked">Voidstrap %1$s, not checked yet</string>
-    <string name="update_checked_ago">Voidstrap %1$s, checked %2$s</string>
-    <string name="update_ready_title">Voidstrap %1$s is available</string>
+    <string name="update_current">Pekostrap %1$s, the newest build</string>
+    <string name="update_never_checked">Pekostrap %1$s, not checked yet</string>
+    <string name="update_checked_ago">Pekostrap %1$s, checked %2$s</string>
+    <string name="update_ready_title">Pekostrap %1$s is available</string>
     <string name="update_ready_body">%1$s from %2$s</string>
     <string name="update_install">Update</string>
     <string name="update_install_play">Open Google Play</string>
@@ -343,26 +343,26 @@
     <string name="update_ready_to_install">Update ready to install</string>
     <string name="update_skip">Skip this version</string>
     <string name="update_notes">What changed</string>
-    <string name="update_available_toast">Voidstrap %1$s is available</string>
+    <string name="update_available_toast">Pekostrap %1$s is available</string>
     <string name="update_failed_toast">The update failed, %1$s</string>
     <string name="update_failed">The update could not be completed, %1$s</string>
-    <string name="update_needs_permission">Voidstrap needs permission to install app updates</string>
+    <string name="update_needs_permission">Pekostrap needs permission to install app updates</string>
     <string name="update_permission_title">Allow app updates</string>
-    <string name="update_permission_body">The update is downloaded. Android needs your approval to let Voidstrap install APK updates. You can allow it in system settings or cancel and install later.</string>
+    <string name="update_permission_body">The update is downloaded. Android needs your approval to let Pekostrap install APK updates. You can allow it in system settings or cancel and install later.</string>
     <string name="update_open_permission">Open settings</string>
     <string name="update_channel_notification">App updates</string>
-    <string name="update_confirm_title">Finish installing Voidstrap</string>
+    <string name="update_confirm_title">Finish installing Pekostrap</string>
     <string name="update_confirm_body">Tap to approve the Android install</string>
-    <string name="update_open_to_install">Open Voidstrap to approve the install</string>
+    <string name="update_open_to_install">Open Pekostrap to approve the install</string>
     <string name="update_permission_failed">This device has no screen for installing unknown apps</string>
     <string name="update_error_size">The download did not match the published size</string>
     <string name="update_error_not_apk">The APK is not a readable Android package</string>
-    <string name="update_error_other_app">The APK belongs to %1$s, not to Voidstrap</string>
+    <string name="update_error_other_app">The APK belongs to %1$s, not to Pekostrap</string>
     <string name="update_error_version">The APK is version %1$s but the release said %2$s</string>
     <string name="update_error_older">The APK is not newer than the installed build</string>
     <string name="update_error_cancelled">The install was cancelled</string>
     <string name="update_error_blocked">The device blocked the install</string>
-    <string name="update_error_conflict">The installed Voidstrap was signed with a different key, so uninstall it first</string>
+    <string name="update_error_conflict">The installed Pekostrap was signed with a different key, so uninstall it first</string>
     <string name="update_error_incompatible">The update does not support this device</string>
     <string name="update_error_invalid">The update package is damaged</string>
     <string name="update_error_storage">There is not enough storage for the update</string>
@@ -370,19 +370,19 @@
     <string name="update_error_no_prompt">The device did not offer the install screen</string>
     <string name="update_error_check">Could not check for updates. Check your connection and try again</string>
     <string name="update_error_play">Google Play could not be reached for updates</string>
-    <string name="settings_version">Voidstrap for Android %1$s · %2$s</string>
+    <string name="settings_version">Pekostrap for Android %1$s · %2$s</string>
     <string name="edition_play">Play edition</string>
     <string name="edition_direct">Direct edition</string>
 
     <string name="backup_exported">Backup saved</string>
-    <string name="backup_invalid_title">Not a Voidstrap backup</string>
-    <string name="backup_invalid_body">Choose a file created with Export backup in Voidstrap for Android.</string>
+    <string name="backup_invalid_title">Not a Pekostrap backup</string>
+    <string name="backup_invalid_body">Choose a file created with Export backup in Pekostrap for Android.</string>
     <string name="backup_import_title">Import backup?</string>
     <string name="backup_import_body">This adds pinned games (%1$d) and FastFlag profiles (%2$d) and restores your theme, accent and Roblox app choice. Nothing you already have is deleted.</string>
     <string name="backup_imported">Backup imported</string>
 
     <string name="diagnostics_intro">Share this when asking for help. It has no account details, private server codes or file contents.</string>
-    <string name="diagnostics_note">Voidstrap cannot see what happens inside Roblox after it opens, so game errors are not included.</string>
+    <string name="diagnostics_note">Pekostrap cannot see what happens inside Roblox after it opens, so game errors are not included.</string>
     <string name="diagnostics_copied">Report copied</string>
 
     <string name="compat_setup">Set up</string>
@@ -418,8 +418,8 @@
         <item quantity="other">%1$d items</item>
     </plurals>
     <plurals name="mods_remove_folder">
-        <item quantity="one">%1$s and the %2$d file inside it will be deleted from the Voidstrap workspace.</item>
-        <item quantity="other">%1$s and the %2$d files inside it will be deleted from the Voidstrap workspace.</item>
+        <item quantity="one">%1$s and the %2$d file inside it will be deleted from the Pekostrap workspace.</item>
+        <item quantity="other">%1$s and the %2$d files inside it will be deleted from the Pekostrap workspace.</item>
     </plurals>
     <string name="presets_mesh">Mesh detail</string>
     <string name="presets_msaa">Anti aliasing</string>
@@ -431,7 +431,7 @@
     <string name="presets_apply_profile">Apply</string>
     <string name="presets_profile_applied">%1$s profile applied</string>
     <string name="presets_allowlist">Supported flags</string>
-    <string name="presets_allowlist_body">The flags confirmed to exist in Pekora. Voidstrap applies every flag in your profile. Tap one to copy its name.</string>
+    <string name="presets_allowlist_body">The flags confirmed to exist in Pekora. Pekostrap applies every flag in your profile. Tap one to copy its name.</string>
     <string name="presets_copied">Copied %1$s</string>
     <string-array name="presets_msaa">
         <item>Automatic</item>
@@ -451,7 +451,7 @@
         <item>Quality</item>
     </string-array>
     <string name="flags_sync_removed">FastFlags removed from Roblox</string>
-    <string name="flags_sync_denied">Voidstrap could not get access. Start the Voidstrap helper again, or allow Voidstrap in your root manager, and try again.</string>
+    <string name="flags_sync_denied">Pekostrap could not get access. Start the Pekostrap helper again, or allow Pekostrap in your root manager, and try again.</string>
     <string name="flags_sync_failed">Could not write the FastFlags file.</string>
     <plurals name="flags_sync_applied">
         <item quantity="one">%1$d flag applied to Roblox. It loads the next time Roblox starts.</item>
@@ -462,15 +462,15 @@
         <item quantity="other">Saved, %1$d flags applied to Roblox</item>
     </plurals>
     <string name="flags_status_root">Root access is available.</string>
-    <string name="flags_status_stopped">The Voidstrap helper is not running, so changes are not applied. The last applied flags stay active. Run the start command again after your device restarts.</string>
-    <string name="flags_status_none">Start the Voidstrap helper once from a computer, or use a rooted device, to apply flags to Roblox.</string>
+    <string name="flags_status_stopped">The Pekostrap helper is not running, so changes are not applied. The last applied flags stay active. Run the start command again after your device restarts.</string>
+    <string name="flags_status_none">Start the Pekostrap helper once from a computer, or use a rooted device, to apply flags to Roblox.</string>
     <string name="presets_performance">Performance</string>
     <string name="presets_show_fps">FPS counter</string>
     <string name="flags_sync_unreadable">The flags were written, but this device blocks apps from reading them, so Roblox cannot load them.</string>
-    <string name="flags_status_helper">The Voidstrap helper is running with adb access.</string>
-    <string name="flags_status_helper_root">The Voidstrap helper is running with root access.</string>
+    <string name="flags_status_helper">The Pekostrap helper is running with adb access.</string>
+    <string name="flags_status_helper_root">The Pekostrap helper is running with root access.</string>
     <string name="flags_short_helper">Applies automatically when you launch Roblox</string>
-    <string name="settings_helper">Voidstrap helper</string>
+    <string name="settings_helper">Pekostrap helper</string>
     <string name="setup_debugging">Turn on USB debugging</string>
     <string name="setup_debugging_body">In Developer options, turn on USB debugging and connect this device to a computer that has adb. Tap to open Developer options.</string>
     <string name="setup_usb">Check the cable connection</string>
@@ -487,7 +487,7 @@
     <string name="setup_get_adb_body">No adb yet? Tap to open Google\'s SDK Platform Tools page, download it for your computer and unzip it. Open a terminal in the unzipped platform-tools folder and run the start command there. In PowerShell, type .\\adb instead of adb.</string>
     <string name="setup_run">Run the start command</string>
     <string name="setup_run_body">Run this on the computer. Tap to copy it. If it says no devices or unauthorized, the cable check above shows what to fix.\n%1$s</string>
-    <string name="setup_run_done">The helper is running. FastFlags apply every time Voidstrap launches Roblox.</string>
+    <string name="setup_run_done">The helper is running. FastFlags apply every time Pekostrap launches Roblox.</string>
     <string name="setup_run_unavailable">Shared storage is not available, so the start script could not be created.</string>
     <string name="setup_copied">Start command copied</string>
     <string name="setup_device">Run on this device</string>
@@ -495,18 +495,18 @@
 %1$s</string>
     <string name="setup_shizuku">Start with Shizuku</string>
     <string name="setup_shizuku_ready">No computer needed. Tap to start the helper through Shizuku.</string>
-    <string name="setup_shizuku_permission">No computer needed. Tap, then allow Voidstrap in the Shizuku prompt.</string>
+    <string name="setup_shizuku_permission">No computer needed. Tap, then allow Pekostrap in the Shizuku prompt.</string>
     <string name="setup_shizuku_not_running">Shizuku is installed but not running. Tap to open Shizuku and start it, then come back and tap again.</string>
     <string name="setup_shizuku_install">No computer needed with Shizuku. Tap to get Shizuku, start it, then come back and tap again.</string>
     <string name="shizuku_starting">Starting the helper through Shizuku</string>
-    <string name="shizuku_started">The helper started through Shizuku. After a restart, start Shizuku and Voidstrap starts the helper again by itself.</string>
+    <string name="shizuku_started">The helper started through Shizuku. After a restart, start Shizuku and Pekostrap starts the helper again by itself.</string>
     <string name="shizuku_failed">Shizuku could not start the helper. Open Shizuku, make sure it is running, and try again.</string>
-    <string name="shizuku_denied">Voidstrap was not allowed in Shizuku, so the helper was not started.</string>
+    <string name="shizuku_denied">Pekostrap was not allowed in Shizuku, so the helper was not started.</string>
     <string name="shizuku_not_running">Start Shizuku, then come back and tap Start with Shizuku again.</string>
     <string name="shizuku_not_installed">Install Shizuku and start it, then come back and tap Start with Shizuku again.</string>
     <string name="shizuku_too_old">This Shizuku version is too old. Update Shizuku and try again.</string>
     <string name="settings_root">Use root</string>
-    <string name="settings_void_rpc">Voidstrap RPC</string>
+    <string name="settings_void_rpc">Pekostrap RPC</string>
     <string name="settings_background">Background</string>
     <string name="settings_background_body">Shows your own image behind every page.</string>
     <string name="settings_background_none">None</string>
@@ -516,22 +516,22 @@
     <string name="settings_background_dim">Background dim</string>
     <string name="settings_background_dim_body">Fades the image so text stays easy to read.</string>
     <string name="settings_background_invalid">That image could not be used. Pick a JPG, PNG or WEBP photo.</string>
-    <string name="settings_void_rpc_body">Displays Voidstrap\'s Discord RPC.</string>
+    <string name="settings_void_rpc_body">Displays Pekostrap\'s Discord RPC.</string>
     <string name="settings_root_body">Apply FastFlags with root. Your root manager asks for permission when you turn this on.</string>
-    <string name="settings_root_missing">Voidstrap ran su and nothing answered, so this device has no root. An app that only grants adb or shell access is not root, and Voidstrap does not use one. Only mods need root. FastFlags and activity tracking do not, so set up the Voidstrap helper instead. If you really are rooted, open your root manager, make sure it is running, then try again.</string>
-    <string name="settings_root_missing_helper">Voidstrap ran su and nothing answered, so this device has no root. An app that only grants adb or shell access is not root, and Voidstrap does not use one. The Voidstrap helper is already running, so FastFlags and activity tracking work here. Only mods need root. If you really are rooted, open your root manager, make sure it is running, then try again.</string>
+    <string name="settings_root_missing">Pekostrap ran su and nothing answered, so this device has no root. An app that only grants adb or shell access is not root, and Pekostrap does not use one. Only mods need root. FastFlags and activity tracking do not, so set up the Pekostrap helper instead. If you really are rooted, open your root manager, make sure it is running, then try again.</string>
+    <string name="settings_root_missing_helper">Pekostrap ran su and nothing answered, so this device has no root. An app that only grants adb or shell access is not root, and Pekostrap does not use one. The Pekostrap helper is already running, so FastFlags and activity tracking work here. Only mods need root. If you really are rooted, open your root manager, make sure it is running, then try again.</string>
     <string name="settings_root_untested">Apply FastFlags and mods with root. Turn this on to ask your root manager for permission.</string>
     <string name="settings_root_on">Root access is in use. Turn this off to stop using root.</string>
-    <string name="settings_root_helper">Root access is provided by the Voidstrap helper.</string>
-    <string name="settings_root_waiting">Waiting for your root manager. Approve the Voidstrap prompt.</string>
+    <string name="settings_root_helper">Root access is provided by the Pekostrap helper.</string>
+    <string name="settings_root_waiting">Waiting for your root manager. Approve the Pekostrap prompt.</string>
     <string name="settings_root_denied_title">Root was not granted</string>
-    <string name="settings_root_ready">Root access is ready. FastFlags apply every time Voidstrap launches Roblox.</string>
-    <string name="settings_root_denied">Your root manager did not grant Voidstrap access. Open it, allow Voidstrap, then try again.</string>
+    <string name="settings_root_ready">Root access is ready. FastFlags apply every time Pekostrap launches Roblox.</string>
+    <string name="settings_root_denied">Your root manager did not grant Pekostrap access. Open it, allow Pekostrap, then try again.</string>
     <string name="setup_title">Set up FastFlags</string>
-    <string name="setup_body">Roblox reads FastFlags from a system folder that apps cannot write to by themselves. The Voidstrap helper runs with adb access and writes them for Voidstrap. Start it with Shizuku, or once from a computer, and your flags apply every time you launch Roblox. With Shizuku, Voidstrap starts it again by itself whenever Shizuku is running.</string>
+    <string name="setup_body">Roblox reads FastFlags from a system folder that apps cannot write to by themselves. The Pekostrap helper runs with adb access and writes them for Pekostrap. Start it with Shizuku, or once from a computer, and your flags apply every time you launch Roblox. With Shizuku, Pekostrap starts it again by itself whenever Shizuku is running.</string>
     <string name="flags_short_root">Applies automatically with root</string>
-    <string name="flags_short_stopped">Start the Voidstrap helper to apply changes</string>
-    <string name="flags_short_none">Set up the Voidstrap helper to apply flags</string>
+    <string name="flags_short_stopped">Start the Pekostrap helper to apply changes</string>
+    <string name="flags_short_none">Set up the Pekostrap helper to apply flags</string>
     <string name="flags_apply_now">Apply to Roblox now</string>
     <string name="flags_export_json">Export as ClientAppSettings.json</string>
     <string name="presets_section_graphics">Graphics</string>
@@ -541,7 +541,7 @@
     <string name="presets_render_mode_short">Graphics engine Pekora uses</string>
     <string name="presets_dpi_title">Full resolution</string>
     <string name="presets_dpi_short">Ignore display scaling for a sharper picture</string>
-    <string name="flags_launch_not_applied">FastFlags were not applied. Open Voidstrap and start the Voidstrap helper.</string>
+    <string name="flags_launch_not_applied">FastFlags were not applied. Open Pekostrap and start the Pekostrap helper.</string>
     <string name="presets_show_fps_short">Shows frame rate in the corner</string>
     <string name="presets_mesh_short">How detailed distant objects look</string>
     <string name="presets_grass_distance_short">Set both to 0 to hide grass</string>
@@ -568,7 +568,7 @@
         <item>@string/settings_theme_system</item>
         <item>@string/settings_theme_dark</item>
         <item>@string/settings_theme_light</item>
-        <item>Voidstrap</item>
+        <item>Pekostrap</item>
         <item>Ultra Gray</item>
         <item>Berry</item>
         <item>Blue</item>
@@ -605,7 +605,7 @@
     <string name="mods_result_no_root">Root access was denied, so mods could not be loaded.</string>
     <string name="mods_result_failed">Mods could not be loaded into Roblox. Try again.</string>
     <string name="mods_launch_not_applied">Mods were not loaded. Check the Mods page.</string>
-    <string name="mods_saved_no_root">%1$s Saved in Voidstrap, but mods need root to reach Roblox.</string>
+    <string name="mods_saved_no_root">%1$s Saved in Pekostrap, but mods need root to reach Roblox.</string>
     <string name="mods_working">Working</string>
     <string name="mods_downloading">Downloading</string>
     <string name="mods_refresh">Refresh</string>
@@ -672,7 +672,7 @@
     <string name="mods_old_avatar">Old avatar editor background</string>
     <string name="mods_emoji">Emoji style</string>
     <string name="mods_emoji_set">Emoji style set to %1$s.</string>
-    <string name="mods_sky_body">Choose a skybox once. Voidstrap downloads it and loads it into Roblox.</string>
+    <string name="mods_sky_body">Choose a skybox once. Pekostrap downloads it and loads it into Roblox.</string>
     <string name="mods_sky_pack">Skybox</string>
     <string name="mods_sky_loading">Loading skyboxes</string>
     <string name="mods_sky_set">Skybox set to %1$s.</string>
@@ -722,7 +722,7 @@
     <string name="mods_library_copy_id">Copy mod ID</string>
     <string name="mods_library_id_copied">Mod ID copied.</string>
     <string name="mods_library_remove_title">Remove this mod?</string>
-    <string name="mods_library_remove_body">%1$s and all its files will be deleted from Voidstrap.</string>
+    <string name="mods_library_remove_body">%1$s and all its files will be deleted from Pekostrap.</string>
     <string name="mods_library_toggle">Use %1$s</string>
     <string name="mods_library_by">by %1$s</string>
     <string name="mods_library_conflicts">Shares files with another mod</string>
@@ -739,8 +739,8 @@
         <item quantity="other">%1$d files are loaded into Roblox. Applied %2$s.</item>
     </plurals>
     <plurals name="mods_state_pending">
-        <item quantity="one">%1$d file is ready. It loads the next time Voidstrap starts Roblox, or apply it now.</item>
-        <item quantity="other">%1$d files are ready. They load the next time Voidstrap starts Roblox, or apply them now.</item>
+        <item quantity="one">%1$d file is ready. It loads the next time Pekostrap starts Roblox, or apply it now.</item>
+        <item quantity="other">%1$d files are ready. They load the next time Pekostrap starts Roblox, or apply them now.</item>
     </plurals>
     <plurals name="mods_library_summary">
         <item quantity="one">%1$d mod, %2$d on</item>
@@ -760,7 +760,7 @@
     </plurals>
     <string-array name="mods_cursor_styles">
         <item>Default cursor</item>
-        <item>Voidstrap default</item>
+        <item>Pekostrap default</item>
         <item>Stoofs cursor</item>
         <item>Dot cursor</item>
         <item>Clean cursor</item>
@@ -857,17 +857,17 @@
     <string name="integrations_open_body">Activity tracking and Discord Rich Presence</string>
     <string name="integrations_activity">Activity tracking</string>
     <string name="integrations_tracking">Enable activity tracking</string>
-    <string name="integrations_tracking_body">Allows for Voidstrap to detect what Roblox game you\'re playing. Certain features may require this.</string>
+    <string name="integrations_tracking_body">Allows for Pekostrap to detect what Roblox game you\'re playing. Certain features may require this.</string>
     <string name="integrations_location">Server location</string>
     <string name="integrations_location_body">When in game, you\'ll be able to see where your server is located via ipinfo.io.</string>
     <string name="integrations_notify">Join game notification</string>
     <string name="integrations_notify_body">Shows the game you have joined and its server location in a notification.</string>
-    <string name="integrations_notify_blocked">Notifications are off for Voidstrap. Allow them in system settings to see join notifications.</string>
+    <string name="integrations_notify_blocked">Notifications are off for Pekostrap. Allow them in system settings to see join notifications.</string>
     <string name="integrations_player_logs">Player and Message logs</string>
     <string name="integrations_player_logs_body">Shows you players joining and leaving and messages being sent. Saved to your active FastFlag profile.</string>
     <string name="integrations_log">Session log</string>
     <string name="integrations_log_body">Games, players and messages from this session</string>
-    <string name="integrations_log_empty">Nothing yet. Launch a game from Voidstrap with activity tracking on.</string>
+    <string name="integrations_log_empty">Nothing yet. Launch a game from Pekostrap with activity tracking on.</string>
     <string name="integrations_log_clear">Clear log</string>
     <string name="integrations_log_join">Joined</string>
     <string name="integrations_log_leave">Left</string>
@@ -935,7 +935,7 @@
     <string name="notify_allowed">On. Tap to open Android notification settings.</string>
     <string name="notify_blocked">Off. Tap to allow.</string>
     <string name="notify_channels">Sound, vibration and lock screen</string>
-    <string name="notify_channels_body">Opens Android notification settings for Voidstrap</string>
+    <string name="notify_channels_body">Opens Android notification settings for Pekostrap</string>
     <string name="notify_open">Settings</string>
     <string name="notify_tracking_off">Game notifications need activity tracking, which is turned off in Integrations.</string>
     <string name="notify_location">Show server location</string>
@@ -978,42 +978,42 @@
     <string name="notify_general">Other messages</string>
     <string name="notify_general_body">Confirms saves, backups, sign in and other actions.</string>
     <string name="testing_notice_title">Android support is in testing</string>
-    <string name="testing_notice_body">Voidstrap for Android is still being tested. Expect errors, and some features may not work, or may not work as well as they do on Windows. If something breaks, please report it.</string>
+    <string name="testing_notice_body">Pekostrap for Android is still being tested. Expect errors, and some features may not work, or may not work as well as they do on Windows. If something breaks, please report it.</string>
     <string name="testing_notice_ok">Got it</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_back">Back</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get started</string>
-    <string name="onboarding_finish">Start using Voidstrap</string>
+    <string name="onboarding_finish">Start using Pekostrap</string>
     <string name="onboarding_step">Step %1$d of %2$d</string>
-    <string name="onboarding_welcome">Welcome to Voidstrap</string>
+    <string name="onboarding_welcome">Welcome to Pekostrap</string>
     <string name="onboarding_welcome_body">A few quick choices and you are ready to play. Every step is optional, and you can change all of it later in Settings.</string>
-    <string name="onboarding_appearance_body">Pick how Voidstrap looks and which language it uses.</string>
+    <string name="onboarding_appearance_body">Pick how Pekostrap looks and which language it uses.</string>
     <string name="onboarding_roblox">Set up Roblox</string>
-    <string name="onboarding_roblox_body">Choose the Roblox app Voidstrap opens. Giving Voidstrap access lets your FastFlags and mods apply to Roblox, and you can do it later too.</string>
-    <string name="onboarding_alerts_body">Voidstrap can tell you which game and server you joined. There are more options in Settings, Notifications.</string>
+    <string name="onboarding_roblox_body">Choose the Roblox app Pekostrap opens. Giving Pekostrap access lets your FastFlags and mods apply to Roblox, and you can do it later too.</string>
+    <string name="onboarding_alerts_body">Pekostrap can tell you which game and server you joined. There are more options in Settings, Notifications.</string>
     <string name="onboarding_done">You\'re all set</string>
-    <string name="onboarding_done_body">Voidstrap is ready. Everything you picked here can be changed in Settings at any time.</string>
+    <string name="onboarding_done_body">Pekostrap is ready. Everything you picked here can be changed in Settings at any time.</string>
     <string name="onboarding_launch">Launch %1$s</string>
     <string name="onboarding_launch_body">Jump straight into Roblox now</string>
     <string name="onboarding_root">Root access</string>
-    <string name="onboarding_root_body">Voidstrap for Android is built around root. Android locks Roblox\'s files away from every other app, and root is what lets Voidstrap write to them, so most features depend on it.</string>
+    <string name="onboarding_root_body">Pekostrap for Android is built around root. Android locks Roblox\'s files away from every other app, and root is what lets Pekostrap write to them, so most features depend on it.</string>
     <string name="onboarding_root_mods">Mods</string>
     <string name="onboarding_root_mods_body">Swaps Roblox\'s own files for your mods. This only works with root.</string>
     <string name="onboarding_root_flags">FastFlags</string>
     <string name="onboarding_root_flags_body">Writes your flags to the file Roblox reads every time it starts.</string>
     <string name="onboarding_root_activity">Activity and Discord</string>
     <string name="onboarding_root_activity_body">Sees which game you join, for your Discord status, join notifications and your library.</string>
-    <string name="onboarding_root_note">No root? The Voidstrap helper can be started once from a computer on the next step. It runs FastFlags and activity tracking until the phone restarts, but mods always need root. Voidstrap only uses root for these things and never reads other apps\' data.</string>
+    <string name="onboarding_root_note">No root? The Pekostrap helper can be started once from a computer on the next step. It runs FastFlags and activity tracking until the phone restarts, but mods always need root. Pekostrap only uses root for these things and never reads other apps\' data.</string>
     <string name="launch_version">Version %1$s</string>
-    <string name="launch_about">About Voidstrap</string>
+    <string name="launch_about">About Pekostrap</string>
     <string name="launch_donate">Donate</string>
     <string name="launch_github" translatable="false">GitHub</string>
     <string name="launch_github_body">Releases, source and issues.</string>
-    <string name="launch_open">Open Voidstrap</string>
+    <string name="launch_open">Open Pekostrap</string>
     <string name="launch_settings_body">Theme, notifications, root and more</string>
     <string name="launch_about_body">Version, licenses and diagnostics</string>
-    <string name="launch_donate_body">Support Voidstrap on GitHub Sponsors</string>
+    <string name="launch_donate_body">Support Pekostrap on GitHub Sponsors</string>
     <string name="settings_font">App font</string>
     <string name="settings_font_body">Changes the font across the whole app.</string>
     <string name="settings_font_invalid">That file is not a font Android can use. Pick a .ttf or .otf file.</string>

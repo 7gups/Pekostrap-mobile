@@ -161,6 +161,36 @@ pub fn asset_path(relative: &str) -> Option<String> {
     None
 }
 
+/// Pekora ships different game files than Roblox, so a few well known mod files are redirected
+/// onto the files Pekora actually loads (see its app_assets folder).
+const PEKORA_FONT: &[&str] = &[
+    "content/fonts/SourceSansPro-Regular.ttf",
+    "content/fonts/SourceSansPro-Light.ttf",
+    "content/fonts/SourceSansPro-It.ttf",
+    "content/fonts/SourceSansPro-Semibold.ttf",
+    "content/fonts/SourceSansPro-Bold.ttf",
+    "content/fonts/arial.ttf",
+    "content/fonts/arialbd.ttf",
+];
+const PEKORA_DEATH: &[&str] = &["content/sounds/uuhhh.mp3"];
+
+fn pekora_aliases(relative: &str) -> Option<&'static [&'static str]> {
+    let n = relative.replace('\\', "/");
+    match java::lower(n.trim_start_matches('/')).as_str() {
+        "content/fonts/customfont.ttf" => Some(PEKORA_FONT),
+        "content/sounds/oof.ogg" | "content/sounds/ouch.ogg" | "content/sounds/oof.mp3" | "content/sounds/ouch.mp3" => Some(PEKORA_DEATH),
+        _ => None,
+    }
+}
+
+/// Every APK asset a workspace file should be written to, and whether that is a Pekora redirect.
+pub fn asset_paths(relative: &str) -> (Vec<String>, bool) {
+    match pekora_aliases(relative) {
+        Some(list) => (list.iter().map(|t| format!("assets/{t}")).collect(), true),
+        None => (asset_path(relative).into_iter().collect(), false),
+    }
+}
+
 pub fn desktop_path(apk_entry: &str) -> Option<String> {
     if let Some(r) = apk_entry.strip_prefix("assets/content/") {
         return Some(format!("content/{r}"));
