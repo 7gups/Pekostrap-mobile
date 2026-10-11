@@ -153,6 +153,18 @@ impl PartialOrd for Key {
     }
 }
 
+/// Names of the files inside the OBB, listed by the app when the APK stores the OBB compressed.
+fn cached_obb_names(roots: &Roots, pkg: &str, identity: &str) -> Vec<String> {
+    let Ok(text) = std::fs::read_to_string(roots.state_dir().join(format!("obb_names_{pkg}.txt"))) else {
+        return Vec::new();
+    };
+    let mut lines = text.lines();
+    if lines.next() != Some(identity) {
+        return Vec::new();
+    }
+    lines.filter(|l| !l.is_empty()).map(str::to_string).collect()
+}
+
 pub fn plan(roots: &Roots, pkg: &str, identity: &str, target: Option<&str>) -> std::io::Result<Option<Plan>> {
     let Some(target) = target else {
         return Ok(None);
@@ -166,9 +178,11 @@ pub fn plan(roots: &Roots, pkg: &str, identity: &str, target: Option<&str>) -> s
     }
     // Pekora keeps its game files in an OBB stored inside the APK; its entries have no "assets/" prefix.
     // Count them as existing so mods replace them there instead of being added as unused APK entries.
-    if let Some(obb) = dir.entries.iter().find(|e| e.name.starts_with("assets/") && e.name.ends_with(".obb"))
-        && let Ok(inner) = crate::apk::nested_names(Path::new(base_path), obb)
-    {
+    if let Some(obb) = dir.entries.iter().find(|e| e.name.starts_with("assets/") && e.name.ends_with(".obb")) {
+        let mut inner = crate::apk::nested_names(Path::new(base_path), obb).unwrap_or_default();
+        if inner.is_empty() {
+            inner = cached_obb_names(roots, pkg, identity);
+        }
         for n in inner.into_iter().filter(|n| !n.ends_with('/')) {
             let full = format!("assets/{n}");
             lower.entry(java::lower(&full)).or_insert(full);

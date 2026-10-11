@@ -131,7 +131,9 @@ public final class ModEngine {
 
     private static Plan plan(Context c, String pkg) throws IOException {
         File target = baseApk(c, pkg);
-        JSONObject o = Core.run("mods.plan", Core.roots(c, "pkg", pkg, "identity", identity(c, pkg), "target", target));
+        String identity = identity(c, pkg);
+        ObbNames.ensure(stateDir(c), pkg, target, identity);
+        JSONObject o = Core.run("mods.plan", Core.roots(c, "pkg", pkg, "identity", identity, "target", target));
         return o.optBoolean("none") ? null : new Plan(o);
     }
 

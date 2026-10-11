@@ -165,13 +165,21 @@ public final class FlagWriter {
     }
 
     public static int syncForLaunch(Context c, String pkg, String json, boolean unlocked) {
+        int r = syncForLaunchInner(c, pkg, json, unlocked);
+        ModLog.add("flags: launch sync for " + pkg + ", mode " + mode(c) + ", " + json.length() + " bytes, " + (r == 0 ? "ok" : "not applied"));
+        return r;
+    }
+
+    private static int syncForLaunchInner(Context c, String pkg, String json, boolean unlocked) {
         if (tooLarge(json)) return R.string.flags_too_large;
         if (!safeForHeredoc(json)) return R.string.flags_launch_not_applied;
         Mode mode = mode(c);
         if (mode != Mode.HELPER && mode != Mode.ROOT) return readable(json) ? 0 : R.string.flags_launch_not_applied;
         if (!pkg.matches("[A-Za-z0-9_.]+")) return 0;
         String s = script("launchScript", "json", json, "unlocked", unlocked, "pkg", pkg, "restore", RESTORE_REFRESH);
-        return run(mode, s, 15) == OK ? 0 : R.string.flags_launch_not_applied;
+        int code = run(mode, s, 15);
+        if (code != OK) ModLog.add("flags: script exit code " + code);
+        return code == OK ? 0 : R.string.flags_launch_not_applied;
     }
 
     private static int run(Mode mode, String script, int timeoutSeconds) {
