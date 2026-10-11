@@ -58,8 +58,16 @@ impl Source {
         if let Some(apk) = &self.apk
             && let Ok(dir) = crate::apk::read(Path::new(apk))
         {
-            for e in &dir.entries {
-                let Some(desktop) = paths::desktop_path(&e.name) else {
+            let mut names: Vec<String> = dir.entries.iter().map(|e| e.name.clone()).collect();
+            // Pekora keeps its game files in an OBB stored inside the APK's assets; its entries
+            // have no "assets/" prefix, so add it to reuse the same path mapping.
+            if let Some(obb) = dir.entries.iter().find(|e| e.name.starts_with("assets/") && e.name.ends_with(".obb"))
+                && let Ok(inner) = crate::apk::nested_names(Path::new(apk), obb)
+            {
+                names.extend(inner.into_iter().filter(|n| !n.ends_with('/')).map(|n| format!("assets/{n}")));
+            }
+            for name in &names {
+                let Some(desktop) = paths::desktop_path(name) else {
                     continue;
                 };
                 idx.files.insert(java::lower(&desktop));

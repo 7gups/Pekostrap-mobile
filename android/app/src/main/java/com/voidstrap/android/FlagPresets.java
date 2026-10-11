@@ -19,18 +19,13 @@ import com.google.android.material.slider.Slider;
 import java.util.Map;
 
 public final class FlagPresets {
-    private static final String GRASS_MOTION = "FIntGrassMovementReducedMotionFactor";
     private static final String[] LOD = {
             "DFIntCSGLevelOfDetailSwitchingDistance",
             "DFIntCSGLevelOfDetailSwitchingDistanceL12",
             "DFIntCSGLevelOfDetailSwitchingDistanceL23",
             "DFIntCSGLevelOfDetailSwitchingDistanceL34"};
-    private static final String FRM = "DFIntDebugFRMQualityLevelOverride";
-    private static final String SKY = "FFlagDebugSkyGray";
     private static final String MSAA = "FIntDebugForceMSAASamples";
     private static final String MSAA_OPTIONAL = "FIntDebugFRMOptionalMSAALevelOverride";
-    private static final String TEXTURE = "DFIntTextureQualityOverride";
-    private static final String TEXTURE_ON = "DFFlagTextureQualityOverrideEnabled";
     private static final String DPI = "DFFlagDisableDPIScale";
     private static final String GRASS_MIN = "FIntFRMMinGrassDistance";
     private static final String GRASS_MAX = "FIntFRMMaxGrassDistance";
@@ -42,42 +37,28 @@ public final class FlagPresets {
     private static final String VSYNC = "FFlagEnableAndroidVsync";
     private static final String LIMIT_240 = "FFlagTaskSchedulerLimitTargetFpsTo2402";
     private static final String SHOW_FPS = "FFlagDebugDisplayFPS";
-    private static final long[] FPS_VALUES = {0, 30, 60, 90, 120, 144, 165, 240, 360, 480, 9999};
     private static final long[] MSAA_VALUES = {0, 1, 2, 4, 8};
-    private static final String[] SHADOWS = {"DFFlagDebugPauseVoxelizer", "FIntRenderShadowmapBias"};
-    private static final String RESOLUTION = "DFIntDebugDynamicRenderKiloPixels";
-    private static final int[] RESOLUTIONS = {0, 144, 240, 360, 480, 720, 1080, 1440, 2160, 4320};
+    private static final String[] SHADOWS = {"DFFlagDebugPauseVoxelizer", "FIntRenderShadowmapBias", "FIntRenderShadowIntensity"};
     private static final String BLUR = "FIntRobloxGuiBlurIntensity";
-    private static final String HIDE_GUI_GROUP = "DFIntCanHideGuiGroupId";
-    private static final String HIDE_GUI_TOGGLES = "FFlagUserShowGuiHideToggles";
     private static final String FONT_PADDING = "FIntFontSizePadding";
-    private static final String[] LAG_SPIKES = {"DFIntBandwidthManagerApplicationDefaultBps", "DFIntBandwidthManagerDataSenderMaxWorkCatchupMs"};
-    private static final String[] FAST_LOAD = {"DFIntNumAssetsMaxToPreload", "FStringGetPlayerImageDefaultTimeout"};
-    static final String[] UNDECLARED = {"FFlagDisablePostFx", "FIntRenderShadowIntensity", "FIntRenderGrassDetailStrands",
-            "DFFlagDebugRenderForceTechnologyVoxel", "FFlagDebugForceFutureIsBrightPhase2", "FFlagDebugForceFutureIsBrightPhase3",
+    static final String[] UNDECLARED = {"FFlagDisablePostFx", "FIntRenderGrassDetailStrands",
+            "FFlagDebugForceFutureIsBrightPhase2", "FFlagDebugForceFutureIsBrightPhase3",
             "FFlagRenderUnifiedLighting12", "DFIntAssetPreloading", "FFlagEnablePreferredTextSizeScale",
             "FFlagEnablePreferredTextSizeSettingInMenus2", "DFIntCSGLevelOfDetailSwitchingDistanceStatic"};
-    private static final String MTU = "DFIntConnectionMTUSize";
     private static final String FLAG_STATE = "FStringDebugShowFlagState";
-    private static final String PING = "DFFlagDebugPrintDataPingBreakDown";
-    private static final long[][] PROFILES = {{2, 2}, {0, 1}, {3, 4}};
+    private static final long[][] PROFILES = {{2, 0, 0}, {1, 1, 1}, {4, 0, 0}};
 
     static final java.util.Set<String> KEYS = new java.util.HashSet<>();
 
     static {
-        java.util.Collections.addAll(KEYS, GRASS_MOTION, FRM, SKY, MSAA, MSAA_OPTIONAL, TEXTURE, TEXTURE_ON, DPI, GRASS_MIN, GRASS_MAX,
-                VULKAN, OPENGL, D3D11, NO_D3D11, TARGET_FPS, VSYNC, LIMIT_240, SHOW_FPS, RESOLUTION, BLUR, HIDE_GUI_GROUP,
-                HIDE_GUI_TOGGLES, FONT_PADDING, MTU, FLAG_STATE, PING);
+        java.util.Collections.addAll(KEYS, MSAA, MSAA_OPTIONAL, DPI, GRASS_MIN, GRASS_MAX, VULKAN, OPENGL, D3D11, NO_D3D11,
+                SHOW_FPS, BLUR, FONT_PADDING, FLAG_STATE);
         java.util.Collections.addAll(KEYS, LOD);
         java.util.Collections.addAll(KEYS, SHADOWS);
-        java.util.Collections.addAll(KEYS, LAG_SPIKES);
-        java.util.Collections.addAll(KEYS, FAST_LOAD);
     }
 
     private static final int MESH_MIN = 1;
     private static final int MESH_MAX = 3;
-    private static final int FRM_MIN = 1;
-    private static final int FRM_MAX = 21;
 
     private final AppCompatActivity a;
     private final Store store;
@@ -153,16 +134,20 @@ public final class FlagPresets {
         return a.getResources().getStringArray(array);
     }
 
+    private void shadows(boolean off) {
+        put(SHADOWS[0], off ? Boolean.TRUE : null);
+        put(SHADOWS[1], off ? (Object) (-1L) : null);
+        put(SHADOWS[2], off ? (Object) 0L : null);
+    }
+
+    private void mesh(int level) {
+        for (int i = 0; i < LOD.length; i++) put(LOD[i], level <= 0 ? null : (Object) (long) Math.max(0, Math.min(3, level - i)));
+    }
+
     public void build() {
         root.removeAllViews();
 
         LinearLayout graphics = section(R.string.presets_section_graphics);
-        long texture = num(TEXTURE, -1);
-        choice(graphics, R.string.presets_texture, R.string.presets_texture_short, labels(R.array.presets_texture), !values().containsKey(TEXTURE) ? 0 : texture >= 0 && texture <= 3 ? (int) texture + 1 : -1, TEXTURE, i -> {
-            put(TEXTURE, i == 0 ? null : (Object) (long) (i - 1));
-            put(TEXTURE_ON, i == 0 ? null : Boolean.TRUE);
-            commit.run();
-        });
         choice(graphics, R.string.presets_msaa, R.string.presets_msaa_short, labels(R.array.presets_msaa), pick(MSAA_VALUES, MSAA), MSAA, i -> {
             put(MSAA, i == 0 ? null : (Object) MSAA_VALUES[i]);
             put(MSAA_OPTIONAL, null);
@@ -175,37 +160,16 @@ public final class FlagPresets {
             put(NO_D3D11, null);
             commit.run();
         });
-        toggle(graphics, R.string.presets_gray_sky, R.string.presets_gray_sky_short, on(SKY), checked -> {
-            put(SKY, checked ? Boolean.TRUE : null);
-            commit.run();
-        });
         toggle(graphics, R.string.presets_dpi_title, R.string.presets_dpi_short, on(DPI), checked -> {
             put(DPI, checked ? Boolean.TRUE : null);
             commit.run();
         });
-
-        choice(graphics, R.string.presets_resolution, R.string.presets_resolution_short, labels(R.array.presets_resolution), resolutionIndex(), null, i -> {
-            put(RESOLUTION, i == 0 ? null : (Object) kiloPixels(RESOLUTIONS[i]));
-            commit.run();
-        });
         toggle(graphics, R.string.presets_shadows, R.string.presets_shadows_short, on(SHADOWS[0]) && values().containsKey(SHADOWS[1]), checked -> {
-            put(SHADOWS[0], checked ? Boolean.TRUE : null);
-            put(SHADOWS[1], checked ? (Object) (-1L) : null);
+            shadows(checked);
             commit.run();
         });
 
         LinearLayout performance = section(R.string.presets_performance);
-        choice(performance, R.string.presets_fps_limit, R.string.presets_fps_limit_short, labels(R.array.presets_fps_limit), pick(FPS_VALUES, TARGET_FPS), TARGET_FPS, i -> {
-            setFps(values(), FPS_VALUES[i]);
-            commit.run();
-            if (FPS_VALUES[i] > 240) {
-                Ui.alert(a)
-                        .setMessage(R.string.presets_fps_high)
-                        .setPositiveButton(R.string.common_ok, null)
-                        .show();
-            }
-            build();
-        });
         toggle(performance, R.string.presets_show_fps, R.string.presets_show_fps_short, on(SHOW_FPS), checked -> {
             put(SHOW_FPS, checked ? Boolean.TRUE : null);
             commit.run();
@@ -214,37 +178,16 @@ public final class FlagPresets {
         LinearLayout detail = section(R.string.presets_section_detail);
         boolean meshOn = values().containsKey(LOD[0]);
         View meshSlider = slider(MESH_MIN, MESH_MAX, (int) Math.max(MESH_MIN, Math.min(MESH_MAX, num(LOD[0], MESH_MAX))), v -> {
-            for (int i = 0; i < LOD.length; i++) put(LOD[i], (long) Math.max(0, Math.min(3, v - i)));
+            mesh(v);
             commit.run();
         });
         toggle(detail, R.string.presets_mesh, R.string.presets_mesh_short, meshOn, checked -> {
-            if (checked) {
-                for (int i = 0; i < LOD.length; i++) put(LOD[i], (long) Math.max(0, Math.min(3, MESH_MAX - i)));
-            } else {
-                for (String k : LOD) put(k, null);
-            }
+            mesh(checked ? MESH_MAX : 0);
             commit.run();
             build();
         });
         if (meshOn) detail.addView(meshSlider);
 
-        boolean frmOn = values().containsKey(FRM);
-        View frmSlider = slider(FRM_MIN, FRM_MAX, (int) Math.max(FRM_MIN, Math.min(FRM_MAX, num(FRM, FRM_MAX))), v -> {
-            put(FRM, (long) v);
-            commit.run();
-        });
-        toggle(detail, R.string.presets_frm_title, R.string.presets_frm_short, frmOn, checked -> {
-            put(FRM, checked ? (Object) (long) FRM_MAX : null);
-            commit.run();
-            build();
-        });
-        if (frmOn) detail.addView(frmSlider);
-
-        long motion = num(GRASS_MOTION, -1);
-        choice(detail, R.string.presets_grass_motion_title, R.string.presets_grass_motion_short, labels(R.array.presets_grass_motion), !values().containsKey(GRASS_MOTION) ? 5 : motion >= 0 && motion <= 4 ? (int) motion : -1, GRASS_MOTION, i -> {
-            put(GRASS_MOTION, i == 5 ? null : (Object) (long) i);
-            commit.run();
-        });
         toggle(detail, R.string.presets_remove_grass, R.string.presets_remove_grass_short, num(GRASS_MIN, -1) == 0 && num(GRASS_MAX, -1) == 0, checked -> {
             put(GRASS_MIN, checked ? (Object) 0L : null);
             put(GRASS_MAX, checked ? (Object) 0L : null);
@@ -258,31 +201,10 @@ public final class FlagPresets {
             put(BLUR, checked ? (Object) 0L : null);
             commit.run();
         });
-        input(ui, R.string.presets_hide_gui, R.string.presets_hide_gui_short, HIDE_GUI_GROUP, true, v -> {
-            put(HIDE_GUI_GROUP, v);
-            put(HIDE_GUI_TOGGLES, v == null ? null : Boolean.TRUE);
-        });
         input(ui, R.string.presets_font_size, R.string.presets_font_size_short, FONT_PADDING, true, v -> put(FONT_PADDING, v));
-
-        LinearLayout network = section(R.string.presets_section_network);
-        toggle(network, R.string.presets_lag_spikes, R.string.presets_lag_spikes_short, values().containsKey(LAG_SPIKES[0]) && values().containsKey(LAG_SPIKES[1]), checked -> {
-            put(LAG_SPIKES[0], checked ? (Object) 96000L : null);
-            put(LAG_SPIKES[1], checked ? (Object) 50L : null);
-            commit.run();
-        });
-        toggle(network, R.string.presets_fast_load, R.string.presets_fast_load_short, num(FAST_LOAD[0], 0) == 2147483647L, checked -> {
-            put(FAST_LOAD[0], checked ? (Object) 2147483647L : null);
-            put(FAST_LOAD[1], checked ? "1" : null);
-            commit.run();
-        });
-        input(network, R.string.presets_mtu, R.string.presets_mtu_short, MTU, true, v -> put(MTU, v));
 
         LinearLayout debug = section(R.string.presets_section_debug);
         input(debug, R.string.presets_flag_state, R.string.presets_flag_state_short, FLAG_STATE, false, v -> put(FLAG_STATE, v));
-        toggle(debug, R.string.presets_ping, R.string.presets_ping_short, on(PING), checked -> {
-            put(PING, checked ? Boolean.TRUE : null);
-            commit.run();
-        });
 
         LinearLayout quick = section(R.string.presets_section_quick);
         recommended(quick);
@@ -351,19 +273,6 @@ public final class FlagPresets {
         box.addView(s, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         box.addView(high);
         return box;
-    }
-
-    private static long kiloPixels(int height) {
-        long width = Math.round(height * 16.0 / 9.0);
-        return width * height / 1000;
-    }
-
-    private int resolutionIndex() {
-        long kp = num(RESOLUTION, -1);
-        if (kp <= 0) return 0;
-        int best = 1;
-        for (int i = 1; i < RESOLUTIONS.length; i++) if (Math.abs(kiloPixels(RESOLUTIONS[i]) - kp) < Math.abs(kiloPixels(RESOLUTIONS[best]) - kp)) best = i;
-        return best;
     }
 
     private interface ValueChange {
@@ -473,9 +382,10 @@ public final class FlagPresets {
         MaterialButton apply = new MaterialButton(a);
         apply.setText(R.string.presets_apply_profile);
         apply.setOnClickListener(v -> {
-            put(TEXTURE_ON, Boolean.TRUE);
-            put(TEXTURE, PROFILES[profile][0]);
-            put(MSAA, PROFILES[profile][1]);
+            put(MSAA, PROFILES[profile][0] == 0 ? null : (Object) PROFILES[profile][0]);
+            put(MSAA_OPTIONAL, null);
+            shadows(PROFILES[profile][1] == 1);
+            mesh((int) PROFILES[profile][2]);
             commit.run();
             Notify.say(a, Notify.FLAGS, a.getString(R.string.presets_profile_applied, names[profile]));
             build();
@@ -508,13 +418,6 @@ public final class FlagPresets {
                 });
                 list.addView(item.view);
             }
-            MaterialButton announcement = new MaterialButton(a, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
-            announcement.setText(R.string.presets_announcement);
-            announcement.setIconResource(R.drawable.ic_globe);
-            announcement.setOnClickListener(x -> Ui.openWeb(a, "https://devforum.roblox.com/t/allowlist-for-local-client-configuration-via-fast-flags/3966569"));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.topMargin = Ui.dp(a, 12);
-            list.addView(announcement, lp);
             Ui.surface(a, R.string.presets_allowlist, R.string.presets_allowlist_body, list).show();
         });
     }

@@ -66,9 +66,30 @@ fn le32(b: &[u8], o: usize) -> u32 {
 pub fn read(apk: &Path) -> io::Result<Directory> {
     let mut f = File::open(apk)?;
     let length = f.metadata()?.len();
+    read_range(&mut f, 0, length)
+}
+
+/// Lists the entry names of a zip stored uncompressed inside an outer zip (the OBB inside an APK).
+pub fn nested_names(apk: &Path, outer: &Entry) -> io::Result<Vec<String>> {
+    if outer.method != 0 {
+        return Err(fail("nested archive is compressed"));
+    }
+    let mut f = File::open(apk)?;
+    let mut header = [0u8; 30];
+    f.seek(SeekFrom::Start(outer.local_offset))?;
+    f.read_exact(&mut header)?;
+    if le32(&header, 0) != LOCAL {
+        return Err(fail("bad local header"));
+    }
+    let data = outer.local_offset + 30 + le16(&header, 26) as u64 + le16(&header, 28) as u64;
+    let dir = read_range(&mut f, data, outer.compressed)?;
+    Ok(dir.entries.into_iter().map(|e| e.name).collect())
+}
+
+fn read_range(f: &mut File, base: u64, length: u64) -> io::Result<Directory> {
     let tail = length.min(65535 + 22) as usize;
     let mut end = vec![0u8; tail];
-    f.seek(SeekFrom::Start(length - tail as u64))?;
+    f.seek(SeekFrom::Start(base + length - tail as u64))?;
     f.read_exact(&mut end)?;
     let at = (0..=tail.saturating_sub(22)).rev().find(|&i| tail >= 22 && le32(&end, i) == END).ok_or_else(|| fail("not a zip"))?;
     let total = le16(&end, at + 10) as usize;
@@ -81,7 +102,7 @@ pub fn read(apk: &Path) -> io::Result<Directory> {
         return Err(fail("bad central directory"));
     }
     let mut central = vec![0u8; size as usize];
-    f.seek(SeekFrom::Start(start))?;
+    f.seek(SeekFrom::Start(base + start))?;
     f.read_exact(&mut central)?;
     let mut entries: Vec<Entry> = Vec::new();
     let mut index: HashMap<String, usize> = HashMap::new();

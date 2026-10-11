@@ -12,7 +12,7 @@ public final class FlagWriter {
     public static final int DENIED = 1;
     public static final int FAILED = 2;
 
-    public static final String PATH = "/data/local/tmp/ClientAppSettings.json";
+    public static final String PATH = "/data/data/pro.pekora.client/files/exe/ClientSettings/ClientAppSettings.json";
     private static final String REFRESH_BACKUP = "/data/local/tmp/voidstrap_refresh_backup";
     static final String GAME_FPS_CAP = "debug.graphics.game_default_frame_rate.disabled";
 
@@ -26,20 +26,33 @@ public final class FlagWriter {
         ALLOWLIST.put("DFIntCSGLevelOfDetailSwitchingDistanceL12", "Geometry");
         ALLOWLIST.put("DFIntCSGLevelOfDetailSwitchingDistanceL23", "Geometry");
         ALLOWLIST.put("DFIntCSGLevelOfDetailSwitchingDistanceL34", "Geometry");
-        ALLOWLIST.put("FFlagHandleAltEnterFullscreenManually", "Rendering");
-        ALLOWLIST.put("DFFlagTextureQualityOverrideEnabled", "Rendering");
-        ALLOWLIST.put("DFIntTextureQualityOverride", "Rendering");
         ALLOWLIST.put("FIntDebugForceMSAASamples", "Rendering");
         ALLOWLIST.put("DFFlagDisableDPIScale", "Rendering");
         ALLOWLIST.put("FFlagDebugGraphicsPreferD3D11", "Rendering");
-        ALLOWLIST.put("FFlagDebugSkyGray", "Rendering");
         ALLOWLIST.put("DFFlagDebugPauseVoxelizer", "Rendering");
-        ALLOWLIST.put("DFIntDebugFRMQualityLevelOverride", "Rendering");
         ALLOWLIST.put("FIntFRMMaxGrassDistance", "Rendering");
         ALLOWLIST.put("FIntFRMMinGrassDistance", "Rendering");
         ALLOWLIST.put("FFlagDebugGraphicsPreferVulkan", "Rendering");
         ALLOWLIST.put("FFlagDebugGraphicsPreferOpenGL", "Rendering");
-        ALLOWLIST.put("FIntGrassMovementReducedMotionFactor", "User Interface");
+        ALLOWLIST.put("FFlagDebugDisplayFPS", "Rendering");
+        ALLOWLIST.put("FIntRenderShadowIntensity", "Rendering");
+        ALLOWLIST.put("FIntRenderShadowmapBias", "Rendering");
+        ALLOWLIST.put("FIntRenderLocalLightUpdatesMax", "Rendering");
+        ALLOWLIST.put("FIntRenderLocalLightUpdatesMin", "Rendering");
+        ALLOWLIST.put("DFFlagDebugSkipMeshVoxelizer", "Rendering");
+        ALLOWLIST.put("DFFlagDebugRenderForceTechnologyVoxel", "Rendering");
+        ALLOWLIST.put("FFlagDebugGraphicsGLDisableDiscard", "Rendering");
+        ALLOWLIST.put("FFlagDebugGraphicsForceGL2", "Rendering");
+        ALLOWLIST.put("FFlagDebugForceModelMeshRendering", "Rendering");
+        ALLOWLIST.put("FIntRobloxGuiBlurIntensity", "User Interface");
+        ALLOWLIST.put("FIntFontSizePadding", "User Interface");
+        ALLOWLIST.put("FStringDebugShowFlagState", "Debug");
+        ALLOWLIST.put("DFIntRenderingThrottleDelayInMS", "Performance");
+        ALLOWLIST.put("DFIntMaxFrameBufferSize", "Performance");
+        ALLOWLIST.put("DFIntLuaGcBoost", "Performance");
+        ALLOWLIST.put("DFIntDebugRestrictGCDistance", "Performance");
+        ALLOWLIST.put("FFlagPreloadAllFonts", "Performance");
+        ALLOWLIST.put("FFlagDebugDoNotLoadHumanoidSounds", "Performance");
     }
 
     private static final long SU_CACHE_MS = 10000;

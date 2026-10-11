@@ -5,7 +5,11 @@ use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 
 pub const PORT_FILE: &str = "/data/local/tmp/voidstrap_helper_port";
-pub const FLAGS_PATH: &str = "/data/local/tmp/ClientAppSettings.json";
+pub const FLAGS_PATH: &str = "/data/data/pro.pekora.client/files/exe/ClientSettings/ClientAppSettings.json";
+const FLAGS_DIR: &str = "/data/data/pro.pekora.client/files/exe/ClientSettings";
+const FLAGS_EXE: &str = "/data/data/pro.pekora.client/files/exe";
+const FLAGS_FILES: &str = "/data/data/pro.pekora.client/files";
+const FLAGS_APP: &str = "/data/data/pro.pekora.client";
 pub const GAME_FPS_CAP: &str = "debug.graphics.game_default_frame_rate.disabled";
 const NONCE_BYTES: usize = 16;
 const PROOF_BYTES: usize = 32;
@@ -325,7 +329,7 @@ pub fn safe_for_heredoc(json: &str) -> bool {
 pub fn write_script(json: &str) -> String {
     let tmp = format!("{FLAGS_PATH}.new");
     format!(
-        "rm -f {tmp}\ncat > {tmp} <<'{FLAGS_DELIMITER}' || exit 2\n{json}\n{FLAGS_DELIMITER}\nif cmp -s {tmp} {FLAGS_PATH}; then rm -f {tmp}; else mv -f {tmp} {FLAGS_PATH} || exit 2; fi\nchmod 0644 {FLAGS_PATH} || exit 2\n"
+        "o=$(stat -c %u:%g {FLAGS_APP}) || exit 2\nmkdir -p {FLAGS_DIR} || exit 2\nrm -f {tmp}\ncat > {tmp} <<'{FLAGS_DELIMITER}' || exit 2\n{json}\n{FLAGS_DELIMITER}\nif cmp -s {tmp} {FLAGS_PATH}; then rm -f {tmp}; else mv -f {tmp} {FLAGS_PATH} || exit 2; fi\nchown $o {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} || exit 2\nchmod 0644 {FLAGS_PATH} || exit 2\nrestorecon {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} >/dev/null 2>&1\n"
     )
 }
 

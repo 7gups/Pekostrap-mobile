@@ -422,9 +422,7 @@
         <item quantity="other">%1$s and the %2$d files inside it will be deleted from the Voidstrap workspace.</item>
     </plurals>
     <string name="presets_mesh">Mesh detail</string>
-    <string name="presets_gray_sky">Gray sky</string>
     <string name="presets_msaa">Anti aliasing</string>
-    <string name="presets_texture">Texture quality</string>
     <string name="presets_grass_distance">Grass distance</string>
     <string name="presets_grass_min">Min</string>
     <string name="presets_grass_max">Max</string>
@@ -432,31 +430,15 @@
     <string name="presets_render_mode">Rendering mode</string>
     <string name="presets_apply_profile">Apply</string>
     <string name="presets_profile_applied">%1$s profile applied</string>
-    <string name="presets_allowlist">Roblox allowlist</string>
-    <string name="presets_allowlist_body">The flags Roblox allows in local configuration on PC. On Android, Voidstrap applies every flag in your profile. Tap one to copy its name.</string>
-    <string name="presets_announcement">View the official Roblox announcement</string>
+    <string name="presets_allowlist">Supported flags</string>
+    <string name="presets_allowlist_body">The flags confirmed to exist in Pekora. Voidstrap applies every flag in your profile. Tap one to copy its name.</string>
     <string name="presets_copied">Copied %1$s</string>
-    <string-array name="presets_grass_motion">
-        <item>No movement</item>
-        <item>Minimal movement</item>
-        <item>Medium movement</item>
-        <item>High movement</item>
-        <item>Ultra movement</item>
-        <item>Default movement</item>
-    </string-array>
     <string-array name="presets_msaa">
         <item>Automatic</item>
         <item>1x</item>
         <item>2x</item>
         <item>4x</item>
         <item>8x</item>
-    </string-array>
-    <string-array name="presets_texture">
-        <item>Automatic</item>
-        <item>Lowest</item>
-        <item>Low</item>
-        <item>Medium</item>
-        <item>High</item>
     </string-array>
     <string-array name="presets_render_mode">
         <item>Automatic</item>
@@ -483,21 +465,7 @@
     <string name="flags_status_stopped">The Voidstrap helper is not running, so changes are not applied. The last applied flags stay active. Run the start command again after your device restarts.</string>
     <string name="flags_status_none">Start the Voidstrap helper once from a computer, or use a rooted device, to apply flags to Roblox.</string>
     <string name="presets_performance">Performance</string>
-    <string name="presets_fps_limit">Frame rate limit</string>
     <string name="presets_show_fps">FPS counter</string>
-    <string-array name="presets_fps_limit">
-        <item>Default</item>
-        <item>30</item>
-        <item>60</item>
-        <item>90</item>
-        <item>120</item>
-        <item>144</item>
-        <item>165</item>
-        <item>240</item>
-        <item>360</item>
-        <item>480</item>
-        <item>Unlimited</item>
-    </string-array>
     <string name="flags_sync_unreadable">The flags were written, but this device blocks apps from reading them, so Roblox cannot load them.</string>
     <string name="flags_status_helper">The Voidstrap helper is running with adb access.</string>
     <string name="flags_status_helper_root">The Voidstrap helper is running with root access.</string>
@@ -569,66 +537,33 @@
     <string name="presets_section_graphics">Graphics</string>
     <string name="presets_section_detail">World detail</string>
     <string name="presets_section_quick">Quick setup</string>
-    <string name="presets_texture_short">Sharper textures use more memory</string>
     <string name="presets_msaa_short">Smooths jagged edges</string>
-    <string name="presets_render_mode_short">Graphics engine Roblox uses</string>
-    <string name="presets_gray_sky_short">Replaces the sky with plain gray</string>
+    <string name="presets_render_mode_short">Graphics engine Pekora uses</string>
     <string name="presets_dpi_title">Full resolution</string>
     <string name="presets_dpi_short">Ignore display scaling for a sharper picture</string>
-    <string name="presets_fps_limit_short">Above 60 turns off vsync and the Android game frame rate cap</string>
-    <string name="presets_fps_high">Going above 240 FPS is not recommended, as this may cause latency issues.</string>
     <string name="flags_launch_not_applied">FastFlags were not applied. Open Voidstrap and start the Voidstrap helper.</string>
     <string name="presets_show_fps_short">Shows frame rate in the corner</string>
     <string name="presets_mesh_short">How detailed distant objects look</string>
-    <string name="presets_frm_title">Graphics quality override</string>
-    <string name="presets_frm_short">Locks the Roblox graphics level</string>
-    <string name="presets_grass_motion_title">Grass movement</string>
-    <string name="presets_grass_motion_short">How much grass sways</string>
     <string name="presets_grass_distance_short">Set both to 0 to hide grass</string>
     <string name="presets_grass_to">to</string>
     <string name="presets_low">Low</string>
     <string name="presets_high">High</string>
     <string name="presets_recommended_title">Recommended</string>
-    <string name="presets_recommended_short">Sets textures and anti aliasing</string>
-    <string name="presets_allowlist_short">Flags Roblox allows on PC</string>
+    <string name="presets_recommended_short">Sets anti aliasing, shadows and mesh detail</string>
+    <string name="presets_allowlist_short">Flags that work with Pekora</string>
     <string name="presets_section_interface">Interface</string>
-    <string name="presets_section_network">Network</string>
     <string name="presets_section_debug">Debug</string>
-    <string name="presets_resolution">Render resolution</string>
-    <string name="presets_resolution_short">Fixed resolution Roblox renders at</string>
     <string name="presets_shadows">Disable shadows</string>
-    <string name="presets_shadows_short">Turns off Roblox shadows</string>
+    <string name="presets_shadows_short">Turns off Pekora shadows</string>
     <string name="presets_remove_grass">Remove grass</string>
     <string name="presets_remove_grass_short">Hides the built in terrain grass</string>
     <string name="presets_blur">Remove blur</string>
-    <string name="presets_blur_short">No blur behind Roblox menus</string>
-    <string name="presets_hide_gui">Hide GUIs</string>
-    <string name="presets_hide_gui_short">Group ID you are in, toggled with keyboard shortcuts</string>
+    <string name="presets_blur_short">No blur behind Pekora menus</string>
     <string name="presets_font_size">Font size</string>
-    <string name="presets_font_size_short">Changes the Roblox menu font size</string>
-    <string name="presets_lag_spikes">Reduce lag spikes</string>
-    <string name="presets_lag_spikes_short">Smooths out network output</string>
-    <string name="presets_fast_load">Faster loading</string>
-    <string name="presets_fast_load_short">Preloads more assets to load games faster</string>
-    <string name="presets_mtu">MTU size</string>
-    <string name="presets_mtu_short">Bytes sent per network packet</string>
+    <string name="presets_font_size_short">Changes the Pekora menu font size</string>
     <string name="presets_flag_state">Flag state</string>
     <string name="presets_flag_state_short">Shows these flag values in game, comma separated</string>
-    <string name="presets_ping">Ping breakdown</string>
-    <string name="presets_ping_short">Prints ping details to the Roblox console</string>
     <string name="presets_off">Off</string>
-    <string-array name="presets_resolution">
-        <item>Automatic</item>
-        <item>144p</item>
-        <item>240p</item>
-        <item>360p</item>
-        <item>480p</item>
-        <item>720p</item>
-        <item>1080p</item>
-        <item>1440p</item>
-        <item>2160p</item>
-        <item>4320p</item>
-    </string-array>
     <string-array name="settings_themes">
         <item>@string/settings_theme_system</item>
         <item>@string/settings_theme_dark</item>
