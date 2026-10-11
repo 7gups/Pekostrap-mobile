@@ -22,7 +22,7 @@ const STOP: i32 = -2;
 const STALE: i32 = -3;
 const STREAM: i32 = -4;
 const MAX_SCRIPT: i32 = 8 * 1024 * 1024;
-const TARGETS: [&str; 2] = ["com.roblox.client", "com.roblox.client.vnggames"];
+const TARGETS: [&str; 1] = ["pro.pekora.client"];
 const STREAM_START: &str = "\u{1}START";
 const STREAM_EXIT: &str = "\u{1}EXIT";
 const STREAM_IDLE: &str = "\u{1}IDLE";
@@ -358,7 +358,7 @@ fn stream(target: &str, sock: TcpStream) -> io::Result<()> {
             continue;
         };
         send(&out, &format!("{STREAM_START} {pid}"))?;
-        let mut args = vec!["-v".to_string(), "raw".into(), format!("--pid={pid}"), "-s".into(), "Roblox:I".into()];
+        let mut args = vec!["-v".to_string(), "raw".into(), format!("--pid={pid}"), "*:I".into()];
         if prefilter() {
             args.push("-e".into());
             args.push(STREAM_REGEX.into());
