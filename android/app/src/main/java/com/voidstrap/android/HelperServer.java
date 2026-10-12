@@ -15,7 +15,7 @@ public final class HelperServer {
     static final String CACHE_LIST = "/data/local/tmp/voidstrap_cache_";
     private static final String CLEANUP_END = "VOIDSTRAP_CLEANUP_END";
     static final String CLEANUP = "K=0\n"
-            + "for f in " + FlagWriter.PATH + " " + FlagWriter.PATH + ".new " + LibraryData.JOINS + "; do [ -e \"$f\" ] && K=1; rm -f \"$f\"; done\n"
+            + "for f in " + flagFiles() + " " + LibraryData.JOINS + "; do [ -e \"$f\" ] && K=1; rm -f \"$f\"; done\n"
             + FlagWriter.RESTORE_REFRESH
             + "setprop " + FlagWriter.GAME_FPS_CAP + " false\n"
             + "NS=''\n"
@@ -30,8 +30,17 @@ public final class HelperServer {
             + "done\n"
             + "rm -f " + PORT_FILE + " " + BINARY + "\n"
             + "rm -rf " + ModEngine.REMOTE_DIR + "\n"
-            + "if [ $K = 1 ]; then for p in " + Targets.PEKORA + "; do am force-stop $p 2>/dev/null; done; fi\n"
+            + "if [ $K = 1 ]; then for p in " + String.join(" ", Targets.ALL) + "; do am force-stop $p 2>/dev/null; done; fi\n"
             + "exit 0\n";
+
+    private static String flagFiles() {
+        StringBuilder sb = new StringBuilder();
+        for (String p : Targets.ALL) {
+            if (sb.length() > 0) sb.append(' ');
+            sb.append(FlagWriter.path(p)).append(' ').append(FlagWriter.path(p)).append(".new");
+        }
+        return sb.toString();
+    }
 
     private HelperServer() {
     }

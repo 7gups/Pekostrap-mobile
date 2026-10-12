@@ -7,10 +7,17 @@ use std::time::{Duration, Instant};
 pub const PORT_FILE: &str = "/data/local/tmp/voidstrap_helper_port";
 pub const FLAGS_PATH: &str = "/data/data/pro.pekora.client/files/exe/ClientSettings/ClientAppSettings.json";
 const FLAGS_PKG: &str = "pro.pekora.client";
-const FLAGS_APP: &str = "/data/data/pro.pekora.client";
+const TARGETS: [&str; 2] = ["pro.pekora.client", "com.roblox.clienr"];
+
+fn known(pkg: &str) -> &str {
+    if TARGETS.contains(&pkg) { pkg } else { FLAGS_PKG }
+}
+
+pub fn flags_path(pkg: &str) -> String {
+    format!("/data/data/{}/files/exe/ClientSettings/ClientAppSettings.json", known(pkg))
+}
 const NS_DELIMITER: &str = "PEKOSTRAP_SCRIPT_END";
 const NS_SCRIPT: &str = "/data/local/tmp/pekostrap_flags.sh";
-const FLAGS_MIRROR: &str = "/data_mirror/data_ce/null/0/pro.pekora.client";
 pub const GAME_FPS_CAP: &str = "debug.graphics.game_default_frame_rate.disabled";
 const NONCE_BYTES: usize = 16;
 const PROOF_BYTES: usize = 32;
@@ -327,8 +334,11 @@ pub fn safe_for_heredoc(json: &str) -> bool {
     json.split('\n').all(|line| crate::java::trim(line) != FLAGS_DELIMITER)
 }
 
-fn locate() -> String {
-    format!("for fb in {FLAGS_APP} /data/user/0/{FLAGS_PKG} /proc/1/root{FLAGS_APP} {FLAGS_MIRROR}; do [ -d $fb ] && break; fb=; done\n[ -n \"$fb\" ] || exit 21\nff=$fb/files\nfx=$ff/exe\nfd=$fx/ClientSettings\nfp=$fd/ClientAppSettings.json\n")
+fn locate(pkg: &str) -> String {
+    let pkg = known(pkg);
+    let app = format!("/data/data/{pkg}");
+    let mirror = format!("/data_mirror/data_ce/null/0/{pkg}");
+    format!("for fb in {app} /data/user/0/{pkg} /proc/1/root{app} {mirror}; do [ -d $fb ] && break; fb=; done\n[ -n \"$fb\" ] || exit 21\nff=$fb/files\nfx=$ff/exe\nfd=$fx/ClientSettings\nfp=$fd/ClientAppSettings.json\n")
 }
 
 fn namespaced(inner: &str) -> String {
@@ -337,47 +347,36 @@ fn namespaced(inner: &str) -> String {
     )
 }
 
-fn inner_write(json: &str) -> String {
-    let find = locate();
+fn inner_write(json: &str, pkg: &str) -> String {
+    let find = locate(pkg);
+    let app = format!("/data/data/{}", known(pkg));
     format!(
-        "{find}fo=$(stat -c %u:%g $fb) || exit 21\nmkdir -p $fd || exit 22\nrm -f $fp.new\ncat > $fp.new <<'{FLAGS_DELIMITER}' || exit 23\n{json}\n{FLAGS_DELIMITER}\nfc=0\nif cmp -s $fp.new $fp; then rm -f $fp.new; else mv -f $fp.new $fp || exit 24; fc=30; fi\nchmod 0644 $fp || exit 25\nchown $fo $ff $fx $fd $fp >/dev/null 2>&1\nif [ $fb = {FLAGS_APP} ]; then restorecon $ff $fx $fd $fp >/dev/null 2>&1; fi\nexit $fc\n"
+        "{find}fo=$(stat -c %u:%g $fb) || exit 21\nmkdir -p $fd || exit 22\nrm -f $fp.new\ncat > $fp.new <<'{FLAGS_DELIMITER}' || exit 23\n{json}\n{FLAGS_DELIMITER}\nfc=0\nif cmp -s $fp.new $fp; then rm -f $fp.new; else mv -f $fp.new $fp || exit 24; fc=30; fi\nchmod 0644 $fp || exit 25\nchown $fo $ff $fx $fd $fp >/dev/null 2>&1\nif [ $fb = {app} ]; then restorecon $ff $fx $fd $fp >/dev/null 2>&1; fi\nexit $fc\n"
     )
 }
 
-fn inner_remove() -> String {
-    format!("{}if [ -e $fp ] || [ -e $fp.new ]; then rm -f $fp $fp.new || exit 2; exit 30; fi\nexit 0\n", locate())
+fn inner_remove(pkg: &str) -> String {
+    format!("{}if [ -e $fp ] || [ -e $fp.new ]; then rm -f $fp $fp.new || exit 2; exit 30; fi\nexit 0\n", locate(pkg))
 }
 
-pub fn write_script(json: &str) -> String {
-    namespaced(&inner_write(json))
+pub fn write_script(json: &str, pkg: &str) -> String {
+    namespaced(&inner_write(json, pkg))
 }
 
-pub fn remove_script() -> String {
-    namespaced(&inner_remove())
+pub fn remove_script(pkg: &str) -> String {
+    namespaced(&inner_remove(pkg))
 }
 
 pub fn launch_sync_script(json: &str, unlocked: bool, pkg: &str, restore_refresh: &str) -> String {
-    let body = if json == "{}" { remove_script() } else { write_script(json) };
+    let body = if json == "{}" { remove_script(pkg) } else { write_script(json, pkg) };
     format!(
         "c=0\no=$(getprop {GAME_FPS_CAP})\n{body}{restore_refresh}setprop {GAME_FPS_CAP} {unlocked}\n[ \"${{o:-false}}\" = {unlocked} ] || c=1\np=$(pidof {pkg})\np=${{p%% *}}\nif [ -n \"$p\" ] && {{ [ $c = 1 ] || [ $chg = 1 ]; }}; then am force-stop {pkg}; fi\nexit 0\n"
     )
 }
 
-/// Sets the app theme the game reads at startup (AuthenticatedTheme in LocalStorage).
-/// Only "dark" and "light" are accepted, and the package name must be plain, so nothing else can reach the shell.
-pub fn theme_script(theme: &str, pkg: &str) -> String {
-    let theme = if theme == "light" { "light" } else { "dark" };
-    let ok = !pkg.is_empty() && pkg.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.');
-    let stop = if ok { format!("p=$(pidof {pkg})\nif [ -n \"$p\" ] && [ $chg = 1 ]; then am force-stop {pkg}; fi\n") } else { String::new() };
-    let inner = format!(
-        "{}f=$ff/appData/LocalStorage/appStorage.json\n[ -f $f ] || exit 0\nrm -f $f.pk\nsed -E 's/(\"AuthenticatedTheme\"[[:space:]]*:[[:space:]]*\")[A-Za-z]*(\")/\\1{theme}\\2/' $f > $f.pk || exit 27\nif cmp -s $f.pk $f; then rm -f $f.pk; exit 0; fi\ncat $f.pk > $f || {{ rm -f $f.pk; exit 28; }}\nrm -f $f.pk\nexit 30\n",
-        locate()
-    );
-    format!("{}{stop}exit 0\n", namespaced(&inner))
-}
-
-pub fn readable(json: &str) -> bool {
-    let f = std::path::Path::new(FLAGS_PATH);
+pub fn readable(json: &str, pkg: &str) -> bool {
+    let path = flags_path(pkg);
+    let f = std::path::Path::new(&path);
     if json == "{}" {
         return !f.exists();
     }

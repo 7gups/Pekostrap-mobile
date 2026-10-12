@@ -11,6 +11,7 @@
 
     <queries>
         <package android:name="pro.pekora.client" />
+        <package android:name="com.roblox.clienr" />
         <package android:name="com.discord" />
         <package android:name="moe.shizuku.privileged.api" />
         <intent>

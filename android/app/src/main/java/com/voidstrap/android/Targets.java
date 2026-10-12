@@ -15,7 +15,9 @@ import java.util.List;
 public final class Targets {
     public static final String PEKORA = "pro.pekora.client";
     public static final String DOWNLOAD = "https://pekora.pro/setup/android/pekora.apk";
-    public static final String[] ALL = {PEKORA};
+    public static final String PEKORA_2018 = "com.roblox.clienr";
+    public static final String[] ALL = {PEKORA, PEKORA_2018};
+    public static final String DOWNLOAD_2018 = "https://pekora.pro";
 
     public static final class State {
         public String pkg;
@@ -31,8 +33,17 @@ public final class Targets {
         }
     }
 
+    public static boolean known(String pkg) {
+        for (String p : ALL) if (p.equals(pkg)) return true;
+        return false;
+    }
+
     public static int nameRes(String pkg) {
-        return R.string.target_pekora;
+        return PEKORA_2018.equals(pkg) ? R.string.target_pekora_2018 : R.string.target_pekora;
+    }
+
+    public static String downloadUrl(String pkg) {
+        return PEKORA_2018.equals(pkg) ? DOWNLOAD_2018 : DOWNLOAD;
     }
 
     public static State resolve(Context c, String pkg) {
@@ -57,12 +68,13 @@ public final class Targets {
     }
 
     public static String selected(Context c) {
-        return PEKORA;
+        String p = Store.get(c).setting("target", PEKORA);
+        return known(p) ? p : PEKORA;
     }
 
     public static List<String> offered(Context c) {
         List<String> out = new ArrayList<>();
-        out.add(PEKORA);
+        for (String p : ALL) out.add(p);
         return out;
     }
 }

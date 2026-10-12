@@ -454,8 +454,8 @@ public final class SettingsFragment extends Page {
         }
         sb.append("Helper uid ").append(Helper.uidNow()).append(", USB debugging ").append(android.provider.Settings.Global.getInt(c.getContentResolver(), android.provider.Settings.Global.ADB_ENABLED, 0) == 1).append('\n');
         sb.append("Root ").append(FlagWriter.rootAvailable()).append(", use root ").append(FlagWriter.rootEnabled(c)).append(", flag mode ").append(FlagWriter.mode(c)).append('\n');
-        java.io.File flagFile = new java.io.File(FlagWriter.PATH);
-        sb.append("Flags file ").append(flagFile.exists() ? flagFile.length() + " bytes, readable " + flagFile.canRead() + ", matches profile " + FlagWriter.readable(store.flags.active().valuesJson().toString()) : "absent").append('\n');
+        java.io.File flagFile = new java.io.File(FlagWriter.path(Targets.selected(c)));
+        sb.append("Flags file ").append(flagFile.exists() ? flagFile.length() + " bytes, readable " + flagFile.canRead() + ", matches profile " + FlagWriter.readable(store.flags.active().valuesJson().toString(), Targets.selected(c)) : "absent").append('\n');
         android.hardware.display.DisplayManager dm = c.getSystemService(android.hardware.display.DisplayManager.class);
         android.view.Display disp = dm == null ? null : dm.getDisplay(android.view.Display.DEFAULT_DISPLAY);
         sb.append("Display refresh ").append(disp == null ? 0 : disp.getRefreshRate()).append(" Hz, max ").append(FlagWriter.maxRefresh(c)).append(" Hz\n");

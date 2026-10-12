@@ -109,8 +109,12 @@ public final class FlagWriter {
         return Mode.NONE;
     }
 
-    public static boolean readable(String json) {
-        return Core.flag("shell.readable", Core.args("json", json));
+    public static String path(String pkg) {
+        return "/data/data/" + (Targets.known(pkg) ? pkg : Targets.PEKORA) + "/files/exe/ClientSettings/ClientAppSettings.json";
+    }
+
+    public static boolean readable(String json, String pkg) {
+        return Core.flag("shell.readable", Core.args("json", json, "pkg", pkg));
     }
 
     public static boolean tooLarge(String json) {
@@ -134,13 +138,13 @@ public final class FlagWriter {
         return run(mode(c), script, timeoutSeconds);
     }
 
-    public static int write(Mode mode, String json) {
+    public static int write(Mode mode, String json, String pkg) {
         if (!safeForHeredoc(json)) return FAILED;
-        return runFlags(mode, script("writeScript", "json", json), 60);
+        return runFlags(mode, script("writeScript", "json", json, "pkg", pkg), 60);
     }
 
-    public static int remove(Mode mode) {
-        return runFlags(mode, script("removeScript"), 60);
+    public static int remove(Mode mode, String pkg) {
+        return runFlags(mode, script("removeScript", "pkg", pkg), 60);
     }
 
     private static int runFlags(Mode mode, String script, int timeoutSeconds) {
@@ -179,19 +183,6 @@ public final class FlagWriter {
         int r = syncForLaunchInner(c, pkg, json, unlocked);
         ModLog.add("flags: launch sync for " + pkg + ", mode " + mode(c) + ", " + json.length() + " bytes, " + (r == 0 ? "ok" : "not applied"));
         return r;
-    }
-
-    /** Forces the app theme (stored by the game as AuthenticatedTheme) to dark, and puts it back to light when the option is turned off. */
-    public static void syncTheme(Context c, String pkg, boolean dark) {
-        Store store = Store.get(c);
-        boolean forced = "1".equals(store.setting("themeForced", "0"));
-        if (!dark && !forced) return;
-        Mode mode = mode(c);
-        if ((mode != Mode.HELPER && mode != Mode.ROOT) || !pkg.matches("[A-Za-z0-9_.]+")) return;
-        String s = script("themeScript", "theme", dark ? "dark" : "light", "pkg", pkg);
-        int code = runFlags(mode, s, 15);
-        ModLog.add("theme: " + (dark ? "dark" : "light") + " for " + pkg + ", " + (code == OK ? "ok" : "not applied"));
-        if (code == OK) store.putSetting("themeForced", dark ? "1" : "0");
     }
 
     private static int syncForLaunchInner(Context c, String pkg, String json, boolean unlocked) {

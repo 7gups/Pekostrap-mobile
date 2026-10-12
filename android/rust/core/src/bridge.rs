@@ -45,11 +45,10 @@ fn shell_call(op: &str, a: &Value) -> Result<Value, Error> {
         "rootProbe" => v(shell::root_probe()),
         "hasSu" => v(shell::has_su()),
         "safeForHeredoc" => v(shell::safe_for_heredoc(&s(a, "json"))),
-        "writeScript" => v(format!("{}exit 0\n", shell::write_script(&s(a, "json")))),
-        "removeScript" => v(shell::remove_script()),
-        "themeScript" => v(shell::theme_script(&s(a, "theme"), &s(a, "pkg"))),
+        "writeScript" => v(format!("{}exit 0\n", shell::write_script(&s(a, "json"), &s(a, "pkg")))),
+        "removeScript" => v(shell::remove_script(&s(a, "pkg"))),
         "launchScript" => v(shell::launch_sync_script(&s(a, "json"), java::opt_bool(a, "unlocked", false), &s(a, "pkg"), &s(a, "restore"))),
-        "readable" => v(shell::readable(&s(a, "json"))),
+        "readable" => v(shell::readable(&s(a, "json"), &s(a, "pkg"))),
         _ => return Err(Error::Io(format!("unknown op shell.{op}"))),
     })
 }

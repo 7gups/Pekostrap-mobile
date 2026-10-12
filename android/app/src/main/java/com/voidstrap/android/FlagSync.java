@@ -316,7 +316,7 @@ public final class FlagSync {
         }
         Store store = Store.get(a);
         store.work.execute(() -> {
-            int r = FlagWriter.remove(mode);
+            int r = FlagWriter.remove(mode, Targets.selected(a));
             store.main.post(() -> report(a, r, R.string.flags_sync_removed));
         });
     }
@@ -332,7 +332,7 @@ public final class FlagSync {
             return;
         }
         store.work.execute(() -> {
-            int r = count == 0 ? FlagWriter.remove(mode) : FlagWriter.write(mode, json);
+            int r = count == 0 ? FlagWriter.remove(mode, Targets.selected(a)) : FlagWriter.write(mode, json, Targets.selected(a));
             boolean readable = r == FlagWriter.OK;
             store.main.post(() -> {
                 if (a.isFinishing() || a.isDestroyed()) return;
