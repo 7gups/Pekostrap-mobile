@@ -420,7 +420,7 @@ public final class LibraryFragment extends Page {
         MaterialButton action = v.findViewById(R.id.shelf_action);
         action.setVisibility(View.VISIBLE);
         action.setText(R.string.library_view_event);
-        View.OnClickListener open = x -> Actions.openInRoblox(host(), "https://www.roblox.com/events/" + e.id);
+        View.OnClickListener open = x -> Actions.openInRoblox(host(), "https://pekora.pro/events/" + e.id);
         action.setOnClickListener(open);
         v.setOnClickListener(open);
         return v;
@@ -663,7 +663,7 @@ public final class LibraryFragment extends Page {
             TextView price = v.findViewById(R.id.tile_subtitle);
             price.setVisibility(View.VISIBLE);
             price.setText(p.price);
-            v.setOnClickListener(x -> Actions.openInRoblox(host(), "https://www.roblox.com/game-pass/" + p.id));
+            v.setOnClickListener(x -> Actions.openInRoblox(host(), "https://pekora.pro/game-pass/" + p.id));
             v.setContentDescription(p.name + ", " + p.price);
             cards.add(v);
         }
@@ -699,7 +699,7 @@ public final class LibraryFragment extends Page {
     private void detailMenu(View anchor) {
         LibraryData.Game g = selected;
         if (g == null) return;
-        String link = "https://www.roblox.com/games/" + g.placeId;
+        String link = "https://pekora.pro/games/" + g.placeId;
         new Flyout(requireContext())
                 .add(R.drawable.ic_server, R.string.library_join_server, () -> joinServer(g))
                 .add(R.drawable.ic_phone_add, R.string.library_add_shortcut, () -> Shortcuts.request(host(), Deeplink.place(g.placeId, null, null), g.title(), g.iconUrl))

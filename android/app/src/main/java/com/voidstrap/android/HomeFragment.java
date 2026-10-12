@@ -312,12 +312,12 @@ public final class HomeFragment extends Page {
             Net.image(card.findViewById(R.id.game_thumb), g.thumbnail, R.color.vs_subtle_pressed, Ui.dp(requireContext(), 320));
             View thumb = card.findViewById(R.id.game_thumb_host);
             thumb.setContentDescription(getString(R.string.home_game_page, g.name));
-            thumb.setOnClickListener(x -> Actions.openInRoblox(host(), "https://www.roblox.com/games/" + g.placeId));
+            thumb.setOnClickListener(x -> Actions.openInRoblox(host(), "https://pekora.pro/games/" + g.placeId));
             MaterialButton play = card.findViewById(R.id.game_play);
             play.setContentDescription(getString(R.string.home_play, g.name));
             play.setOnClickListener(x -> Actions.launch(host(), Deeplink.place(g.placeId, null, null), g.name));
             card.findViewById(R.id.game_copy).setOnClickListener(x -> {
-                Ui.copy(requireContext(), g.name, "https://www.roblox.com/games/" + g.placeId);
+                Ui.copy(requireContext(), g.name, "https://pekora.pro/games/" + g.placeId);
                 Notify.say(host(), Notify.COPY, R.string.game_link_copied);
             });
             cells.add(card);

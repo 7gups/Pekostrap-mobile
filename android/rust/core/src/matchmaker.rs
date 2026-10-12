@@ -358,7 +358,7 @@ fn roblox_host(url: &str) -> bool {
     let host = rest.split(['/', '?', '#']).next().unwrap_or("");
     let host = host.rsplit('@').next().unwrap_or(host);
     let host = java::lower(host.split(':').next().unwrap_or(host));
-    host == "roblox.com" || host.ends_with(".roblox.com")
+    host == "pekora.pro" || host.ends_with(".pekora.pro")
 }
 
 fn request(method: &str, url: &str, cookie: Option<&str>, token: Option<&str>, body: Option<&str>, agent: &str, timeout: i64) -> Option<Response> {
@@ -368,7 +368,7 @@ fn request(method: &str, url: &str, cookie: Option<&str>, token: Option<&str>, b
         headers.push(("Cookie", c));
     }
     if url.starts_with("https://gamejoin.") {
-        headers.push(("Referer", "https://www.roblox.com/"));
+        headers.push(("Referer", "https://pekora.pro/"));
     }
     if let Some(t) = token {
         headers.push(("X-CSRF-TOKEN", t));
@@ -638,7 +638,7 @@ fn list_servers(place_id: i64, cookie: &str, prefer_empty: bool, deadline: i64) 
     let mut cursor: Option<String> = None;
     let backoff = [0u64, 750, 2000];
     for page in 0..MAX_PAGES {
-        let mut url = format!("https://games.roblox.com/v1/games/{place_id}/servers/Public?excludeFullGames=true&limit=100&sortOrder={}", if prefer_empty { "Asc" } else { "Desc" });
+        let mut url = format!("https://pekora.pro/apisite/games/v1/games/{place_id}/servers/Public?excludeFullGames=true&limit=100&sortOrder={}", if prefer_empty { "Asc" } else { "Desc" });
         if let Some(c) = &cursor {
             url.push_str(&format!("&cursor={}", http::encode(c)));
         }
@@ -721,7 +721,7 @@ fn join(v2: bool, place_id: i64, job_id: &str, cookie: &str, token: Option<&str>
     if v2 {
         body.insert("joinOrigin".into(), "VoidstrapFetchInfo".into());
     }
-    let url = if v2 { "https://gamejoin.roblox.com/v2/join-game-instance" } else { "https://gamejoin.roblox.com/v1/join-game-instance" };
+    let url = if v2 { "https://pekora.pro/apisite/gamejoin/v2/join-game-instance" } else { "https://pekora.pro/apisite/gamejoin/v1/join-game-instance" };
     request("POST", url, Some(cookie), token, Some(&java::to_string(&Value::Object(body), 0)), "Roblox/WinInet", timeout)
 }
 

@@ -63,7 +63,7 @@ public final class SignInActivity extends AppCompatActivity {
     private static boolean allowed(Uri u) {
         if (u == null || !"https".equals(u.getScheme()) || u.getHost() == null) return false;
         String host = u.getHost().toLowerCase(Locale.ROOT);
-        return host.equals("roblox.com") || host.endsWith(".roblox.com") || host.endsWith(".rbxcdn.com") || host.endsWith(".arkoselabs.com") || host.endsWith(".funcaptcha.com");
+        return host.equals("pekora.pro") || host.endsWith(".pekora.pro") || host.endsWith(".arkoselabs.com") || host.endsWith(".funcaptcha.com");
     }
 
     private void check() {

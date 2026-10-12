@@ -7,7 +7,7 @@ import android.webkit.CookieManager;
 final class RobloxLogin {
     enum Source { VOIDSTRAP, NONE }
 
-    static final String LOGIN_URL = "https://www.roblox.com/login";
+    static final String LOGIN_URL = "https://pekora.pro/login";
     private static final String NAME = ".ROBLOSECURITY";
     private static final long CACHE_MS = 5 * 60_000;
 
@@ -55,7 +55,7 @@ final class RobloxLogin {
 
     static String fromWebView() {
         try {
-            String all = CookieManager.getInstance().getCookie("https://www.roblox.com");
+            String all = CookieManager.getInstance().getCookie("https://pekora.pro");
             if (all == null) return null;
             for (String part : all.split(";")) {
                 String p = part.trim();

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 public final class HomeFeed {
-    public static final String NEWS_PAGE = "https://devforum.roblox.com/c/updates/announcements/36";
+    public static final String NEWS_PAGE = "https://devforum.pekora.pro/c/updates/announcements/36";
     private static final int MAX_GAMES = 9;
 
     private HomeFeed() {
@@ -40,7 +40,7 @@ public final class HomeFeed {
         public boolean bundle;
 
         public String link() {
-            return "https://www.roblox.com/" + (bundle ? "bundles/" : "catalog/") + id;
+            return "https://pekora.pro/" + (bundle ? "bundles/" : "catalog/") + id;
         }
 
         public String appLink() {

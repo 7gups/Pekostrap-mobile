@@ -266,7 +266,7 @@ fn servers(client: &Client, place: i64, prefer_empty: bool) -> Vec<Server> {
     let mut out = Vec::new();
     let mut cursor = String::new();
     for _ in 0..MAX_PAGES {
-        let mut url = format!("https://games.roblox.com/v1/games/{place}/servers/Public?excludeFullGames=true&limit={PAGE_LIMIT}&sortOrder={}", if prefer_empty { "Asc" } else { "Desc" });
+        let mut url = format!("https://pekora.pro/apisite/games/v1/games/{place}/servers/Public?excludeFullGames=true&limit={PAGE_LIMIT}&sortOrder={}", if prefer_empty { "Asc" } else { "Desc" });
         if !cursor.is_empty() {
             url.push_str(&format!("&cursor={}", net::uri_encode(&cursor)));
         }
@@ -382,13 +382,13 @@ fn game_name(client: &Client, cache: &Path, place: i64, universe: i64) -> String
     let mut universe = universe;
     if universe <= 0 {
         universe = client
-            .cached_json(cache, &format!("https://apis.roblox.com/universes/v1/places/{place}/universe"), LOCATION_CACHE_MS)
+            .cached_json(cache, &format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe"), LOCATION_CACHE_MS)
             .map_or(0, |o| java::opt_long(&o, "universeId", 0));
     }
     if universe <= 0 {
         return String::new();
     }
-    let Some(games) = client.cached_json(cache, &format!("https://games.roblox.com/v1/games?universeIds={universe}"), 5 * 60 * 1000) else {
+    let Some(games) = client.cached_json(cache, &format!("https://pekora.pro/apisite/games/v1/games?universeIds={universe}"), 5 * 60 * 1000) else {
         return String::new();
     };
     games.get("data").and_then(Value::as_array).and_then(|a| a.first()).filter(|g| g.is_object()).map_or(String::new(), |g| java::utf16_prefix(&java::opt_str(g, "name", ""), 120).to_string())
