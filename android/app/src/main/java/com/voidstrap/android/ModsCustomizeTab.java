@@ -58,6 +58,7 @@ final class ModsCustomizeTab {
         boolean deathSound;
         int deathVolume;
         boolean oldAvatar;
+        boolean forceDark;
         int emoji;
         boolean skyEnabled;
         String skyName;
@@ -70,7 +71,7 @@ final class ModsCustomizeTab {
         boolean noGui;
 
         String sig() {
-            return cursor + "|" + customCursor + "|" + shiftLock + "|" + sets + "|" + oldSounds + "|" + deathSound + "|" + deathVolume + "|" + oldAvatar + "|" + emoji
+            return cursor + "|" + customCursor + "|" + shiftLock + "|" + sets + "|" + oldSounds + "|" + deathSound + "|" + deathVolume + "|" + oldAvatar + "|" + forceDark + "|" + emoji
                     + "|" + skyEnabled + "|" + skyName + "|" + customSky + "|" + java.util.Arrays.toString(customFaces) + "|" + font + "|" + fontName + "|" + fontScale
                     + "|" + ps4 + "|" + noGui;
         }
@@ -95,6 +96,7 @@ final class ModsCustomizeTab {
             s.deathSound = ModPresets.hasDeathSound(app);
             s.deathVolume = ModPresets.deathVolume(app);
             s.oldAvatar = ModPresets.presetOn(app, ModPresets.OLD_AVATAR);
+            s.forceDark = ModPresets.forceDark(app);
             s.emoji = ModPresets.emoji(app);
             s.skyEnabled = ModPresets.skyEnabled(app);
             s.skyName = ModPresets.skyName(app);
@@ -152,6 +154,10 @@ final class ModsCustomizeTab {
         toggle(g, R.string.mods_old_avatar, s.oldAvatar, on -> work(R.string.mods_working, (app, cancel) -> {
             ModPresets.setPreset(app, ModPresets.OLD_AVATAR, on);
             return app.getString(on ? R.string.mods_preset_on : R.string.mods_preset_off, app.getString(R.string.mods_old_avatar));
+        }));
+        toggle(g, R.string.mods_force_dark, s.forceDark, on -> work(R.string.mods_working, (app, cancel) -> {
+            ModPresets.setForceDark(app, on);
+            return app.getString(on ? R.string.mods_preset_on : R.string.mods_preset_off, app.getString(R.string.mods_force_dark));
         }));
         String[] emoji = c.getResources().getStringArray(R.array.mods_emoji_types);
         SettingRows.choice(g, c.getString(R.string.mods_emoji), null, emoji, s.emoji, i -> work(R.string.mods_downloading, (app, cancel) -> {

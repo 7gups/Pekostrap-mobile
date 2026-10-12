@@ -178,6 +178,11 @@ pub fn call(op: &str, a: &Value, data: Option<&[u8]>, file: Option<std::fs::File
             presets().set_preset(&pairs(a, "pairs"), b(a, "on")).map_err(io)?;
             v(true)
         }
+        "forceDarkOn" => v(presets().force_dark_on()),
+        "setForceDark" => {
+            presets().set_force_dark(b(a, "on")).map_err(io)?;
+            v(true)
+        }
         "removeDeath" => {
             presets().remove_death();
             v(true)

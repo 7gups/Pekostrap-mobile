@@ -97,6 +97,27 @@ impl Presets {
         Ok(())
     }
 
+    pub fn force_dark_on(&self) -> bool {
+        super::engine::FORCE_DARK.iter().all(|(src, _)| self.state.join(src).is_file())
+    }
+
+    pub fn set_force_dark(&self, on: bool) -> io::Result<()> {
+        let _g = LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        for (src, _) in super::engine::FORCE_DARK {
+            let f = self.state.join(src);
+            if on {
+                let data = self.resource(src)?;
+                if let Some(dir) = f.parent() {
+                    std::fs::create_dir_all(dir)?;
+                }
+                fs::write(&f, &data)?;
+            } else {
+                let _ = std::fs::remove_file(&f);
+            }
+        }
+        Ok(())
+    }
+
     pub fn remove_death(&self) {
         let _g = LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let _ = std::fs::remove_file(self.state("CustomDeathSoundSource"));
