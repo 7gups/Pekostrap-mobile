@@ -189,7 +189,7 @@ public final class FlagWriter {
         if (tooLarge(json)) return R.string.flags_too_large;
         if (!safeForHeredoc(json)) return R.string.flags_launch_not_applied;
         Mode mode = mode(c);
-        if (mode != Mode.HELPER && mode != Mode.ROOT) return readable(json) ? 0 : R.string.flags_launch_not_applied;
+        if (mode != Mode.HELPER && mode != Mode.ROOT) return readable(json, pkg) ? 0 : R.string.flags_launch_not_applied;
         if (!pkg.matches("[A-Za-z0-9_.]+")) return 0;
         String s = script("launchScript", "json", json, "unlocked", unlocked, "pkg", pkg, "restore", RESTORE_REFRESH);
         return runFlags(mode, s, 15) == OK ? 0 : R.string.flags_launch_not_applied;
