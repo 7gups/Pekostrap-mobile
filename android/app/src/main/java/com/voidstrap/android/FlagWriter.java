@@ -136,11 +136,22 @@ public final class FlagWriter {
 
     public static int write(Mode mode, String json) {
         if (!safeForHeredoc(json)) return FAILED;
-        return run(mode, script("writeScript", "json", json), 60);
+        return runFlags(mode, script("writeScript", "json", json), 60);
     }
 
     public static int remove(Mode mode) {
-        return run(mode, script("removeScript"), 60);
+        return runFlags(mode, script("removeScript"), 60);
+    }
+
+    private static int runFlags(Mode mode, String script, int timeoutSeconds) {
+        int code = raw(mode, script, timeoutSeconds);
+        if (code != OK) ModLog.add("flags: " + mode + " exit code " + code);
+        if (code != OK && mode == Mode.HELPER) {
+            code = raw(Mode.ROOT, script, timeoutSeconds);
+            ModLog.add("flags: su retry " + (code == OK ? "ok" : "exit code " + code));
+        }
+        if (code == OK || code == FAILED) return code;
+        return DENIED;
     }
 
     static final String RESTORE_REFRESH = "if [ -e " + REFRESH_BACKUP + " ]; then\n"
@@ -177,9 +188,7 @@ public final class FlagWriter {
         if (mode != Mode.HELPER && mode != Mode.ROOT) return readable(json) ? 0 : R.string.flags_launch_not_applied;
         if (!pkg.matches("[A-Za-z0-9_.]+")) return 0;
         String s = script("launchScript", "json", json, "unlocked", unlocked, "pkg", pkg, "restore", RESTORE_REFRESH);
-        int code = raw(mode, s, 15);
-        if (code != OK) ModLog.add("flags: script exit code " + code);
-        return code == OK ? 0 : R.string.flags_launch_not_applied;
+        return runFlags(mode, s, 15) == OK ? 0 : R.string.flags_launch_not_applied;
     }
 
     private static int run(Mode mode, String script, int timeoutSeconds) {

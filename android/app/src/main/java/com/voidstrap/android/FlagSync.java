@@ -333,7 +333,7 @@ public final class FlagSync {
         }
         store.work.execute(() -> {
             int r = count == 0 ? FlagWriter.remove(mode) : FlagWriter.write(mode, json);
-            boolean readable = r == FlagWriter.OK && FlagWriter.readable(json);
+            boolean readable = r == FlagWriter.OK;
             store.main.post(() -> {
                 if (a.isFinishing() || a.isDestroyed()) return;
                 if (r == FlagWriter.OK && !readable) Ui.say(a, R.string.flags_sync_unreadable);
