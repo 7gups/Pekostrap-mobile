@@ -14,6 +14,7 @@ import java.util.List;
 
 public final class Targets {
     public static final String PEKORA = "pro.pekora.client";
+    public static final String DOWNLOAD = "https://pekora.pro/setup/android/pekora.apk";
     public static final String[] ALL = {PEKORA};
 
     public static final class State {

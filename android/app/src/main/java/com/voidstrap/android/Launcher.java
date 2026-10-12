@@ -3,7 +3,6 @@ package com.voidstrap.android;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.SystemClock;
 
 public final class Launcher {
@@ -101,12 +100,7 @@ public final class Launcher {
     }
 
     public static void openStore(Context c, String pkg) {
-        if (c == null || pkg == null) return;
-        Intent market = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + pkg)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            c.startActivity(market);
-        } catch (RuntimeException e) {
-            Ui.openWeb(c, "https://play.google.com/store/apps/details?id=" + pkg);
-        }
+        if (c == null) return;
+        Ui.openWeb(c, Targets.DOWNLOAD);
     }
 }

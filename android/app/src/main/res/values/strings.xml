@@ -57,8 +57,8 @@
     <string name="launch_busy">Already opening Pekora</string>
     <string name="launch_failed">Android blocked the launch</string>
 
-    <string name="install_opening_plain">Install %1$s from the store, then come back to Pekostrap.</string>
-    <string name="install_opening_pending">Install %1$s from the store. Your game launches as soon as it finishes.</string>
+    <string name="install_opening_plain">Download and install %1$s from the page that opened, then come back to Pekostrap.</string>
+    <string name="install_opening_pending">Download and install %1$s from the page that opened. Your game launches as soon as it finishes.</string>
     <string name="install_get">Install %1$s</string>
     <string name="disabled_title">%1$s is disabled</string>
     <string name="disabled_body">Enable the app in Android settings to launch it from Pekostrap.</string>
