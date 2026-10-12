@@ -119,7 +119,6 @@ public final class SettingsFragment extends Page {
         roblox.addView(helper.view);
         FlagSync.rootRow(roblox, host());
         if (!Ui.wide(requireContext())) row(roblox, R.drawable.ic_add, R.string.nav_integrations, R.string.integrations_open_body, () -> ((MainActivity) host()).select(R.id.nav_integrations));
-        if (!Ui.wide(requireContext()) && SmartJoin.available()) row(roblox, R.drawable.ic_globe, SmartJoin.title(requireContext()), SmartJoin.openBody(requireContext()), () -> ((MainActivity) host()).select(R.id.nav_smart));
         row(roblox, R.drawable.ic_history, R.string.settings_clear_history, R.string.settings_clear_history_body, () ->
                 Ui.alert(requireContext())
                         .setTitle(R.string.history_clear_title)
