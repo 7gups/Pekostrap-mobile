@@ -6,10 +6,11 @@ use std::time::{Duration, Instant};
 
 pub const PORT_FILE: &str = "/data/local/tmp/voidstrap_helper_port";
 pub const FLAGS_PATH: &str = "/data/data/pro.pekora.client/files/exe/ClientSettings/ClientAppSettings.json";
-const FLAGS_DIR: &str = "/data/data/pro.pekora.client/files/exe/ClientSettings";
-const FLAGS_EXE: &str = "/data/data/pro.pekora.client/files/exe";
-const FLAGS_FILES: &str = "/data/data/pro.pekora.client/files";
+const FLAGS_PKG: &str = "pro.pekora.client";
 const FLAGS_APP: &str = "/data/data/pro.pekora.client";
+const NS_DELIMITER: &str = "PEKOSTRAP_SCRIPT_END";
+const NS_SCRIPT: &str = "/data/local/tmp/pekostrap_flags.sh";
+const FLAGS_MIRROR: &str = "/data_mirror/data_ce/null/0/pro.pekora.client";
 pub const GAME_FPS_CAP: &str = "debug.graphics.game_default_frame_rate.disabled";
 const NONCE_BYTES: usize = 16;
 const PROOF_BYTES: usize = 32;
@@ -326,21 +327,39 @@ pub fn safe_for_heredoc(json: &str) -> bool {
     json.split('\n').all(|line| crate::java::trim(line) != FLAGS_DELIMITER)
 }
 
-pub fn write_script(json: &str) -> String {
-    let tmp = format!("{FLAGS_PATH}.new");
+fn locate() -> String {
+    format!("for fb in {FLAGS_APP} /data/user/0/{FLAGS_PKG} /proc/1/root{FLAGS_APP} {FLAGS_MIRROR}; do [ -d $fb ] && break; fb=; done\n[ -n \"$fb\" ] || exit 21\nff=$fb/files\nfx=$ff/exe\nfd=$fx/ClientSettings\nfp=$fd/ClientAppSettings.json\n")
+}
+
+fn namespaced(inner: &str) -> String {
     format!(
-        "own=$(stat -c %u:%g {FLAGS_APP}) || exit 21\nmkdir -p {FLAGS_DIR} || exit 22\nrm -f {tmp}\ncat > {tmp} <<'{FLAGS_DELIMITER}' || exit 23\n{json}\n{FLAGS_DELIMITER}\nif cmp -s {tmp} {FLAGS_PATH}; then rm -f {tmp}; else mv -f {tmp} {FLAGS_PATH} || exit 24; fi\nchmod 0644 {FLAGS_PATH} || exit 25\nchown $own {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} >/dev/null 2>&1\nrestorecon {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} >/dev/null 2>&1\n"
+        "rm -f {NS_SCRIPT}\ncat > {NS_SCRIPT} <<'{NS_DELIMITER}' || exit 26\n{inner}{NS_DELIMITER}\nchmod 0700 {NS_SCRIPT}\nsh {NS_SCRIPT}\nfr=$?\nif [ $fr = 21 ]; then nsenter -t 1 -m sh {NS_SCRIPT}; fr=$?; fi\nrm -f {NS_SCRIPT}\nchg=0\nif [ $fr = 30 ]; then chg=1; fr=0; fi\n[ $fr = 0 ] || exit $fr\n"
     )
 }
 
+fn inner_write(json: &str) -> String {
+    let find = locate();
+    format!(
+        "{find}fo=$(stat -c %u:%g $fb) || exit 21\nmkdir -p $fd || exit 22\nrm -f $fp.new\ncat > $fp.new <<'{FLAGS_DELIMITER}' || exit 23\n{json}\n{FLAGS_DELIMITER}\nfc=0\nif cmp -s $fp.new $fp; then rm -f $fp.new; else mv -f $fp.new $fp || exit 24; fc=30; fi\nchmod 0644 $fp || exit 25\nchown $fo $ff $fx $fd $fp >/dev/null 2>&1\nif [ $fb = {FLAGS_APP} ]; then restorecon $ff $fx $fd $fp >/dev/null 2>&1; fi\nexit $fc\n"
+    )
+}
+
+fn inner_remove() -> String {
+    format!("{}if [ -e $fp ] || [ -e $fp.new ]; then rm -f $fp $fp.new || exit 2; exit 30; fi\nexit 0\n", locate())
+}
+
+pub fn write_script(json: &str) -> String {
+    namespaced(&inner_write(json))
+}
+
 pub fn remove_script() -> String {
-    format!("rm -f {FLAGS_PATH} || exit 2\nexit 0\n")
+    namespaced(&inner_remove())
 }
 
 pub fn launch_sync_script(json: &str, unlocked: bool, pkg: &str, restore_refresh: &str) -> String {
-    let body = if json == "{}" { format!("if [ -e {FLAGS_PATH} ]; then rm -f {FLAGS_PATH}; c=1; fi\n") } else { write_script(json) };
+    let body = if json == "{}" { remove_script() } else { write_script(json) };
     format!(
-        "c=0\no=$(getprop {GAME_FPS_CAP})\n{body}{restore_refresh}setprop {GAME_FPS_CAP} {unlocked}\n[ \"${{o:-false}}\" = {unlocked} ] || c=1\np=$(pidof {pkg})\np=${{p%% *}}\nif [ -n \"$p\" ] && {{ [ $c = 1 ] || [ {FLAGS_PATH} -nt /proc/$p ]; }}; then am force-stop {pkg}; fi\nexit 0\n"
+        "c=0\no=$(getprop {GAME_FPS_CAP})\n{body}{restore_refresh}setprop {GAME_FPS_CAP} {unlocked}\n[ \"${{o:-false}}\" = {unlocked} ] || c=1\np=$(pidof {pkg})\np=${{p%% *}}\nif [ -n \"$p\" ] && {{ [ $c = 1 ] || [ $chg = 1 ]; }}; then am force-stop {pkg}; fi\nexit 0\n"
     )
 }
 
