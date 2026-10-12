@@ -177,7 +177,7 @@ public final class FlagWriter {
         if (mode != Mode.HELPER && mode != Mode.ROOT) return readable(json) ? 0 : R.string.flags_launch_not_applied;
         if (!pkg.matches("[A-Za-z0-9_.]+")) return 0;
         String s = script("launchScript", "json", json, "unlocked", unlocked, "pkg", pkg, "restore", RESTORE_REFRESH);
-        int code = run(mode, s, 15);
+        int code = raw(mode, s, 15);
         if (code != OK) ModLog.add("flags: script exit code " + code);
         return code == OK ? 0 : R.string.flags_launch_not_applied;
     }

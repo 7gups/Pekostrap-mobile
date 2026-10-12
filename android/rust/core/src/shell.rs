@@ -329,7 +329,7 @@ pub fn safe_for_heredoc(json: &str) -> bool {
 pub fn write_script(json: &str) -> String {
     let tmp = format!("{FLAGS_PATH}.new");
     format!(
-        "o=$(stat -c %u:%g {FLAGS_APP}) || exit 2\nmkdir -p {FLAGS_DIR} || exit 2\nrm -f {tmp}\ncat > {tmp} <<'{FLAGS_DELIMITER}' || exit 2\n{json}\n{FLAGS_DELIMITER}\nif cmp -s {tmp} {FLAGS_PATH}; then rm -f {tmp}; else mv -f {tmp} {FLAGS_PATH} || exit 2; fi\nchown $o {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} || exit 2\nchmod 0644 {FLAGS_PATH} || exit 2\nrestorecon {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} >/dev/null 2>&1\n"
+        "own=$(stat -c %u:%g {FLAGS_APP}) || exit 21\nmkdir -p {FLAGS_DIR} || exit 22\nrm -f {tmp}\ncat > {tmp} <<'{FLAGS_DELIMITER}' || exit 23\n{json}\n{FLAGS_DELIMITER}\nif cmp -s {tmp} {FLAGS_PATH}; then rm -f {tmp}; else mv -f {tmp} {FLAGS_PATH} || exit 24; fi\nchmod 0644 {FLAGS_PATH} || exit 25\nchown $own {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} >/dev/null 2>&1\nrestorecon {FLAGS_FILES} {FLAGS_EXE} {FLAGS_DIR} {FLAGS_PATH} >/dev/null 2>&1\n"
     )
 }
 
