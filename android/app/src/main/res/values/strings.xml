@@ -963,6 +963,8 @@
     </string-array>
     <string name="notify_launch">Launch messages</string>
     <string name="notify_launch_body">Warns when FastFlags or mods were not applied as Pekora opens, and when the store opens to install it.</string>
+    <string name="notify_smart">%1$s messages</string>
+    <string name="notify_smart_body">Shows progress while a server is picked for you.</string>
     <string name="notify_flags">FastFlag messages</string>
     <string name="notify_flags_body">Confirms when flags are saved, applied, imported or exported.</string>
     <string name="notify_mods">Mod messages</string>
@@ -1026,4 +1028,15 @@
         <item>Monospace</item>
         <item>Custom font file</item>
     </string-array>
+    <string name="pekora_sign_in">Sign in</string>
+    <string name="pekora_sign_out">Sign out</string>
+    <string name="pekora_login_title">Sign in to Pekora</string>
+    <string name="pekora_account_title">Pekora account</string>
+    <string name="pekora_account_signed_in">Signed in. Your session is stored encrypted on this device.</string>
+    <string name="pekora_account_signed_out">Not signed in</string>
+    <string name="pekora_signed_in_toast">Signed in to Pekora.</string>
+    <string name="pekora_signed_out_toast">Signed out of Pekora.</string>
+    <string name="pekora_session_failed">Could not store your session securely. Please try signing in again.</string>
+    <string name="pekora_sign_out_title">Sign out of Pekora?</string>
+    <string name="pekora_sign_out_body">This removes your saved Pekora session from this device.</string>
 </resources>

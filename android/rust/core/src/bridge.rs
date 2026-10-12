@@ -57,6 +57,28 @@ fn f(a: &Value, k: &str) -> f64 {
     a.get(k).and_then(Value::as_f64).unwrap_or(f64::NAN)
 }
 
+fn smart_call(op: &str, a: &Value) -> Result<Value, Error> {
+    use crate::smart;
+    let files = std::path::PathBuf::from(s(a, "files"));
+    let cache = std::path::PathBuf::from(s(a, "cache"));
+    let client = crate::net::Client { agent: s(a, "agent") };
+    Ok(match op {
+        "regions" => v(smart::REGIONS.iter().map(|r| json!({"key": r.0, "lat": r.1, "lon": r.2})).collect::<Vec<_>>()),
+        "fromTimeZone" => v(smart::from_time_zone(&s(a, "id"), n(a, "offset"))),
+        "km" => v(smart::km(f(a, "lat1"), f(a, "lon1"), f(a, "lat2"), f(a, "lon2"))),
+        "seen" => v(smart::seen(&files, n(a, "place")).len()),
+        "pick" => v(smart::pick(&client, &files, n(a, "place"), (f(a, "lat"), f(a, "lon")), java::opt_bool(a, "near", true), java::opt_bool(a, "preferEmpty", true), n(a, "minFps"))
+            .map(|c| json!({"job": c.job, "city": c.city, "ping": c.ping, "fps": c.fps}))),
+        "onJoined" => v(smart::on_joined(&client, &cache, &files, &s(a, "job"), n(a, "place"), n(a, "universe"), &s(a, "address"))),
+        "known" => v(smart::known_json(&files)),
+        "forget" => {
+            smart::forget(&files);
+            v(true)
+        }
+        _ => return Err(Error::Io(format!("unknown op smart.{op}"))),
+    })
+}
+
 fn feed_call(op: &str, a: &Value) -> Result<Value, Error> {
     use crate::feed;
     let cache = std::path::PathBuf::from(s(a, "cache"));
@@ -177,6 +199,7 @@ pub fn call(op: &str, a: &Value, data: Option<&[u8]>, file: Option<std::fs::File
         Some(("mods", rest)) => crate::mods::call(rest, a, data, file, cancel),
         Some(("flags", rest)) => flags_call(rest, a),
         Some(("shell", rest)) => shell_call(rest, a),
+        Some(("smart", rest)) => smart_call(rest, a),
         Some(("feed", rest)) => feed_call(rest, a),
         Some(("link", rest)) => link_call(rest, a),
         Some(("catalog", rest)) => catalog_call(rest, a),

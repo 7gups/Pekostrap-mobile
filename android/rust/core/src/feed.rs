@@ -6,7 +6,7 @@ use std::path::Path;
 use std::sync::Mutex;
 
 const MINUTE: i64 = 60_000;
-const NEWS_FEED: &str = "https://devforum.pekora.pro/c/updates/announcements/36.json";
+const NEWS_FEED: &str = "https://devforum.pekora.pro/c/updates/announcements/46.json";
 const CATALOG: &str = "https://pekora.pro/apisite/catalog/v1/search/items/details?Category=1&Limit=10&SortType=3";
 const ACRONYMS: [&str; 15] = ["rdc", "ip", "ugc", "api", "sdk", "ai", "ui", "ux", "vr", "ar", "os", "fps", "cdn", "npc", "id"];
 const LIMITED: [&str; 3] = ["limited", "limitedunique", "collectible"];

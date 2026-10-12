@@ -119,6 +119,13 @@ public final class SettingsFragment extends Page {
         roblox.addView(helper.view);
         FlagSync.rootRow(roblox, host());
         if (!Ui.wide(requireContext())) row(roblox, R.drawable.ic_add, R.string.nav_integrations, R.string.integrations_open_body, () -> ((MainActivity) host()).select(R.id.nav_integrations));
+        Row account = Row.inflate(roblox);
+        account.set(R.drawable.ic_shield_checkmark, getString(R.string.pekora_account_title), PekoraSession.statusText(requireContext()));
+        account.chevron.setVisibility(View.VISIBLE);
+        account.view.setOnClickListener(x -> PekoraSession.toggle(host()));
+        roblox.addView(account.view);
+        pekoraStatus = account.detail;
+        if (!Ui.wide(requireContext()) && SmartJoin.available()) row(roblox, R.drawable.ic_globe, SmartJoin.title(requireContext()), SmartJoin.openBody(requireContext()), () -> ((MainActivity) host()).select(R.id.nav_smart));
         row(roblox, R.drawable.ic_history, R.string.settings_clear_history, R.string.settings_clear_history_body, () ->
                 Ui.alert(requireContext())
                         .setTitle(R.string.history_clear_title)
@@ -154,6 +161,8 @@ public final class SettingsFragment extends Page {
         section = index;
         for (int i = 0; i < pages.length; i++) pages[i].setVisibility(i == index ? View.VISIBLE : View.GONE);
     }
+
+    private TextView pekoraStatus;
 
     private void row(LinearLayout parent, int icon, int title, int detail, Runnable r) {
         row(parent, icon, getString(title), getString(detail), r);
@@ -295,12 +304,15 @@ public final class SettingsFragment extends Page {
         notifySwitch(system, getString(R.string.notify_location), getString(R.string.notify_location_body), Integrations.LOCATION);
         notifySwitch(system, getString(R.string.notify_popup), getString(R.string.notify_popup_body), Notify.POPUP);
         SettingRows.choice(system, getString(R.string.notify_join_time), null, getResources().getStringArray(R.array.notify_join_times), Notify.index(store, Notify.JOIN_TIME, Notify.JOIN_TIMES.length, 0), i -> store.putSetting(Notify.JOIN_TIME, String.valueOf(i)));
+        String alerts = SmartJoin.alertsTitle(c);
+        if (alerts != null) notifySwitch(system, alerts, SmartJoin.alertsBody(c), Notify.SMART_ALERTS);
         notifySwitch(system, getString(R.string.notify_track_game), getString(R.string.notify_track_game_body), Notify.TRACK_GAME);
 
         LinearLayout inApp = SettingRows.section(root, getString(R.string.notify_in_app));
         caption(inApp, R.string.notify_in_app_body);
         SettingRows.choice(inApp, getString(R.string.notify_length), null, getResources().getStringArray(R.array.notify_lengths), Notify.index(store, Notify.LENGTH, Notify.LENGTHS.length, Notify.DEFAULT_LENGTH), i -> store.putSetting(Notify.LENGTH, String.valueOf(i)));
         notifySwitch(inApp, getString(R.string.notify_launch), getString(R.string.notify_launch_body), Notify.LAUNCH);
+        if (SmartJoin.available()) notifySwitch(inApp, getString(R.string.notify_smart, SmartJoin.title(c)), getString(R.string.notify_smart_body), Notify.SMART);
         notifySwitch(inApp, getString(R.string.notify_flags), getString(R.string.notify_flags_body), Notify.FLAGS);
         notifySwitch(inApp, getString(R.string.notify_mods), getString(R.string.notify_mods_body), Notify.MODS);
         notifySwitch(inApp, getString(R.string.notify_library), getString(R.string.notify_library_body), Notify.LIBRARY);
@@ -349,6 +361,7 @@ public final class SettingsFragment extends Page {
 
     @Override
     protected void refresh() {
+        if (pekoraStatus != null) pekoraStatus.setText(PekoraSession.statusText(requireContext()));
         if (pendingSection >= 0 && tabs != null) {
             TabLayout.Tab tab = tabs.getTabAt(pendingSection);
             pendingSection = -1;

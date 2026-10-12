@@ -35,6 +35,7 @@ public final class HomeFragment extends Page {
     private TextView newsCount;
     private LinearLayout newsGrid;
     private TextView catalogStatus;
+    private MaterialButton catalogSignIn;
     private LinearLayout catalogGrid;
     private View continueEmpty;
     private LinearLayout continueGrid;
@@ -104,6 +105,8 @@ public final class HomeFragment extends Page {
         newsGrid = v.findViewById(R.id.news_grid);
         catalogStatus = v.findViewById(R.id.catalog_status);
         catalogGrid = v.findViewById(R.id.catalog_grid);
+        catalogSignIn = v.findViewById(R.id.catalog_sign_in);
+        catalogSignIn.setOnClickListener(x -> PekoraSession.toggle(requireActivity()));
         continueEmpty = v.findViewById(R.id.continue_empty);
         continueGrid = v.findViewById(R.id.continue_grid);
         v.findViewById(R.id.news_explore).setOnClickListener(x -> exploreNews());
@@ -114,6 +117,7 @@ public final class HomeFragment extends Page {
 
     @Override
     protected void refresh() {
+        if (catalogSignIn != null) catalogSignIn.setText(PekoraSession.signedIn(requireContext()) ? R.string.pekora_sign_out : R.string.pekora_sign_in);
         long now = System.currentTimeMillis();
         if (now >= newsDueAt) loadNews();
         if (now >= catalogDueAt) loadCatalog();

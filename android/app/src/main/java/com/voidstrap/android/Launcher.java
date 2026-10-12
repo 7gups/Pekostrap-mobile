@@ -41,7 +41,7 @@ public final class Launcher {
                 int flagIssue = FlagWriter.syncForLaunch(app, pkg, flags, unlocked);
                 boolean mods = ModEngine.syncForLaunch(app, pkg);
                 boolean track = Integrations.on(store, Integrations.TRACKING) && ActivityService.available(app);
-                Deeplink target = destination;
+                Deeplink target = SmartJoin.rewrite(app, destination);
                 store.main.post(() -> {
                     busy = false;
                     if (track) ActivityService.startNow(app);
