@@ -963,8 +963,6 @@
     </string-array>
     <string name="notify_launch">Launch messages</string>
     <string name="notify_launch_body">Warns when FastFlags or mods were not applied as Pekora opens, and when the store opens to install it.</string>
-    <string name="notify_smart">%1$s messages</string>
-    <string name="notify_smart_body">Shows progress while a server is picked for you.</string>
     <string name="notify_flags">FastFlag messages</string>
     <string name="notify_flags_body">Confirms when flags are saved, applied, imported or exported.</string>
     <string name="notify_mods">Mod messages</string>

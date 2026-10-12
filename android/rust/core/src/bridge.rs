@@ -57,97 +57,6 @@ fn f(a: &Value, k: &str) -> f64 {
     a.get(k).and_then(Value::as_f64).unwrap_or(f64::NAN)
 }
 
-#[cfg(feature = "matchmaker")]
-fn strings(a: &Value, k: &str) -> Vec<String> {
-    a.get(k).and_then(Value::as_array).map(|x| x.iter().filter_map(|v| v.as_str().map(str::to_string)).collect()).unwrap_or_default()
-}
-
-fn smart_call(op: &str, a: &Value) -> Result<Value, Error> {
-    use crate::smart;
-    let files = std::path::PathBuf::from(s(a, "files"));
-    let cache = std::path::PathBuf::from(s(a, "cache"));
-    let client = crate::net::Client { agent: s(a, "agent") };
-    Ok(match op {
-        "regions" => v(smart::REGIONS.iter().map(|r| json!({"key": r.0, "lat": r.1, "lon": r.2})).collect::<Vec<_>>()),
-        "fromTimeZone" => v(smart::from_time_zone(&s(a, "id"), n(a, "offset"))),
-        "km" => v(smart::km(f(a, "lat1"), f(a, "lon1"), f(a, "lat2"), f(a, "lon2"))),
-        "seen" => v(smart::seen(&files, n(a, "place")).len()),
-        "pick" => v(smart::pick(&client, &files, n(a, "place"), (f(a, "lat"), f(a, "lon")), java::opt_bool(a, "near", true), java::opt_bool(a, "preferEmpty", true), n(a, "minFps"))
-            .map(|c| json!({"job": c.job, "city": c.city, "ping": c.ping, "fps": c.fps}))),
-        "onJoined" => v(smart::on_joined(&client, &cache, &files, &s(a, "job"), n(a, "place"), n(a, "universe"), &s(a, "address"))),
-        "known" => v(smart::known_json(&files)),
-        "forget" => {
-            smart::forget(&files);
-            v(true)
-        }
-        _ => return Err(Error::Io(format!("unknown op smart.{op}"))),
-    })
-}
-
-#[cfg(feature = "matchmaker")]
-fn mm_settings(a: &Value) -> crate::matchmaker::Settings {
-    crate::matchmaker::Settings {
-        preferred: s(a, "preferred"),
-        blocked: strings(a, "blocked").into_iter().collect(),
-        budget: n(a, "budget"),
-        prefer_empty: java::opt_bool(a, "preferEmpty", false),
-        v2: java::opt_bool(a, "v2", false),
-        cookie: s(a, "cookie"),
-        saved_geo: s(a, "savedGeo"),
-    }
-}
-
-#[cfg(feature = "matchmaker")]
-fn mm_call(op: &str, a: &Value) -> Result<Value, Error> {
-    use crate::matchmaker as mm;
-    use std::sync::atomic::Ordering;
-    let geo_json = |g: &Option<mm::Geo>| g.as_ref().map(mm::geo_json);
-    match op {
-        "km" => return Ok(v(mm::haversine_km(f(a, "lat1"), f(a, "lon1"), f(a, "lat2"), f(a, "lon2")))),
-        "ping" => return Ok(v(mm::estimate_ping_ms(f(a, "km")))),
-        "matchesPreferred" => {
-            let dc = a.get("dc").cloned().unwrap_or(Value::Null);
-            let d = mm::Datacenter { city: s(&dc, "city"), region: s(&dc, "region"), country: s(&dc, "country"), lat: 0.0, lon: 0.0 };
-            return Ok(v(mm::matches_preferred(&d, &s(a, "preferred"))));
-        }
-        "lastReport" => return Ok(v(mm::last_report())),
-        "expect" => {
-            crate::reroute::expect(n(a, "place"), &s(a, "city"));
-            return Ok(v(true));
-        }
-        "rejoining" => return Ok(v(crate::reroute::rejoining())),
-        _ => {}
-    }
-    mm::setup(&s(a, "builtin"), std::path::PathBuf::from(s(a, "cache")), std::path::PathBuf::from(s(a, "files")), &s(a, "agent"));
-    Ok(match op {
-        "datacenters" => v(mm::datacenters().iter().map(mm::Datacenter::to_json).collect::<Vec<_>>()),
-        "geo" => {
-            let (g, save) = mm::geo(&s(a, "savedGeo"));
-            json!({"geo": geo_json(&g), "save": save})
-        }
-        "lookup" => v(mm::lookup(&s(a, "ip"), java::now_ms() + 12_000).map(|d| d.to_json())),
-        "pick" => {
-            let exclude = strings(a, "exclude").into_iter().collect();
-            let p = mm::pick(n(a, "place"), &exclude, &mm_settings(a));
-            json!({"candidate": p.candidate.map(|c| c.to_json()), "save": p.save_geo, "rejected": mm::REJECTED.swap(false, Ordering::SeqCst)})
-        }
-        "reroute" => {
-            let d = crate::reroute::Joined {
-                place: n(a, "place"),
-                job: s(a, "job"),
-                address: s(a, "address"),
-                public: java::opt_bool(a, "public", false),
-                excluded: java::opt_bool(a, "excluded", false),
-                enabled: java::opt_bool(a, "enabled", false),
-                max_retries: n(a, "maxRetries"),
-            };
-            let o = crate::reroute::on_joined(&d, &mm_settings(a));
-            json!({"alert": o.alert, "rejoin": o.rejoin, "save": o.save_geo, "rejected": mm::REJECTED.swap(false, Ordering::SeqCst)})
-        }
-        _ => return Err(Error::Io(format!("unknown op mm.{op}"))),
-    })
-}
-
 fn feed_call(op: &str, a: &Value) -> Result<Value, Error> {
     use crate::feed;
     let cache = std::path::PathBuf::from(s(a, "cache"));
@@ -268,14 +177,11 @@ pub fn call(op: &str, a: &Value, data: Option<&[u8]>, file: Option<std::fs::File
         Some(("mods", rest)) => crate::mods::call(rest, a, data, file, cancel),
         Some(("flags", rest)) => flags_call(rest, a),
         Some(("shell", rest)) => shell_call(rest, a),
-        Some(("smart", rest)) => smart_call(rest, a),
         Some(("feed", rest)) => feed_call(rest, a),
         Some(("link", rest)) => link_call(rest, a),
         Some(("catalog", rest)) => catalog_call(rest, a),
         Some(("translate", rest)) => translate_call(rest, a),
         Some(("presence", rest)) => presence_call(rest, a),
-        #[cfg(feature = "matchmaker")]
-        Some(("mm", rest)) => mm_call(rest, a),
         #[cfg(feature = "updates")]
         Some(("update", rest)) => crate::update::call(rest, a),
         _ => Err(Error::Io(format!("unknown op {op}"))),

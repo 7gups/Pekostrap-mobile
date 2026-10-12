@@ -30,7 +30,6 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
     private static final String CHANNEL_JOIN_QUIET = "activity_join_quiet";
     private static final int ID_TRACKING = 41;
     private static final int ID_JOIN = 42;
-    private static final int ID_JOIN_ALERT = 43;
     private static final long NO_ROBLOX_MS = 90_000;
     private static final long RETRY_MS = 3000;
     private static final int MAX_FAILURES = 5;
@@ -193,14 +192,12 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
         }
         if (line.equals(HelperServer.STREAM_EXIT)) {
             watcher.reset();
-            if (SmartJoin.rejoining()) return;
             closeSocket();
             stopping = true;
             store.main.post(this::stopSelf);
             return;
         }
         if (line.equals(HelperServer.STREAM_IDLE)) {
-            if (SmartJoin.rejoining()) return;
             if (sawRoblox || System.currentTimeMillis() - sessionStart > NO_ROBLOX_MS) {
                 closeSocket();
                 stopping = true;
@@ -261,7 +258,6 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
             gen = ++generation;
         }
         add("game", getString(R.string.activity_log_joined, data.placeId));
-        store.work.execute(() -> SmartJoin.onJoined(this, data, this::joinAlert));
         store.work.execute(() -> {
             Integrations.Game g = fetch(data);
             JSONObject who = data.userId > 0 && Integrations.on(store, Integrations.ACCOUNT) ? Integrations.account(this, data.userId, false) : null;
@@ -301,15 +297,6 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
         long timeout = Notify.joinTimeout(store, automatic);
         if (timeout > 0) b.setTimeoutAfter(timeout);
         return b;
-    }
-
-    private void joinAlert(String text) {
-        if (stopping || !canNotify() || !Notify.on(store, Notify.SMART_ALERTS)) return;
-        Notification n = alert(SmartJoin.title(this), text, 10000)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
-                .build();
-        NotificationManager nm = getSystemService(NotificationManager.class);
-        if (nm != null) Crash.run("join alert", () -> nm.notify(ID_JOIN_ALERT, n));
     }
 
     private void joinNotification(String game, String location) {

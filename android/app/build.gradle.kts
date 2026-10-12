@@ -150,7 +150,7 @@ fun cargoTask(flavor: String, cargoFeatures: List<String>) = tasks.register<Carg
 }
 
 val cargoBuildPlay = cargoTask("play", emptyList())
-val cargoBuildDirect = cargoTask("direct", listOf("voidstrap_core/matchmaker", "voidstrap_core/updates"))
+val cargoBuildDirect = cargoTask("direct", listOf("voidstrap_core/updates"))
 cargoBuildDirect.configure { mustRunAfter(cargoBuildPlay) }
 
 androidComponents {

@@ -9,14 +9,10 @@ pub mod font;
 pub mod hash;
 pub mod java;
 pub mod link;
-#[cfg(feature = "matchmaker")]
-pub mod matchmaker;
 mod jni;
 pub mod mods;
 pub mod net;
 pub mod presence;
-#[cfg(feature = "matchmaker")]
-pub mod reroute;
 pub mod sha256;
 pub mod shell;
 pub mod smart;

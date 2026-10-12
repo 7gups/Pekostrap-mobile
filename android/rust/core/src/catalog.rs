@@ -896,32 +896,20 @@ fn batch_details(c: &Client, entries: &mut [Entry]) -> Result<(), Error> {
 pub fn browse(c: &Client, src: &placer::Source, page: i64, sort: &str, category: i64, search: &str) -> Result<Value, Error> {
     let q = java::trim(search);
     let searching = java::utf16_len(q) >= MIN_SEARCH;
+    let game = net::uri_encode("_aFilters[Generic_Game]");
     let url = if searching {
         format!("{API}/Util/Search/Results?_sSearchString={}&_idGameRow={ROBLOX_GAME}&_sModelName=Mod&_nPage={page}", net::uri_encode(q))
     } else if category > 0 {
-        format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&_idGameRow={ROBLOX_GAME}&{}={category}", net::uri_encode("_aFilters[Generic_Category]"))
+        format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&{game}={ROBLOX_GAME}&{}={category}", net::uri_encode("_aFilters[Generic_Category]"))
     } else {
-        // The UI has used both “New” and “Newest” for this sort over time.
-        // Normalize the label so the New section never silently falls back to Featured.
-        let normalized_sort = sort.trim().to_ascii_lowercase();
-        let key = match normalized_sort.as_str() {
-            "new" | "newest" | "latest" => "Generic_Newest",
-            "recently updated" | "recently-updated" | "updated" => "Generic_LatestModified",
+        let key = match sort {
+            "Newest" => "Generic_Newest",
+            "Recently updated" => "Generic_LatestModified",
             _ => "",
         };
-        format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&_idGameRow={ROBLOX_GAME}{}", if key.is_empty() { String::new() } else { format!("&_sSort={key}") })
+        format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&{game}={ROBLOX_GAME}{}", if key.is_empty() { String::new() } else { format!("&_sSort={key}") })
     };
-    // GameBanana's Mod/Index endpoint uses `_idGameRow` for the game filter.
-    // If a server rejects a sort-specific URL, retry the same page without the
-    // sort so the catalog can still render instead of showing an offline error.
-    let root = match json_object(c, &url) {
-        Ok(root) => root,
-        Err(first_error) if !searching && category <= 0 && url.contains("&_sSort=") => {
-            let fallback = format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&_idGameRow={ROBLOX_GAME}");
-            json_object(c, &fallback).map_err(|_| first_error)?
-        }
-        Err(error) => return Err(error),
-    };
+    let root = json_object(c, &url)?;
     let total = root.get("_aMetadata").filter(|m| m.is_object()).map_or(0, |m| opt_int(m, "_nRecordCount", 0));
     let page_size = if searching { 15 } else { PAGE_SIZE as i32 };
     let Some(records) = root.get("_aRecords").and_then(Value::as_array) else {

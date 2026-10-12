@@ -20,7 +20,9 @@
                 <data android:mimeType="application/vnd.android.package-archive" />
                 <data android:mimeType="application/x-android-package-archive" />
             </intent-filter>
-        </activity><receiver
+        </activity>
+
+        <receiver
             android:name=".UpdateInstallReceiver"
             android:exported="false">
             <intent-filter>

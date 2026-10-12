@@ -8,7 +8,6 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [features]
-matchmaker = []
 updates = []
 
 [dependencies]

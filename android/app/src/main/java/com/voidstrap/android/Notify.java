@@ -12,11 +12,9 @@ import android.widget.Toast;
 public final class Notify {
     public static final String POPUP = "ntPopup";
     public static final String JOIN_TIME = "ntJoinTime";
-    public static final String SMART_ALERTS = "ntSmartAlerts";
     public static final String TRACK_GAME = "ntTrackGame";
     public static final String LENGTH = "ntLength";
     public static final String LAUNCH = "ntLaunch";
-    public static final String SMART = "ntSmart";
     public static final String FLAGS = "ntFlags";
     public static final String MODS = "ntMods";
     public static final String LIBRARY = "ntLibrary";

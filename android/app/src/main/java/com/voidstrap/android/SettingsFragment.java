@@ -295,15 +295,12 @@ public final class SettingsFragment extends Page {
         notifySwitch(system, getString(R.string.notify_location), getString(R.string.notify_location_body), Integrations.LOCATION);
         notifySwitch(system, getString(R.string.notify_popup), getString(R.string.notify_popup_body), Notify.POPUP);
         SettingRows.choice(system, getString(R.string.notify_join_time), null, getResources().getStringArray(R.array.notify_join_times), Notify.index(store, Notify.JOIN_TIME, Notify.JOIN_TIMES.length, 0), i -> store.putSetting(Notify.JOIN_TIME, String.valueOf(i)));
-        String alerts = SmartJoin.alertsTitle(c);
-        if (alerts != null) notifySwitch(system, alerts, SmartJoin.alertsBody(c), Notify.SMART_ALERTS);
         notifySwitch(system, getString(R.string.notify_track_game), getString(R.string.notify_track_game_body), Notify.TRACK_GAME);
 
         LinearLayout inApp = SettingRows.section(root, getString(R.string.notify_in_app));
         caption(inApp, R.string.notify_in_app_body);
         SettingRows.choice(inApp, getString(R.string.notify_length), null, getResources().getStringArray(R.array.notify_lengths), Notify.index(store, Notify.LENGTH, Notify.LENGTHS.length, Notify.DEFAULT_LENGTH), i -> store.putSetting(Notify.LENGTH, String.valueOf(i)));
         notifySwitch(inApp, getString(R.string.notify_launch), getString(R.string.notify_launch_body), Notify.LAUNCH);
-        if (SmartJoin.available()) notifySwitch(inApp, getString(R.string.notify_smart, SmartJoin.title(c)), getString(R.string.notify_smart_body), Notify.SMART);
         notifySwitch(inApp, getString(R.string.notify_flags), getString(R.string.notify_flags_body), Notify.FLAGS);
         notifySwitch(inApp, getString(R.string.notify_mods), getString(R.string.notify_mods_body), Notify.MODS);
         notifySwitch(inApp, getString(R.string.notify_library), getString(R.string.notify_library_body), Notify.LIBRARY);
