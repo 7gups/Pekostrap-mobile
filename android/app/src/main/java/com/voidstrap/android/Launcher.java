@@ -39,6 +39,7 @@ public final class Launcher {
         store.work.execute(() -> {
             try {
                 int flagIssue = FlagWriter.syncForLaunch(app, pkg, flags, unlocked);
+                FlagWriter.syncTheme(app, pkg, "1".equals(store.setting("forceDarkTheme", "0")));
                 boolean mods = ModEngine.syncForLaunch(app, pkg);
                 boolean track = Integrations.on(store, Integrations.TRACKING) && ActivityService.available(app);
                 Deeplink target = SmartJoin.rewrite(app, destination);

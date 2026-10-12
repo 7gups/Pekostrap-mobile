@@ -363,6 +363,19 @@ pub fn launch_sync_script(json: &str, unlocked: bool, pkg: &str, restore_refresh
     )
 }
 
+/// Sets the app theme the game reads at startup (AuthenticatedTheme in LocalStorage).
+/// Only "dark" and "light" are accepted, and the package name must be plain, so nothing else can reach the shell.
+pub fn theme_script(theme: &str, pkg: &str) -> String {
+    let theme = if theme == "light" { "light" } else { "dark" };
+    let ok = !pkg.is_empty() && pkg.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '.');
+    let stop = if ok { format!("p=$(pidof {pkg})\nif [ -n \"$p\" ] && [ $chg = 1 ]; then am force-stop {pkg}; fi\n") } else { String::new() };
+    let inner = format!(
+        "{}f=$ff/appData/LocalStorage/appStorage.json\n[ -f $f ] || exit 0\nrm -f $f.pk\nsed -E 's/(\"AuthenticatedTheme\"[[:space:]]*:[[:space:]]*\")[A-Za-z]*(\")/\\1{theme}\\2/' $f > $f.pk || exit 27\nif cmp -s $f.pk $f; then rm -f $f.pk; exit 0; fi\ncat $f.pk > $f || {{ rm -f $f.pk; exit 28; }}\nrm -f $f.pk\nexit 30\n",
+        locate()
+    );
+    format!("{}{stop}exit 0\n", namespaced(&inner))
+}
+
 pub fn readable(json: &str) -> bool {
     let f = std::path::Path::new(FLAGS_PATH);
     if json == "{}" {

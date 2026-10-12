@@ -181,6 +181,19 @@ public final class FlagWriter {
         return r;
     }
 
+    /** Forces the app theme (stored by the game as AuthenticatedTheme) to dark, and puts it back to light when the option is turned off. */
+    public static void syncTheme(Context c, String pkg, boolean dark) {
+        Store store = Store.get(c);
+        boolean forced = "1".equals(store.setting("themeForced", "0"));
+        if (!dark && !forced) return;
+        Mode mode = mode(c);
+        if ((mode != Mode.HELPER && mode != Mode.ROOT) || !pkg.matches("[A-Za-z0-9_.]+")) return;
+        String s = script("themeScript", "theme", dark ? "dark" : "light", "pkg", pkg);
+        int code = runFlags(mode, s, 15);
+        ModLog.add("theme: " + (dark ? "dark" : "light") + " for " + pkg + ", " + (code == OK ? "ok" : "not applied"));
+        if (code == OK) store.putSetting("themeForced", dark ? "1" : "0");
+    }
+
     private static int syncForLaunchInner(Context c, String pkg, String json, boolean unlocked) {
         if (tooLarge(json)) return R.string.flags_too_large;
         if (!safeForHeredoc(json)) return R.string.flags_launch_not_applied;

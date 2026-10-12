@@ -96,7 +96,7 @@ final class ModsCustomizeTab {
             s.deathSound = ModPresets.hasDeathSound(app);
             s.deathVolume = ModPresets.deathVolume(app);
             s.oldAvatar = ModPresets.presetOn(app, ModPresets.OLD_AVATAR);
-            s.forceDark = ModPresets.forceDark(app);
+            s.forceDark = "1".equals(Store.get(app).setting("forceDarkTheme", "0"));
             s.emoji = ModPresets.emoji(app);
             s.skyEnabled = ModPresets.skyEnabled(app);
             s.skyName = ModPresets.skyName(app);
@@ -156,7 +156,7 @@ final class ModsCustomizeTab {
             return app.getString(on ? R.string.mods_preset_on : R.string.mods_preset_off, app.getString(R.string.mods_old_avatar));
         }));
         toggle(g, R.string.mods_force_dark, s.forceDark, on -> work(R.string.mods_working, (app, cancel) -> {
-            ModPresets.setForceDark(app, on);
+            Store.get(app).putSetting("forceDarkTheme", on ? "1" : "0");
             return app.getString(on ? R.string.mods_preset_on : R.string.mods_preset_off, app.getString(R.string.mods_force_dark));
         }));
         String[] emoji = c.getResources().getStringArray(R.array.mods_emoji_types);

@@ -11,13 +11,6 @@ pub const FORMAT: i64 = 2;
 pub const REMOTE_DIR: &str = "/data/local/tmp/voidstrap_mods";
 pub const CACHE_LIST: &str = "/data/local/tmp/voidstrap_cache_";
 
-/// Built-in "force dark mode" files. They live in the app's private state folder (never in the
-/// user's mods folder), so the rule that user mods cannot ship Lua stays in place.
-pub const FORCE_DARK: &[(&str, &str)] = &[
-    ("ForceDark/UIBlox.lua", "ExtraContent/LuaPackages/Packages/_Index/UIBlox/UIBlox/App/Style/Themes/getThemeFromName.lua"),
-    ("ForceDark/App.lua", "ExtraContent/LuaPackages/AppTempCommon/LuaApp/Style/Themes/getThemeFromName.lua"),
-];
-
 pub struct Roots {
     pub mods: PathBuf,
     pub managed: Managed,
@@ -72,12 +65,6 @@ pub fn collect(roots: &Roots) -> Vec<(String, PathBuf)> {
             continue;
         }
         out.put(rel, source);
-    }
-    for (src, dest) in FORCE_DARK {
-        let f = roots.state.join(src);
-        if f.is_file() {
-            out.put((*dest).to_string(), f);
-        }
     }
     out.items.into_iter().flatten().collect()
 }

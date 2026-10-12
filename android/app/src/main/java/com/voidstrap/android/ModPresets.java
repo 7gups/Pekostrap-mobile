@@ -124,14 +124,6 @@ public final class ModPresets {
         return Core.flag("mods.presetOn", Core.merge(Core.roots(c), pairs(map)));
     }
 
-    public static boolean forceDark(Context c) {
-        return Core.flag("mods.forceDarkOn", Core.roots(c));
-    }
-
-    public static void setForceDark(Context c, boolean on) throws IOException {
-        Core.run("mods.setForceDark", Core.roots(c, "on", on));
-    }
-
     public static void setPreset(Context c, String[][] map, boolean on) throws IOException {
         Core.run("mods.setPreset", Core.merge(Core.roots(c, "on", on), pairs(map)));
     }

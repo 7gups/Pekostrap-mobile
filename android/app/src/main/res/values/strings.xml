@@ -670,7 +670,7 @@
     <string name="mods_death_volume">Death sound volume</string>
     <string name="mods_death_volume_set">Death sound volume set to %1$s.</string>
     <string name="mods_old_avatar">Old avatar editor background</string>
-    <string name="mods_force_dark">Force dark mode (UI)</string>
+    <string name="mods_force_dark">Force dark app theme</string>
     <string name="mods_emoji">Emoji style</string>
     <string name="mods_emoji_set">Emoji style set to %1$s.</string>
     <string name="mods_sky_body">Choose a skybox once. Pekostrap downloads it and loads it into Pekora.</string>
