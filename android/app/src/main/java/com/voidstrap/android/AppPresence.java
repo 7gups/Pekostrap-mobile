@@ -117,7 +117,6 @@ final class AppPresence {
     }
 
     private static String[] pageInfo(int id) {
-        if (id == R.id.nav_library) return new String[]{"Library", "Browsing the game library"};
         if (id == R.id.nav_mods) return new String[]{"Mods", "Cursors, sounds, overlays, skyboxes"};
         if (id == R.id.nav_flags) return new String[]{"FastFlag Settings", "Tweaking flag presets"};
         if (id == R.id.nav_flag_editor) return new String[]{"FastFlag Editor", "Editing fast flags"};

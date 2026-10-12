@@ -138,6 +138,8 @@ final class ModsCustomizeTab {
         nav(g, c.getString(R.string.mods_sets_title), s.sets.isEmpty() ? c.getString(R.string.mods_value_none)
                 : c.getResources().getQuantityString(R.plurals.mods_sets_count, s.sets.size(), s.sets.size()), R.string.mods_sets_body, this::fillSets);
 
+        boolean old = Targets.is2018(c);
+        if (!old) {
         g = section(rows, R.string.mods_section_interface);
         toggle(g, R.string.mods_ps4, s.ps4, on -> work(R.string.mods_working, (app, cancel) -> {
             ModInterface.setPs4(app, on, cancel);
@@ -147,14 +149,15 @@ final class ModsCustomizeTab {
             ModInterface.setHideCoreGui(app, on, cancel);
             return app.getString(on ? R.string.mods_nogui_on : R.string.mods_nogui_off);
         }));
+        }
 
         g = section(rows, R.string.mods_section_appearance);
-        toggle(g, R.string.mods_old_avatar, s.oldAvatar, on -> work(R.string.mods_working, (app, cancel) -> {
+        if (!old) toggle(g, R.string.mods_old_avatar, s.oldAvatar, on -> work(R.string.mods_working, (app, cancel) -> {
             ModPresets.setPreset(app, ModPresets.OLD_AVATAR, on);
             return app.getString(on ? R.string.mods_preset_on : R.string.mods_preset_off, app.getString(R.string.mods_old_avatar));
         }));
         String[] emoji = c.getResources().getStringArray(R.array.mods_emoji_types);
-        SettingRows.choice(g, c.getString(R.string.mods_emoji), null, emoji, s.emoji, i -> work(R.string.mods_downloading, (app, cancel) -> {
+        if (!old) SettingRows.choice(g, c.getString(R.string.mods_emoji), null, emoji, s.emoji, i -> work(R.string.mods_downloading, (app, cancel) -> {
             ModPresets.setEmoji(app, i, cancel);
             return app.getString(R.string.mods_emoji_set, emoji[i]);
         }));

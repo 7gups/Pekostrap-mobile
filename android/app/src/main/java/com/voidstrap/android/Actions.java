@@ -128,8 +128,10 @@ public final class Actions {
             row.view.setSelected(pkg.equals(selected));
             row.view.setContentDescription(a.getString(pkg.equals(selected) ? R.string.target_row_selected : R.string.target_row, a.getString(Targets.nameRes(pkg)), status(a, s)));
             row.view.setOnClickListener(v -> {
+                boolean changed = !pkg.equals(Targets.selected(a));
                 Store.get(a).putSetting("target", pkg);
                 if (holder[0] != null) holder[0].dismiss();
+                if (changed) a.recreate();
             });
             list.addView(row.view);
         }

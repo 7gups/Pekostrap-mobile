@@ -42,6 +42,26 @@ public final class Targets {
         return PEKORA_2018.equals(pkg) ? R.string.target_pekora_2018 : R.string.target_pekora;
     }
 
+    private static final java.util.Set<String> NOT_IN_2018 = new java.util.HashSet<>(java.util.Arrays.asList(
+            "DFIntCSGLevelOfDetailSwitchingDistance", "DFIntCSGLevelOfDetailSwitchingDistanceL12",
+            "DFIntCSGLevelOfDetailSwitchingDistanceL23", "DFIntCSGLevelOfDetailSwitchingDistanceL34",
+            "DFFlagDisableDPIScale", "FFlagDebugGraphicsPreferD3D11", "DFFlagDebugPauseVoxelizer",
+            "FIntFRMMaxGrassDistance", "FIntFRMMinGrassDistance", "FFlagDebugGraphicsPreferVulkan",
+            "FFlagDebugGraphicsPreferOpenGL", "FIntRenderShadowmapBias", "FIntRenderLocalLightUpdatesMax",
+            "FIntRenderLocalLightUpdatesMin", "DFFlagDebugSkipMeshVoxelizer", "FFlagDebugForceModelMeshRendering",
+            "FFlagPreloadAllFonts"));
+    private static final java.util.Set<String> NOT_IN_2021 = new java.util.HashSet<>(java.util.Arrays.asList(
+            "FIntDebugForceMSAASamples"));
+
+    public static boolean is2018(Context c) {
+        return PEKORA_2018.equals(selected(c));
+    }
+
+    /** False only when the selected app's engine does not contain this flag (checked against each libroblox.so). */
+    public static boolean flagSupported(Context c, String flag) {
+        return is2018(c) ? !NOT_IN_2018.contains(flag) : !NOT_IN_2021.contains(flag);
+    }
+
     public static String downloadUrl(String pkg) {
         return PEKORA_2018.equals(pkg) ? DOWNLOAD_2018 : DOWNLOAD;
     }

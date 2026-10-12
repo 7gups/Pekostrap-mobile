@@ -33,13 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean testingNoticeOpen;
 
-    private static final int[] TABS = {R.id.nav_home, R.id.nav_library, R.id.nav_mods, R.id.nav_flags, R.id.nav_flag_editor, R.id.nav_integrations, R.id.nav_smart, R.id.nav_settings};
+    private static final int[] TABS = {R.id.nav_home, R.id.nav_mods, R.id.nav_flags, R.id.nav_flag_editor, R.id.nav_integrations, R.id.nav_smart, R.id.nav_settings};
 
     private Store store;
     private int current = R.id.nav_home;
     private NavigationBarView nav;
     private LinearLayout sidebarItems;
-    private com.google.android.material.button.MaterialButton titleLibrary;
     private static long lastJoinImport;
     private com.google.android.material.button.MaterialButton barTarget;
     private View barSave;
@@ -74,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         if (sidebarItems != null) buildSidebar();
-        titleLibrary = findViewById(R.id.title_library);
-        if (titleLibrary != null) titleLibrary.setOnClickListener(v -> show(R.id.nav_library));
         setupBar();
         applyInsets();
         AppBackground.apply(this);
@@ -132,15 +129,6 @@ public class MainActivity extends AppCompatActivity {
             intent.setAction(null);
             Updater.openLocal(this, uri);
             return;
-        }
-        if (Intent.ACTION_SEND.equals(intent.getAction())) {
-            CharSequence text = Crash.call("shared text", () -> intent.getCharSequenceExtra(Intent.EXTRA_TEXT), null);
-            if (text != null) {
-                LibraryFragment.incoming = Store.clip(text.toString().trim(), Deeplink.MAX_INPUT);
-                select(R.id.nav_library);
-                store.changed();
-            }
-            intent.setAction(null);
         }
         int tab = Crash.call("intent tab", () -> intent.getIntExtra(EXTRA_TAB, 0), 0);
         if (tab != 0 && java.util.Arrays.stream(TABS).anyMatch(t -> t == tab)) {
@@ -462,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static Fragment create(int id) {
-        if (id == R.id.nav_library) return new LibraryFragment();
         if (id == R.id.nav_mods) return new ModsFragment();
         if (id == R.id.nav_flags) return new FlagSettingsFragment();
         if (id == R.id.nav_flag_editor) return new FlagsFragment();
@@ -494,7 +481,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSidebar() {
-        if (titleLibrary != null) titleLibrary.setBackgroundTintList(current == R.id.nav_library ? getColorStateList(R.color.vs_tonal) : android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
         if (sidebarItems == null) return;
         for (int tab : TABS) {
             View row = findViewById(tab);

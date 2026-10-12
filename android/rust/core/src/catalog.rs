@@ -902,9 +902,12 @@ pub fn browse(c: &Client, src: &placer::Source, page: i64, sort: &str, category:
     } else if category > 0 {
         format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&{game}={ROBLOX_GAME}&{}={category}", net::uri_encode("_aFilters[Generic_Category]"))
     } else {
-        let key = match sort {
-            "Newest" => "Generic_Newest",
-            "Recently updated" => "Generic_LatestModified",
+        // The UI has used both “New” and “Newest” for this sort over time.
+        // Normalize the label so the New section never silently falls back to Featured.
+        let normalized_sort = sort.trim().to_ascii_lowercase();
+        let key = match normalized_sort.as_str() {
+            "new" | "newest" | "latest" => "Generic_Newest",
+            "recently updated" | "recently-updated" | "updated" => "Generic_LatestModified",
             _ => "",
         };
         format!("{API}/Mod/Index?_nPage={page}&_nPerpage={PAGE_SIZE}&{game}={ROBLOX_GAME}{}", if key.is_empty() { String::new() } else { format!("&_sSort={key}") })

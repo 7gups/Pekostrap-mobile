@@ -381,9 +381,7 @@ pub fn on_joined(client: &Client, cache: &Path, files: &Path, job: &str, place: 
 fn game_name(client: &Client, cache: &Path, place: i64, universe: i64) -> String {
     let mut universe = universe;
     if universe <= 0 {
-        universe = client
-            .cached_json(cache, &format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe"), LOCATION_CACHE_MS)
-            .map_or(0, |o| java::opt_long(&o, "universeId", 0));
+        universe = crate::feed::universe_of(client, cache, place, LOCATION_CACHE_MS);
     }
     if universe <= 0 {
         return String::new();

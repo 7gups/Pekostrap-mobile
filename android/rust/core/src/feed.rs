@@ -6,7 +6,7 @@ use std::path::Path;
 use std::sync::Mutex;
 
 const MINUTE: i64 = 60_000;
-const NEWS_FEED: &str = "https://devforum.pekora.pro/c/updates/announcements/36.json";
+const NEWS_FEED: &str = "https://devforum.pekora.pro/c/updates/announcements/46.json";
 const CATALOG: &str = "https://pekora.pro/apisite/catalog/v1/search/items/details?Category=1&Limit=10&SortType=3";
 const ACRONYMS: [&str; 15] = ["rdc", "ip", "ugc", "api", "sdk", "ai", "ui", "ux", "vr", "ar", "os", "fps", "cdn", "npc", "id"];
 const LIMITED: [&str; 3] = ["limited", "limitedunique", "collectible"];
@@ -22,6 +22,47 @@ const TYPES: &[(i32, &str)] = &[
 
 pub fn forget(cache: &Path, url: &str) {
     let _ = std::fs::remove_file(cache.join("feeds").join(format!("{}.json", sha1_hex(url.as_bytes()))));
+}
+
+const PLACE_DETAILS: &str = "https://pekora.pro/apisite/games/v1/games/multiget-place-details?placeIds=";
+
+fn universe_from_details(v: &Value) -> i64 {
+    let first = match v.as_array() {
+        Some(a) => a.first(),
+        None => v.get("data").and_then(Value::as_array).and_then(|a| a.first()),
+    };
+    first.filter(|o| o.is_object()).map_or(0, |o| opt_long(o, "universeId", 0))
+}
+
+/// Resolves a place to its universe. Pekora serves this through multiget-place-details; the
+/// Roblox-style universes/v1/places/{id}/universe is kept as a fallback.
+pub fn universe_of(c: &Client, cache: &Path, place: i64, max_age_ms: i64) -> i64 {
+    if place <= 0 {
+        return 0;
+    }
+    let url = format!("{PLACE_DETAILS}{place}");
+    let found = c.cached_json(cache, &url, max_age_ms).map_or(0, |v| universe_from_details(&v));
+    if found > 0 {
+        return found;
+    }
+    forget(cache, &url);
+    let legacy = format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe");
+    let found = c.cached_json(cache, &legacy, max_age_ms).map_or(0, |o| opt_long(&o, "universeId", 0));
+    if found <= 0 {
+        forget(cache, &legacy);
+    }
+    found
+}
+
+pub fn universe_uncached(c: &Client, place: i64) -> i64 {
+    if place <= 0 {
+        return 0;
+    }
+    let found = c.json(&format!("{PLACE_DETAILS}{place}")).map_or(0, |v| universe_from_details(&v));
+    if found > 0 {
+        return found;
+    }
+    c.json(&format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe")).map_or(0, |o| opt_long(&o, "universeId", 0))
 }
 
 pub fn time(iso: &str) -> i64 {
@@ -106,13 +147,7 @@ pub fn enrich(c: &Client, cache: &Path, games: &mut [Game]) {
         if g.universe > 0 {
             continue;
         }
-        let url = format!("https://pekora.pro/apisite/universes/v1/places/{}/universe", g.place);
-        if let Some(o) = c.cached_json(cache, &url, 7 * 24 * 60 * MINUTE) {
-            g.universe = opt_long(&o, "universeId", 0);
-        }
-        if g.universe <= 0 {
-            forget(cache, &url);
-        }
+        g.universe = universe_of(c, cache, g.place, 7 * 24 * 60 * MINUTE);
     }
     let mut order: Vec<i64> = Vec::new();
     let mut by: HashMap<i64, Vec<usize>> = HashMap::new();
@@ -194,6 +229,13 @@ pub fn enrich(c: &Client, cache: &Path, games: &mut [Game]) {
             if url.starts_with("https://") {
                 for &i in by.get(&opt_long(o, "universeId", 0)).into_iter().flatten() {
                     games[i].thumb = Some(url.clone());
+                }
+            }
+        }
+        for id in chunk {
+            for &i in &by[id] {
+                if games[i].thumb.is_none() {
+                    games[i].thumb = games[i].icon.clone();
                 }
             }
         }
@@ -563,8 +605,9 @@ pub fn cards(c: &Client, cache: &Path, cards: &[Value]) -> Vec<Value> {
     let mut universes = vec![0i64; out.len()];
     for (i, g) in cards.iter().enumerate() {
         universes[i] = opt_long(g, "universeId", 0);
-        if let Some(o) = c.cached_json(cache, &format!("https://pekora.pro/apisite/universes/v1/places/{}/universe", opt_long(g, "placeId", 0)), 7 * 24 * 60 * MINUTE) {
-            universes[i] = opt_long(&o, "universeId", 0);
+        let found = universe_of(c, cache, opt_long(g, "placeId", 0), 7 * 24 * 60 * MINUTE);
+        if found > 0 {
+            universes[i] = found;
         }
         out[i].insert("universeId".into(), universes[i].into());
     }
@@ -615,6 +658,16 @@ pub fn cards(c: &Client, cache: &Path, cards: &[Value]) -> Vec<Value> {
                 out[i].insert("thumbnail".into(), url.into());
             }
         }
+        if order.iter().any(|u| by.get(u).is_some_and(|&i| !out[i].contains_key("thumbnail"))) {
+            let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/thumbnails/v1/games/icons?universeIds={ids}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"), 24 * 60 * MINUTE);
+            for o in loose(&d, "data") {
+                let Some(&i) = by.get(&opt_long(o, "targetId", 0)) else { continue };
+                let url = opt_str(o, "imageUrl", "");
+                if url.starts_with("https://") && !out[i].contains_key("thumbnail") {
+                    out[i].insert("thumbnail".into(), url.into());
+                }
+            }
+        }
     }
     out.into_iter().map(Value::Object).collect()
 }
@@ -625,7 +678,7 @@ pub fn meta(c: &Client, place: i64) -> Option<Value> {
     if let Some(hit) = META.lock().ok().and_then(|m| m.as_ref().and_then(|m| m.get(&place).cloned())) {
         return Some(hit);
     }
-    let universe = opt_long(&c.json(&format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe"))?, "universeId", 0);
+    let universe = universe_uncached(c, place);
     if universe <= 0 {
         return None;
     }
@@ -657,7 +710,7 @@ pub fn game(c: &Client, place: i64, universe: i64, address: &str, location: bool
     let mut universe = universe;
     let mut fetch = || -> Option<()> {
         if universe <= 0 {
-            universe = opt_long(&c.json(&format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe"))?, "universeId", 0);
+            universe = universe_uncached(c, place);
         }
         if universe <= 0 {
             return None;

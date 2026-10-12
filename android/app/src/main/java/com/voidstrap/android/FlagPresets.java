@@ -148,23 +148,23 @@ public final class FlagPresets {
         root.removeAllViews();
 
         LinearLayout graphics = section(R.string.presets_section_graphics);
-        choice(graphics, R.string.presets_msaa, R.string.presets_msaa_short, labels(R.array.presets_msaa), pick(MSAA_VALUES, MSAA), MSAA, i -> {
+        if (ok(MSAA)) choice(graphics, R.string.presets_msaa, R.string.presets_msaa_short, labels(R.array.presets_msaa), pick(MSAA_VALUES, MSAA), MSAA, i -> {
             put(MSAA, i == 0 ? null : (Object) MSAA_VALUES[i]);
             put(MSAA_OPTIONAL, null);
             commit.run();
         });
-        choice(graphics, R.string.presets_render_mode, R.string.presets_render_mode_short, labels(R.array.presets_render_mode), on(VULKAN) ? 1 : on(OPENGL) ? 2 : 0, null, i -> {
+        if (ok(VULKAN)) choice(graphics, R.string.presets_render_mode, R.string.presets_render_mode_short, labels(R.array.presets_render_mode), on(VULKAN) ? 1 : on(OPENGL) ? 2 : 0, null, i -> {
             put(D3D11, null);
             put(VULKAN, i == 1 ? Boolean.TRUE : null);
             put(OPENGL, i == 2 ? Boolean.TRUE : null);
             put(NO_D3D11, null);
             commit.run();
         });
-        toggle(graphics, R.string.presets_dpi_title, R.string.presets_dpi_short, on(DPI), checked -> {
+        if (ok(DPI)) toggle(graphics, R.string.presets_dpi_title, R.string.presets_dpi_short, on(DPI), checked -> {
             put(DPI, checked ? Boolean.TRUE : null);
             commit.run();
         });
-        toggle(graphics, R.string.presets_shadows, R.string.presets_shadows_short, on(SHADOWS[0]) && values().containsKey(SHADOWS[1]), checked -> {
+        if (ok(SHADOWS[0])) toggle(graphics, R.string.presets_shadows, R.string.presets_shadows_short, on(SHADOWS[0]) && values().containsKey(SHADOWS[1]), checked -> {
             shadows(checked);
             commit.run();
         });
@@ -175,26 +175,27 @@ public final class FlagPresets {
             commit.run();
         });
 
-        LinearLayout detail = section(R.string.presets_section_detail);
+        boolean detailAny = ok(LOD[0]) || ok(GRASS_MIN);
+        LinearLayout detail = detailAny ? section(R.string.presets_section_detail) : null;
         boolean meshOn = values().containsKey(LOD[0]);
         View meshSlider = slider(MESH_MIN, MESH_MAX, (int) Math.max(MESH_MIN, Math.min(MESH_MAX, num(LOD[0], MESH_MAX))), v -> {
             mesh(v);
             commit.run();
         });
-        toggle(detail, R.string.presets_mesh, R.string.presets_mesh_short, meshOn, checked -> {
+        if (ok(LOD[0])) toggle(detail, R.string.presets_mesh, R.string.presets_mesh_short, meshOn, checked -> {
             mesh(checked ? MESH_MAX : 0);
             commit.run();
             build();
         });
-        if (meshOn) detail.addView(meshSlider);
+        if (meshOn && ok(LOD[0])) detail.addView(meshSlider);
 
-        toggle(detail, R.string.presets_remove_grass, R.string.presets_remove_grass_short, num(GRASS_MIN, -1) == 0 && num(GRASS_MAX, -1) == 0, checked -> {
+        if (ok(GRASS_MIN)) toggle(detail, R.string.presets_remove_grass, R.string.presets_remove_grass_short, num(GRASS_MIN, -1) == 0 && num(GRASS_MAX, -1) == 0, checked -> {
             put(GRASS_MIN, checked ? (Object) 0L : null);
             put(GRASS_MAX, checked ? (Object) 0L : null);
             commit.run();
             build();
         });
-        grassDistance(detail);
+        if (ok(GRASS_MIN)) grassDistance(detail);
 
         LinearLayout ui = section(R.string.presets_section_interface);
         toggle(ui, R.string.presets_blur, R.string.presets_blur_short, values().containsKey(BLUR) && num(BLUR, -1) == 0, checked -> {
@@ -209,6 +210,10 @@ public final class FlagPresets {
         LinearLayout quick = section(R.string.presets_section_quick);
         recommended(quick);
         allowlistRow(quick);
+    }
+
+    private boolean ok(String flag) {
+        return Targets.flagSupported(a, flag);
     }
 
     private LinearLayout section(int title) {
@@ -382,10 +387,12 @@ public final class FlagPresets {
         MaterialButton apply = new MaterialButton(a);
         apply.setText(R.string.presets_apply_profile);
         apply.setOnClickListener(v -> {
-            put(MSAA, PROFILES[profile][0] == 0 ? null : (Object) PROFILES[profile][0]);
-            put(MSAA_OPTIONAL, null);
-            shadows(PROFILES[profile][1] == 1);
-            mesh((int) PROFILES[profile][2]);
+            if (ok(MSAA)) {
+                put(MSAA, PROFILES[profile][0] == 0 ? null : (Object) PROFILES[profile][0]);
+                put(MSAA_OPTIONAL, null);
+            }
+            if (ok(SHADOWS[0])) shadows(PROFILES[profile][1] == 1);
+            if (ok(LOD[0])) mesh((int) PROFILES[profile][2]);
             commit.run();
             Notify.say(a, Notify.FLAGS, a.getString(R.string.presets_profile_applied, names[profile]));
             build();
@@ -410,6 +417,7 @@ public final class FlagPresets {
             LinearLayout list = new LinearLayout(a);
             list.setOrientation(LinearLayout.VERTICAL);
             for (Map.Entry<String, String> e : FlagWriter.ALLOWLIST.entrySet()) {
+                if (!ok(e.getKey())) continue;
                 Row item = Row.inflate(list);
                 item.set(R.drawable.ic_flag, e.getKey(), e.getValue());
                 item.view.setOnClickListener(x -> {

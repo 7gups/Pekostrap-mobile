@@ -102,6 +102,8 @@ final class DiscordRpc {
     private final ServiceConnection binding = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName component, IBinder service) {
+            status = "Connected to Discord service; negotiating Rich Presence";
+            changed();
             post(() -> connect(service));
         }
 
@@ -121,11 +123,15 @@ final class DiscordRpc {
         thread.start();
         handler = new Handler(thread.getLooper());
         try {
-            bound = app.bindService(new Intent(SERVICE).setPackage(PACKAGE), binding, Context.BIND_AUTO_CREATE);
-        } catch (SecurityException e) {
+            Intent intent = new Intent(SERVICE).setPackage(PACKAGE);
+            // Keep the binding important while the foreground activity watcher is running.
+            bound = app.bindService(intent, binding, Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT);
+        } catch (SecurityException | IllegalArgumentException e) {
             bound = false;
+            status = "Android denied the Discord service connection: " + e.getMessage();
         }
-        if (!bound) status = installed(app) ? "This Discord version cannot show activity from other apps. Update Discord." : "Discord is not installed";
+        if (!bound && status.isEmpty()) status = installed(app) ? "Discord's Rich Presence service is unavailable. Update Discord and keep it running." : "Discord is not installed";
+        if (bound) status = "Connecting to Discord…";
     }
 
     synchronized void update(Integrations.Presence p) {
@@ -182,7 +188,11 @@ final class DiscordRpc {
             data.writeLong(applicationId);
             data.writeString(VERSION);
             data.writeStrongBinder(callback);
-            service.transact(CONNECT, data, reply, 0);
+            if (!service.transact(CONNECT, data, reply, 0)) {
+                status = "Discord's RPC service does not support the expected protocol.";
+                changed();
+                return;
+            }
             reply.readException();
             connection = reply.readStrongBinder();
             if (connection == null) {
@@ -217,7 +227,12 @@ final class DiscordRpc {
                     .put("nonce", UUID.randomUUID().toString());
             data.writeInterfaceToken(CONNECTION);
             data.writeString(frame.toString());
-            conn.transact(SEND_FRAME, data, reply, 0);
+            if (!conn.transact(SEND_FRAME, data, reply, 0)) {
+                connection = null;
+                status = "Discord rejected the Rich Presence frame protocol";
+                changed();
+                return;
+            }
             reply.readException();
         } catch (JSONException ignored) {
         } catch (RemoteException | RuntimeException e) {

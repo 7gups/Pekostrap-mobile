@@ -6,7 +6,6 @@
     <string name="pair">%1$s · %2$s</string>
 
     <string name="nav_home">Home</string>
-    <string name="nav_library">Library</string>
     <string name="nav_mods">Mods</string>
     <string name="nav_flags">FastFlags</string>
     <string name="nav_editor">Editor</string>
