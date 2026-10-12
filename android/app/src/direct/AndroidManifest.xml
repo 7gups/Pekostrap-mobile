@@ -20,14 +20,7 @@
                 <data android:mimeType="application/vnd.android.package-archive" />
                 <data android:mimeType="application/x-android-package-archive" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".SignInActivity"
-            android:exported="false"
-            android:label="@string/matchmaker_login" />
-
-        <receiver
+        </activity><receiver
             android:name=".UpdateInstallReceiver"
             android:exported="false">
             <intent-filter>
