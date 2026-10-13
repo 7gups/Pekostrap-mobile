@@ -168,8 +168,9 @@ public final class HomeFeed {
      * (POST) and thumbnails for those ids. Bundles are skipped here.
      */
     public static List<Item> catalog(Context c) throws IOException {
+        String session = null; // anonymous; the site currently answers 401 without a session
         List<Item> out = new ArrayList<>();
-        JSONObject search = PekoraApi.catalogSearch("category=0&limit=30&sortType=0&creatorType=1&minPrice=0&maxPrice=0&currency=3");
+        JSONObject search = PekoraApi.catalogSearch("category=0&limit=30&sortType=0&creatorType=1&minPrice=0&maxPrice=0&currency=3", session);
         if (search == null) throw new IOException("catalog search failed");
         JSONArray data = search.optJSONArray("data");
         if (data == null) throw new IOException("catalog search had no data");
@@ -189,7 +190,7 @@ public final class HomeFeed {
             if (i > 0) idList.append(',');
             idList.append(arr[i]);
         }
-        JSONArray details = PekoraApi.catalogItemDetails(arr);
+        JSONArray details = PekoraApi.catalogItemDetails(arr, session);
         if (details == null) throw new IOException("catalog details failed");
 
         Map<Long, String> images = new HashMap<>();

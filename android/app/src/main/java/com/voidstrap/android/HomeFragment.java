@@ -50,23 +50,21 @@ public final class HomeFragment extends Page {
     private View newsHeader;
     private TextView newsCount;
     private LinearLayout newsGrid;
-    private TextView catalogStatus;
-    private MaterialButton catalogSignIn;
-    private LinearLayout catalogGrid;
 
     private long newsDueAt;
-    private long catalogDueAt;
     private ContributionGraphView githubGraph;
     private TextView githubCaption;
     private long githubStars = -1;
     private long githubCommitCount = -1;
     private long githubDueAt;
+    private LinearLayout catalogGrid;
+    private TextView catalogStatus;
+    private long catalogDueAt;
     private TextView accountGreeting;
-    private ImageView accountAvatar;
-    private long welcomeDueAt;
-    private View accountCard;
     private TextView accountRobux;
     private TextView accountTickets;
+    private ImageView accountAvatar;
+    private View accountCard;
     private long accountDueAt;
     private View alertBanner;
     private TextView alertText;
@@ -142,9 +140,8 @@ public final class HomeFragment extends Page {
     private void reconnected() {
         if (!isAdded() || getView() == null || isHidden()) return;
         if (android.os.SystemClock.elapsedRealtime() - watchingSince < 3000) return;
-        if (newsGrid.getChildCount() > 0 && catalogGrid.getChildCount() > 0) return;
+        if (newsGrid.getChildCount() > 0) return;
         newsDueAt = 0;
-        catalogDueAt = 0;
         refresh();
     }
 
@@ -153,17 +150,15 @@ public final class HomeFragment extends Page {
         newsHeader = v.findViewById(R.id.news_header);
         newsCount = v.findViewById(R.id.news_count);
         newsGrid = v.findViewById(R.id.news_grid);
-        catalogStatus = v.findViewById(R.id.catalog_status);
-        catalogGrid = v.findViewById(R.id.catalog_grid);
-        catalogSignIn = v.findViewById(R.id.catalog_sign_in);
-        catalogSignIn.setOnClickListener(x -> PekoraSession.toggle(requireActivity()));
-        catalogSignIn.setVisibility(SignInLauncher.available() ? View.VISIBLE : View.GONE);
-        v.findViewById(R.id.catalog_refresh).setOnClickListener(x -> forceRefresh());
         accountGreeting = v.findViewById(R.id.account_greeting);
         accountAvatar = v.findViewById(R.id.account_avatar);
-        accountCard = v.findViewById(R.id.account_card);
         accountRobux = v.findViewById(R.id.account_robux);
         accountTickets = v.findViewById(R.id.account_tickets);
+        ((View) accountRobux.getParent()).setVisibility(View.GONE);
+        ((View) accountTickets.getParent()).setVisibility(View.GONE);
+        v.findViewById(R.id.catalog_header).setVisibility(View.GONE);
+        v.findViewById(R.id.account_limiteds).setOnClickListener(x -> startActivity(new Intent(requireContext(), LimitedsActivity.class)));
+        accountCard = v.findViewById(R.id.account_card);
         alertBanner = v.findViewById(R.id.alert_banner);
         alertText = v.findViewById(R.id.alert_text);
         alertLink = v.findViewById(R.id.alert_link);
@@ -171,27 +166,25 @@ public final class HomeFragment extends Page {
         githubGraph = v.findViewById(R.id.github_graph);
         githubCaption = v.findViewById(R.id.github_caption);
         v.findViewById(R.id.github_open).setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_URL))));
-        v.findViewById(R.id.github_website).setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW,
-                Uri.parse(githubSite != null && !githubSite.isEmpty() ? githubSite : GITHUB_URL))));
         v.findViewById(R.id.github_refresh).setOnClickListener(x -> loadGithub());
         githubReleaseTitle = v.findViewById(R.id.release_title);
         githubReleaseMeta = v.findViewById(R.id.release_meta);
         githubReleaseNotes = v.findViewById(R.id.release_notes);
         githubReleaseOpen = v.findViewById(R.id.release_open);
         v.findViewById(R.id.news_explore).setOnClickListener(x -> exploreNews());
-        newsDueAt = 0;
+        catalogGrid = v.findViewById(R.id.catalog_grid);
+        catalogStatus = v.findViewById(R.id.catalog_status);
+        v.findViewById(R.id.catalog_refresh).setOnClickListener(x -> forceRefresh());
         catalogDueAt = 0;
+        newsDueAt = 0;
     }
 
     @Override
     protected void refresh() {
-        if (catalogSignIn != null) catalogSignIn.setText(PekoraSession.signedIn(requireContext()) ? R.string.pekora_sign_out : R.string.pekora_sign_in);
         long now = System.currentTimeMillis();
         if (now >= newsDueAt) loadNews();
-        if (now >= catalogDueAt) loadCatalog();
         if (now >= githubDueAt) loadGithub();
         bindWelcome();
-        if (now >= welcomeDueAt && PekoraSession.signedIn(requireContext())) loadWelcome();
         boolean in = PekoraSession.signedIn(requireContext());
         if (accountCard != null) accountCard.setVisibility(in ? View.VISIBLE : View.GONE);
         if (in && now >= accountDueAt) loadAccount();
@@ -246,25 +239,6 @@ public final class HomeFragment extends Page {
         });
     }
 
-    private void loadCatalog() {
-        catalogDueAt = System.currentTimeMillis() + FEED_REFRESH_MS;
-        Context app = requireContext().getApplicationContext();
-        if (catalogGrid.getChildCount() == 0) {
-            catalogStatus.setVisibility(View.VISIBLE);
-            catalogStatus.setText(R.string.home_catalog_loading);
-        }
-        store.work.execute(() -> {
-            List<HomeFeed.Item> items = null;
-            try {
-                items = HomeFeed.catalog(app);
-            } catch (IOException | RuntimeException e) {
-                android.util.Log.w("Voidstrap", "Catalog feed failed", e);
-            }
-            List<HomeFeed.Item> it = items;
-            store.main.post(() -> bindCatalog(it));
-        });
-    }
-
     private void bindNews(List<HomeFeed.News> news) {
         if (getView() == null) return;
         if (news == null) newsDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
@@ -303,6 +277,47 @@ public final class HomeFragment extends Page {
         fill(newsGrid, cells, contentDp() >= 560 ? 2 : 1, 14);
     }
 
+    private void loadCatalog() {
+        catalogDueAt = System.currentTimeMillis() + FEED_REFRESH_MS;
+        Context app = requireContext().getApplicationContext();
+        store.work.execute(() -> {
+            List<HomeFeed.Item> items = null;
+            try {
+                items = HomeFeed.catalog(app);
+            } catch (IOException | RuntimeException e) {
+                android.util.Log.w("Voidstrap", "Catalog feed failed", e);
+            }
+            List<HomeFeed.Item> out = items;
+            store.main.post(() -> bindCatalog(out));
+        });
+    }
+
+    private void bindCatalog(List<HomeFeed.Item> items) {
+        if (getView() == null) return;
+        if (items == null) catalogDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
+        if (items == null && catalogGrid.getChildCount() > 0) return;
+        boolean has = items != null && !items.isEmpty();
+        catalogGrid.setVisibility(has ? View.VISIBLE : View.GONE);
+        catalogStatus.setVisibility(has ? View.GONE : View.VISIBLE);
+        catalogStatus.setText(items == null ? R.string.home_catalog_failed : R.string.home_catalog_empty);
+        if (!has) return;
+        List<View> cells = new ArrayList<>();
+        LayoutInflater inf = LayoutInflater.from(requireContext());
+        for (HomeFeed.Item it : items) {
+            View card = inf.inflate(R.layout.item_catalog_card, catalogGrid, false);
+            ((TextView) card.findViewById(R.id.catalog_name)).setText(it.name);
+            ((TextView) card.findViewById(R.id.catalog_creator)).setText(it.creator);
+            ((TextView) card.findViewById(R.id.catalog_type)).setText(it.type);
+            String price = HomeFeed.price(it);
+            ((TextView) card.findViewById(R.id.catalog_price)).setText(price == null ? getString(R.string.home_github_empty) : price);
+            card.findViewById(R.id.catalog_limited).setVisibility(it.limited ? View.VISIBLE : View.GONE);
+            Net.image((ImageView) card.findViewById(R.id.catalog_image), it.image, R.color.vs_news_surface, Ui.dp(requireContext(), 150));
+            card.setOnClickListener(x -> Ui.openWeb(requireContext(), it.link()));
+            cells.add(card);
+        }
+        fill(catalogGrid, cells, contentDp() >= 560 ? 3 : 2, 12);
+    }
+
     private String newsDate(long created) {
         if (created <= 0) return getString(R.string.home_news_announcement);
         Calendar then = Calendar.getInstance();
@@ -324,52 +339,10 @@ public final class HomeFragment extends Page {
         return d.getTimeInMillis();
     }
 
-    private void bindCatalog(List<HomeFeed.Item> items) {
-        if (getView() == null) return;
-        if (items == null) catalogDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
-        if (items == null || items.isEmpty()) {
-            if (catalogGrid.getChildCount() > 0) return;
-            catalogStatus.setVisibility(View.VISIBLE);
-            catalogStatus.setText(items == null ? R.string.home_catalog_failed : R.string.home_catalog_empty);
-            return;
-        }
-        catalogStatus.setVisibility(View.GONE);
-        List<View> cells = new ArrayList<>();
-        LayoutInflater inf = LayoutInflater.from(requireContext());
-        for (HomeFeed.Item it : items) {
-            View card = inf.inflate(R.layout.item_catalog_card, catalogGrid, false);
-            ((TextView) card.findViewById(R.id.catalog_name)).setText(it.name);
-            ((TextView) card.findViewById(R.id.catalog_creator)).setText(it.creator);
-            String price = HomeFeed.price(it);
-            ((TextView) card.findViewById(R.id.catalog_price)).setText(price == null ? getString(R.string.home_free) : price);
-            card.findViewById(R.id.catalog_limited).setVisibility(it.limited ? View.VISIBLE : View.GONE);
-            TextView type = card.findViewById(R.id.catalog_type);
-            type.setText(it.type);
-            type.setVisibility(it.type.isEmpty() ? View.GONE : View.VISIBLE);
-            Net.image(card.findViewById(R.id.catalog_image), it.image, R.color.vs_subtle, Ui.dp(requireContext(), 150));
-            card.setContentDescription(getString(R.string.home_catalog_description, it.name, it.creator, price == null ? getString(R.string.home_free) : price));
-            card.setOnClickListener(x -> Actions.openInRoblox(host(), it.appLink(), it.link()));
-            cells.add(card);
-        }
-        fill(catalogGrid, cells, clamp(contentDp() / 150, 2, 5), 8);
-    }
-
     private void bindWelcome() {
         if (accountGreeting == null) return;
         String name = PekoraSession.signedIn(requireContext()) ? store.setting(PekoraSession.NAME_SETTING, "") : "";
         accountGreeting.setText(name.isEmpty() ? getString(R.string.home_hello_fallback) : getString(R.string.home_hello, name));
-    }
-
-    private void loadWelcome() {
-        welcomeDueAt = System.currentTimeMillis() + WELCOME_REFRESH_MS;
-        Context app = requireContext().getApplicationContext();
-        store.work.execute(() -> {
-            String name = PekoraSession.fetchUsername(app);
-            store.main.post(() -> {
-                if (name != null) store.putSetting(PekoraSession.NAME_SETTING, name);
-                bindWelcome();
-            });
-        });
     }
 
     @Override
@@ -389,9 +362,8 @@ public final class HomeFragment extends Page {
     private void forceRefresh() {
         if (!isAdded() || getView() == null) return;
         newsDueAt = 0;
-        catalogDueAt = 0;
         githubDueAt = 0;
-        welcomeDueAt = 0;
+        catalogDueAt = 0;
         accountDueAt = 0;
         alertDueAt = 0;
         refresh();
@@ -405,27 +377,12 @@ public final class HomeFragment extends Page {
         accountDueAt = System.currentTimeMillis() + ACCOUNT_REFRESH_MS;
         Context app = requireContext().getApplicationContext();
         store.work.execute(() -> {
-            String session = PekoraSession.session(app);
-            if (session == null) {
-                store.main.post(this::clearAccount);
-                return;
-            }
-            JSONObject me = PekoraApi.me(session);
-            long id = me == null ? 0 : me.optLong("id", 0);
-            if (id <= 0) {
-                // Session rejected or the call failed: show dashes instead of stale numbers.
-                accountDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
-                store.main.post(this::clearAccount);
-                return;
-            }
-            JSONObject cur = PekoraApi.currency(id, session);
-            long robux = cur == null ? -1 : cur.optLong("robux", -1);
-            long tickets = cur == null ? -1 : cur.optLong("tickets", -1);
+            long id = PekoraSession.userId(app);
+            if (id <= 0) return;
             String avatarUrl = headshotUrl(id);
             store.main.post(() -> {
                 if (avatarUrl != null) Net.image(accountAvatar, avatarUrl, R.color.vs_subtle_pressed, Ui.dp(requireContext(), 56));
-                accountRobux.setText(count(robux));
-                accountTickets.setText(count(tickets));
+                bindWelcome();
             });
         });
     }
@@ -437,13 +394,6 @@ public final class HomeFragment extends Page {
         JSONObject first = data == null ? null : data.optJSONObject(0);
         String url = first == null ? "" : first.optString("imageUrl", "");
         return url.startsWith("https://") ? url : null;
-    }
-
-    private void clearAccount() {
-        if (accountRobux == null) return;
-        String dash = getString(R.string.home_github_empty);
-        accountRobux.setText(dash);
-        accountTickets.setText(dash);
     }
 
     private void loadAlert() {
@@ -562,7 +512,8 @@ public final class HomeFragment extends Page {
         String published = o.optString("published_at", "");
         r.date = published.length() >= 10 ? published.substring(0, 10) : published;
         r.notes = plainNotes(o.optString("body", ""));
-        r.url = o.optString("html_url", GITHUB_URL + "/releases");
+        String html = o.optString("html_url", "");
+        r.url = html.startsWith("https://github.com/") ? html : GITHUB_URL + "/releases";
         return r;
     }
 
@@ -575,7 +526,6 @@ public final class HomeFragment extends Page {
     private void bindGithub(Integer stars, CommitActivity activity, String site, Release rel, boolean relFailed) {
         if (githubGraph == null) return;
         if (stars != null) githubStars = stars;
-        if (site != null) githubSite = site;
         if (activity != null) {
             githubGraph.setData(activity.counts, activity.months);
             githubCommitCount = activity.total;

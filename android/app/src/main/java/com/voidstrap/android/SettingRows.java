@@ -117,16 +117,17 @@ public final class SettingRows {
         });
         if (!VoidstrapApp.colorTheme(currentTheme)) {
             boolean dynamic = android.os.Build.VERSION.SDK_INT >= 31;
-            String[] accents = dynamic
-                    ? new String[]{a.getString(R.string.settings_accent_system), a.getString(R.string.settings_accent_brand)}
-                    : new String[]{a.getString(R.string.settings_accent_brand)};
-            int accentIndex = dynamic && !"brand".equals(store.setting("accent", "system")) ? 0 : accents.length - 1;
-            choice(parent, a.getString(R.string.settings_accent), dynamic ? null : a.getString(R.string.settings_accent_note), accents, accentIndex, i -> {
-                String value = dynamic && i == 0 ? "system" : "brand";
+            com.google.android.material.switchmaterial.SwitchMaterial device = new com.google.android.material.switchmaterial.SwitchMaterial(a);
+            device.setChecked(dynamic && !"brand".equals(store.setting("accent", "system")));
+            device.setEnabled(dynamic);
+            device.setOnCheckedChangeListener((b, on) -> {
+                String value = on ? "system" : "brand";
                 if (value.equals(store.setting("accent", "system"))) return;
                 store.putSetting("accent", value);
                 ThemeFade.restart(a, tab);
             });
+            row(parent, a.getString(R.string.settings_use_device_colors),
+                    dynamic ? a.getString(R.string.settings_use_device_colors_body) : a.getString(R.string.settings_accent_note), device);
         }
         choice(parent, a.getString(R.string.settings_language), a.getString(R.string.settings_language_body), Translator.NAMES, Translator.indexOf(Translator.language(store)), i -> {
             String code = Translator.CODES[i];

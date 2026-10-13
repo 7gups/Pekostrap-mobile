@@ -125,7 +125,6 @@ public final class SettingsFragment extends Page {
         account.view.setOnClickListener(x -> PekoraSession.toggle(host()));
         roblox.addView(account.view);
         pekoraStatus = account.detail;
-        if (!SignInLauncher.available()) account.view.setVisibility(View.GONE);
         if (!Ui.wide(requireContext()) && SmartJoin.available()) row(roblox, R.drawable.ic_globe, SmartJoin.title(requireContext()), SmartJoin.openBody(requireContext()), () -> ((MainActivity) host()).select(R.id.nav_smart));
         row(roblox, R.drawable.ic_history, R.string.settings_clear_history, R.string.settings_clear_history_body, () ->
                 Ui.alert(requireContext())
@@ -142,7 +141,6 @@ public final class SettingsFragment extends Page {
         LinearLayout about = v.findViewById(R.id.about_rows);
         row(about, R.drawable.ic_bug, R.string.settings_diagnostics, R.string.settings_diagnostics_body, this::showDiagnostics);
         row(about, R.drawable.ic_document, R.string.settings_licenses, R.string.settings_licenses_body, this::showLicenses);
-        row(about, R.drawable.ic_globe, R.string.settings_website, R.string.settings_website_body, () -> Ui.openWeb(requireContext(), getString(R.string.url_website)));
         buildUpdates(about);
         if (BuildConfig.DIRECT_UPDATES) {
             row(about, R.drawable.ic_arrow_import, R.string.update_local, R.string.update_local_body,

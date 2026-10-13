@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 const DOWNLOAD: &str = "https://github.com/KloBraticc/Voidstrap/releases";
 const DISCORD: &str = "https://discord.gg/bzdbHHytFR";
 const GITHUB: &str = "https://github.com/KloBraticc/Voidstrap";
-const LOGO: &str = "https://raw.githubusercontent.com/KloBraticc/Voidstrap/main/src/Voidstrap.App/Voidstrap.png";
+const LOGO: &str = "https://raw.githubusercontent.com/7gups/Pekostrap-mobile/main/branding/pekostrap-logo.png";
 const LOADING: &str = "https://raw.githubusercontent.com/KloBraticc/Voidstrap/main/assets/Images/rpc-loading.gif";
 
 const IDLE: [(&str, &str); 3] = [

@@ -19,7 +19,8 @@
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:importantForAccessibility="no"
-            android:src="@drawable/vs_logo" />
+            android:src="@drawable/pekostrap_logo"
+                android:tint="?attr/colorPrimary" />
 
         <TextView
             android:layout_width="0dp"

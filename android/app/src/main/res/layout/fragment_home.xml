@@ -50,7 +50,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
+                <com.google.android.material.card.MaterialCardView
             android:id="@+id/account_card"
             style="@style/Widget.Material3.CardView.Filled"
             android:layout_width="match_parent"
@@ -60,6 +60,11 @@
             app:cardBackgroundColor="?attr/vsCard"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -97,11 +102,10 @@
                         android:textSize="20sp"
                         android:textStyle="bold"
                         tools:targetApi="p" />
-
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="12dp"
                         android:gravity="end"
                         android:orientation="vertical">
 
@@ -120,12 +124,18 @@
                             android:text="@string/home_account_robux"
                             android:textAppearance="?attr/textAppearanceLabelSmall"
                             android:textColor="?attr/vsTextSecondary" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:gravity="end"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/account_tickets"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
                             android:gravity="end"
                             android:text="@string/home_github_empty"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
@@ -140,9 +150,20 @@
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/account_limiteds"
+                style="@style/Widget.Voidstrap.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/account_limiteds" />
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
+<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -171,17 +192,7 @@
                 app:iconSize="20dp"
                 app:iconTint="?attr/colorSecondary" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/github_website"
-                style="@style/Widget.Voidstrap.Button.Subtle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:text="@string/home_github_website"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="13.5sp" />
-
+            
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/github_open"
                 style="@style/Widget.Voidstrap.Button.Subtle"
@@ -332,63 +343,7 @@
             android:orientation="vertical"
             android:visibility="gone" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:accessibilityHeading="true"
-                tools:targetApi="p"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/home_catalog_title"
-                android:textColor="?attr/vsTextPrimary"
-                android:textSize="20sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/catalog_sign_in"
-                style="@style/Widget.Voidstrap.Button.Subtle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:text="@string/pekora_sign_in"
-                android:textColor="?attr/colorSecondary"
-                android:textSize="13.5sp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/catalog_refresh"
-                style="@style/Widget.Voidstrap.IconButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:contentDescription="@string/home_catalog_refresh"
-                app:icon="@drawable/ic_refresh"
-                app:iconSize="20dp"
-                app:iconTint="?attr/colorSecondary" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/catalog_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:alpha="0.5"
-            android:text="@string/home_catalog_loading"
-            android:textColor="?attr/vsTextPrimary"
-            android:textSize="12sp" />
-
-        <LinearLayout
-            android:id="@+id/catalog_grid"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:orientation="vertical" />
-
+        
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.Material3.CardView.Filled"
             android:layout_width="match_parent"
@@ -450,5 +405,54 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+
+        <LinearLayout
+            android:id="@+id/catalog_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:accessibilityHeading="true"
+                tools:targetApi="p"
+                android:maxLines="2"
+                android:text="@string/home_catalog_title"
+                android:textColor="?attr/vsTextPrimary"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/catalog_refresh"
+                style="@style/Widget.Voidstrap.IconButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/home_catalog_refresh"
+                app:icon="@drawable/ic_refresh"
+                app:iconSize="20dp"
+                app:iconTint="?attr/colorSecondary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/catalog_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:textColor="?attr/vsTextSecondary"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/catalog_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
     </LinearLayout>
 </com.voidstrap.android.ScrollPane>

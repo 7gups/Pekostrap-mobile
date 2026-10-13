@@ -31,7 +31,8 @@
                 android:layout_width="88dp"
                 android:layout_height="88dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/vs_logo" />
+                android:src="@drawable/pekostrap_logo"
+                android:tint="?attr/colorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"

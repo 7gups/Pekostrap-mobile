@@ -123,13 +123,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void handle(Intent intent) {
         if (intent == null) return;
-        if (Updater.selfInstalls() && (Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_SEND.equals(intent.getAction()))
-                && ("application/vnd.android.package-archive".equals(intent.getType()) || "application/x-android-package-archive".equals(intent.getType()))) {
-            Uri uri = Intent.ACTION_VIEW.equals(intent.getAction()) ? intent.getData() : Crash.call("shared apk", () -> androidx.core.content.IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class), null);
-            intent.setAction(null);
-            Updater.openLocal(this, uri);
-            return;
-        }
         int tab = Crash.call("intent tab", () -> intent.getIntExtra(EXTRA_TAB, 0), 0);
         if (tab != 0 && java.util.Arrays.stream(TABS).anyMatch(t -> t == tab)) {
             select(tab);

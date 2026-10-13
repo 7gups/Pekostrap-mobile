@@ -159,8 +159,8 @@ final class PekoraApi {
         return object("catalog/v3/navigation-menu-items", null);
     }
 
-    static JSONObject catalogSearch(String query) {
-        return safe(query) ? object("catalog/v3/search/items?" + query, null) : null;
+    static JSONObject catalogSearch(String query, String session) {
+        return safe(query) ? object("catalog/v3/search/items?" + query, session) : null;
     }
 
     static JSONObject gameSorts() {
@@ -224,6 +224,48 @@ final class PekoraApi {
         return safe(cursor) ? object("forums/v1/sub-category/" + subCategoryId + "/posts?limit=" + limit + "&cursor=" + cursor, null) : null;
     }
 
+    /**
+     * A user's collectibles (limiteds). Response: data[] with assetId, userAssetId, name, recentAveragePrice,
+     * serialNumber, copyCount, plus nextPageCursor and previousPageCursor. assetType "null" means all categories.
+     */
+    static JSONObject collectibles(long userId, String cursor, int limit, String assetType, String session) {
+        String enc;
+        try {
+            enc = java.net.URLEncoder.encode(cursor == null ? "" : cursor, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            return null;
+        }
+        String type = assetType == null ? "null" : assetType;
+        if (!safe(type)) return null;
+        return object("inventory/v1/users/" + userId + "/assets/collectibles?cursor=" + enc + "&limit=" + limit + "&assetType=" + type, session);
+    }
+
+    /** Username to user ID, or 0 when the username is not found. */
+    static long userIdForUsername(String username) {
+        if (username == null || username.trim().isEmpty()) return 0;
+        try {
+            JSONObject req = new JSONObject().put("usernames", new JSONArray().put(username.trim()));
+            JSONObject o = postObject("users/v1/usernames/users", req.toString(), null);
+            JSONArray data = o == null ? null : o.optJSONArray("data");
+            JSONObject first = data == null ? null : data.optJSONObject(0);
+            return first == null ? 0 : first.optLong("id", 0);
+        } catch (JSONException e) {
+            return 0;
+        }
+    }
+
+    /** True when the session is accepted, false when it is rejected (expired or revoked), null when unknown. */
+    static Boolean sessionValid(String session) {
+        Object[] res = Http.request("GET", BASE + "users/v1/users/authenticated",
+                new String[]{"Cookie", PekoraSession.COOKIE + "=" + session, "Accept", "application/json", "User-Agent", "Voidstrap Android"},
+                null, TIMEOUT_MS, LIMIT, false);
+        if (res == null) return null;
+        int code = ((int[]) res[0])[0];
+        if (code == 200) return true;
+        if (code == 401 || code == 403) return false;
+        return null;
+    }
+
     /** Presence for a list of user ids. Response: userPresences[] with userPresenceType, placeId, userId, lastOnline. */
     static JSONObject presence(long[] userIds) {
         if (userIds == null || userIds.length == 0 || userIds.length > 100) return null;
@@ -237,7 +279,7 @@ final class PekoraApi {
     }
 
     /** Catalog details for asset ids. Response: data[] with name, price, priceStatus, isForSale, owned, purchaseCount. */
-    static JSONArray catalogItemDetails(long[] assetIds) {
+    static JSONArray catalogItemDetails(long[] assetIds, String session) {
         if (assetIds == null || assetIds.length == 0 || assetIds.length > 100) return null;
         StringBuilder sb = new StringBuilder("{\"items\":[");
         for (int i = 0; i < assetIds.length; i++) {
@@ -245,7 +287,7 @@ final class PekoraApi {
             sb.append("{\"itemType\":\"Asset\",\"id\":").append(assetIds[i]).append('}');
         }
         sb.append("]}");
-        JSONObject o = postObject("catalog/v1/catalog/items/details", sb.toString(), null);
+        JSONObject o = postObject("catalog/v1/catalog/items/details", sb.toString(), session);
         return o == null ? null : o.optJSONArray("data");
     }
 

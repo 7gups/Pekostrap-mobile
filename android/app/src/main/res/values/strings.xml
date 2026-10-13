@@ -1032,7 +1032,7 @@
     <string name="pekora_sign_out">Sign out</string>
     <string name="pekora_login_title">Sign in to Pekora</string>
     <string name="pekora_account_title">Pekora account</string>
-    <string name="pekora_account_signed_in">Signed in. Your session is stored encrypted on this device.</string>
+    <string name="pekora_account_signed_in">Signed in as %1$s</string>
     <string name="pekora_account_signed_out">Not signed in</string>
     <string name="pekora_signed_in_toast">Signed in to Pekora.</string>
     <string name="pekora_signed_out_toast">Signed out of Pekora.</string>
@@ -1071,4 +1071,27 @@
     <string name="home_legend_more">More</string>
     <string name="home_github_less">Less</string>
     <string name="home_github_more">More</string>
+    <string name="pekora_login_instructions">Enter your Pekora username or user ID and generate a phrase. Put the phrase in your Pekora bio, save it, then tap Verify.</string>
+    <string name="pekora_login_user_id">Username or user ID</string>
+    <string name="pekora_login_generate">Generate phrase</string>
+    <string name="pekora_login_verify">Verify</string>
+    <string name="pekora_login_hint">Put this phrase in your Pekora bio, save it, then tap Verify.</string>
+    <string name="pekora_login_need_id">Enter a valid username or user ID first.</string>
+    <string name="pekora_login_need_phrase">Generate a phrase for this user ID first.</string>
+    <string name="pekora_login_checking">Checking your profile…</string>
+    <string name="pekora_login_not_found">Phrase not found in your bio. Save the bio and try again.</string>
+    <string name="pekora_login_unreachable">Could not reach your profile. Check your connection and try again.</string>
+    <string name="limiteds_title">Limiteds</string>
+    <string name="limiteds_search">Search limiteds</string>
+    <string name="limiteds_more">Load more</string>
+    <string name="limiteds_loading">Loading\u2026</string>
+    <string name="limiteds_empty">No limiteds found.</string>
+    <string name="limiteds_no_match">No matches on the loaded items. Load more to search further.</string>
+    <string name="limiteds_failed">Could not load limiteds. Try again.</string>
+    <string name="limiteds_count">%1$d items</string>
+    <string name="limiteds_rap">RAP: %1$s</string>
+    <string name="limiteds_serial">Serial #%1$s of %2$s</string>
+    <string name="account_limiteds">View limiteds</string>
+    <string name="settings_use_device_colors">Use device colors</string>
+    <string name="settings_use_device_colors_body">Match Pekostrap to your device\'s wallpaper colors. Needs Android 12 or newer.</string>
 </resources>
