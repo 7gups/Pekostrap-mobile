@@ -42,6 +42,7 @@ public final class HomeFragment extends Page {
     private static final long WELCOME_REFRESH_MS = 60 * 60_000L;
     private static final long ACCOUNT_REFRESH_MS = 10 * 60_000L;
     private static final long ALERT_REFRESH_MS = 30 * 60_000L;
+    private static final long AUTO_REFRESH_MS = 15 * 60_000L;
     private static final String GITHUB_API = "https://api.github.com/repos/7gups/Pekostrap-mobile";
     private static final String GITHUB_URL = "https://github.com/7gups/Pekostrap-mobile";
     private static final String[] GITHUB_HEADERS = {"User-Agent", "Voidstrap Android", "Accept", "application/vnd.github+json"};
@@ -55,23 +56,30 @@ public final class HomeFragment extends Page {
 
     private long newsDueAt;
     private long catalogDueAt;
-    private TextView githubStarsValue;
-    private TextView githubCommitsValue;
+    private ContributionGraphView githubGraph;
+    private TextView githubCaption;
+    private long githubStars = -1;
+    private long githubCommitCount = -1;
     private long githubDueAt;
     private TextView welcome;
     private long welcomeDueAt;
     private View accountCard;
     private TextView accountRobux;
     private TextView accountTickets;
-    private TextView accountFriendRequests;
-    private TextView accountTrades;
-    private TextView accountMessages;
     private long accountDueAt;
     private View alertBanner;
     private TextView alertText;
     private MaterialButton alertLink;
     private String alertUrl;
     private long alertDueAt;
+    private final android.os.Handler autoHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable autoRefreshTick = new Runnable() {
+        @Override
+        public void run() {
+            forceRefresh();
+            autoHandler.postDelayed(this, AUTO_REFRESH_MS);
+        }
+    };
     private String githubSite;
     private Release githubRelease;
     private TextView githubReleaseTitle;
@@ -149,19 +157,17 @@ public final class HomeFragment extends Page {
         catalogSignIn = v.findViewById(R.id.catalog_sign_in);
         catalogSignIn.setOnClickListener(x -> PekoraSession.toggle(requireActivity()));
         catalogSignIn.setVisibility(SignInLauncher.available() ? View.VISIBLE : View.GONE);
+        v.findViewById(R.id.catalog_refresh).setOnClickListener(x -> forceRefresh());
         welcome = v.findViewById(R.id.home_welcome);
         accountCard = v.findViewById(R.id.account_card);
         accountRobux = v.findViewById(R.id.account_robux);
         accountTickets = v.findViewById(R.id.account_tickets);
-        accountFriendRequests = v.findViewById(R.id.account_friend_requests);
-        accountTrades = v.findViewById(R.id.account_trades);
-        accountMessages = v.findViewById(R.id.account_messages);
         alertBanner = v.findViewById(R.id.alert_banner);
         alertText = v.findViewById(R.id.alert_text);
         alertLink = v.findViewById(R.id.alert_link);
         alertLink.setOnClickListener(x -> openAlertLink());
-        githubStarsValue = v.findViewById(R.id.github_stars_value);
-        githubCommitsValue = v.findViewById(R.id.github_commits_value);
+        githubGraph = v.findViewById(R.id.github_graph);
+        githubCaption = v.findViewById(R.id.github_caption);
         v.findViewById(R.id.github_open).setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_URL))));
         v.findViewById(R.id.github_website).setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW,
                 Uri.parse(githubSite != null && !githubSite.isEmpty() ? githubSite : GITHUB_URL))));
@@ -365,6 +371,31 @@ public final class HomeFragment extends Page {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        autoHandler.removeCallbacks(autoRefreshTick);
+        autoHandler.postDelayed(autoRefreshTick, AUTO_REFRESH_MS);
+    }
+
+    @Override
+    public void onPause() {
+        autoHandler.removeCallbacks(autoRefreshTick);
+        super.onPause();
+    }
+
+    /** Marks every feed as due and reloads them now. Used by the 15-minute timer and the refresh buttons. */
+    private void forceRefresh() {
+        if (!isAdded() || getView() == null) return;
+        newsDueAt = 0;
+        catalogDueAt = 0;
+        githubDueAt = 0;
+        welcomeDueAt = 0;
+        accountDueAt = 0;
+        alertDueAt = 0;
+        refresh();
+    }
+
     private String count(long v) {
         return v < 0 ? getString(R.string.home_github_empty) : String.format(Locale.getDefault(), "%,d", v);
     }
@@ -389,15 +420,9 @@ public final class HomeFragment extends Page {
             JSONObject cur = PekoraApi.currency(id, session);
             long robux = cur == null ? -1 : cur.optLong("robux", -1);
             long tickets = cur == null ? -1 : cur.optLong("tickets", -1);
-            long friends = PekoraApi.friendRequests(session);
-            long trades = PekoraApi.tradesInbound(session);
-            long messages = PekoraApi.unreadMessages(session);
             store.main.post(() -> {
                 accountRobux.setText(count(robux));
                 accountTickets.setText(count(tickets));
-                accountFriendRequests.setText(count(friends));
-                accountTrades.setText(count(trades));
-                accountMessages.setText(count(messages));
             });
         });
     }
@@ -407,9 +432,6 @@ public final class HomeFragment extends Page {
         String dash = getString(R.string.home_github_empty);
         accountRobux.setText(dash);
         accountTickets.setText(dash);
-        accountFriendRequests.setText(dash);
-        accountTrades.setText(dash);
-        accountMessages.setText(dash);
     }
 
     private void loadAlert() {
@@ -439,12 +461,19 @@ public final class HomeFragment extends Page {
         if (alertUrl != null) startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(alertUrl)));
     }
 
+    /** A year of commit activity: counts[week][day] (day 0 = Sunday), month labels, and the total. */
+    private static final class CommitActivity {
+        int[][] counts;
+        String[] months;
+        int total;
+    }
+
     private void loadGithub() {
         githubDueAt = System.currentTimeMillis() + GITHUB_REFRESH_MS;
         store.work.execute(() -> {
             Integer stars = null;
             String site = null;
-            Integer commits = null;
+            CommitActivity activity = null;
             Release rel = null;
             boolean relFailed = false;
             try {
@@ -455,9 +484,9 @@ public final class HomeFragment extends Page {
                 android.util.Log.w("Voidstrap", "GitHub repo failed", e);
             }
             try {
-                commits = githubCommits();
+                activity = githubActivity();
             } catch (Exception e) {
-                android.util.Log.w("Voidstrap", "GitHub commits failed", e);
+                android.util.Log.w("Voidstrap", "GitHub activity failed", e);
             }
             try {
                 rel = githubRelease();
@@ -465,27 +494,46 @@ public final class HomeFragment extends Page {
                 relFailed = true;
                 android.util.Log.w("Voidstrap", "GitHub release failed", e);
             }
-            Integer s = stars, c = commits;
+            Integer s = stars;
             String h = site;
+            CommitActivity a = activity;
             Release r = rel;
             boolean f = relFailed;
-            store.main.post(() -> bindGithub(s, c, h, r, f));
+            store.main.post(() -> bindGithub(s, a, h, r, f));
         });
     }
 
-    /** Total commits on the default branch: with per_page=1, the last page number equals the commit count. */
-    private static int githubCommits() throws Exception {
-        Object[] res = Http.request("GET", GITHUB_API + "/commits?per_page=1", GITHUB_HEADERS, null, 15_000, 200_000, true);
+    /**
+     * Weekly commit counts for the last 52 weeks from GitHub's commit_activity stats. GitHub answers 202
+     * while it is still computing them, which returns null here so the caller retries soon.
+     */
+    private static CommitActivity githubActivity() throws Exception {
+        Object[] res = Http.request("GET", GITHUB_API + "/stats/commit_activity", GITHUB_HEADERS, null, 15_000, 400_000, true);
         if (res == null) throw new java.io.IOException("GitHub request failed");
         int code = ((int[]) res[0])[0];
+        if (code == 202) return null;
         if (code != 200) throw new java.io.IOException("HTTP " + code);
-        String[] pairs = (String[]) res[1];
-        for (int i = 0; i + 1 < pairs.length; i += 2) {
-            if (!"link".equalsIgnoreCase(pairs[i])) continue;
-            Matcher m = Pattern.compile("[?&]page=(\\d+)>; rel=\"last\"").matcher(pairs[i + 1]);
-            if (m.find()) return Integer.parseInt(m.group(1));
+        JSONArray weeks = new JSONArray(new String((byte[]) res[2], StandardCharsets.UTF_8));
+        CommitActivity out = new CommitActivity();
+        out.counts = new int[ContributionGraphView.WEEKS][7];
+        out.months = new String[ContributionGraphView.WEEKS];
+        SimpleDateFormat fmt = new SimpleDateFormat("MMM", Locale.getDefault());
+        String last = "";
+        int n = Math.min(ContributionGraphView.WEEKS, weeks.length());
+        for (int i = 0; i < n; i++) {
+            JSONObject week = weeks.getJSONObject(i);
+            JSONArray days = week.optJSONArray("days");
+            for (int d = 0; days != null && d < 7 && d < days.length(); d++) {
+                out.counts[i][d] = days.optInt(d, 0);
+                out.total += out.counts[i][d];
+            }
+            String m = fmt.format(new Date(week.optLong("week", 0) * 1000L));
+            if (!m.equals(last)) {
+                out.months[i] = m;
+                last = m;
+            }
         }
-        return new JSONArray(new String((byte[]) res[2], StandardCharsets.UTF_8)).length();
+        return out;
     }
 
     /** Latest published release, or null when the repo has none yet (GitHub answers 404). */
@@ -512,12 +560,17 @@ public final class HomeFragment extends Page {
         return t.length() > 600 ? t.substring(0, 600).trim() + "\u2026" : t;
     }
 
-    private void bindGithub(Integer stars, Integer commits, String site, Release rel, boolean relFailed) {
-        if (githubStarsValue == null) return;
-        if (stars == null && commits == null && rel == null && relFailed) githubDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
-        if (stars != null) githubStarsValue.setText(String.format(Locale.getDefault(), "%,d", stars));
-        if (commits != null) githubCommitsValue.setText(String.format(Locale.getDefault(), "%,d", commits));
+    private void bindGithub(Integer stars, CommitActivity activity, String site, Release rel, boolean relFailed) {
+        if (githubGraph == null) return;
+        if (stars != null) githubStars = stars;
         if (site != null) githubSite = site;
+        if (activity != null) {
+            githubGraph.setData(activity.counts, activity.months);
+            githubCommitCount = activity.total;
+        } else {
+            githubDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
+        }
+        githubCaption.setText(getString(R.string.home_github_caption, count(githubCommitCount), count(githubStars)));
         bindRelease(rel, relFailed);
     }
 

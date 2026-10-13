@@ -1050,7 +1050,8 @@
     <string name="pekora_notice_continue">Continue</string>
     <string name="pekora_notice_dont_show">Don\'t show again</string>
     <string name="home_github_refresh">Refresh GitHub stats</string>
-    <string name="home_github_website">Open website</string>
+    <string name="home_github_website">Website</string>
+    <string name="home_catalog_refresh">Refresh catalog</string>
     <string name="home_release_title">Latest release</string>
     <string name="home_release_open">View release</string>
     <string name="home_release_none">No releases published yet.</string>
@@ -1061,7 +1062,5 @@
     <string name="home_account_title">Your account</string>
     <string name="home_account_robux">Robux</string>
     <string name="home_account_tickets">Tickets</string>
-    <string name="home_account_friend_requests">Friend requests</string>
-    <string name="home_account_trades">Trades</string>
-    <string name="home_account_messages">Unread messages</string>
+    <string name="home_github_caption">%1$s commits in the last year · %2$s stars</string>
 </resources>
