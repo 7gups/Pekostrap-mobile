@@ -125,6 +125,7 @@ public final class SettingsFragment extends Page {
         account.view.setOnClickListener(x -> PekoraSession.toggle(host()));
         roblox.addView(account.view);
         pekoraStatus = account.detail;
+        if (!SignInLauncher.available()) account.view.setVisibility(View.GONE);
         if (!Ui.wide(requireContext()) && SmartJoin.available()) row(roblox, R.drawable.ic_globe, SmartJoin.title(requireContext()), SmartJoin.openBody(requireContext()), () -> ((MainActivity) host()).select(R.id.nav_smart));
         row(roblox, R.drawable.ic_history, R.string.settings_clear_history, R.string.settings_clear_history_body, () ->
                 Ui.alert(requireContext())

@@ -6,6 +6,11 @@
 
     <application>
         <activity
+            android:name=".SignInActivity"
+            android:exported="false"
+            android:label="@string/pekora_login_title" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

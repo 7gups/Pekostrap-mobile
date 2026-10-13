@@ -148,6 +148,7 @@ public final class HomeFragment extends Page {
         catalogGrid = v.findViewById(R.id.catalog_grid);
         catalogSignIn = v.findViewById(R.id.catalog_sign_in);
         catalogSignIn.setOnClickListener(x -> PekoraSession.toggle(requireActivity()));
+        catalogSignIn.setVisibility(SignInLauncher.available() ? View.VISIBLE : View.GONE);
         welcome = v.findViewById(R.id.home_welcome);
         accountCard = v.findViewById(R.id.account_card);
         accountRobux = v.findViewById(R.id.account_robux);

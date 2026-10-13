@@ -95,6 +95,7 @@ final class PekoraSession {
 
     static void toggle(Activity a) {
         if (!signedIn(a)) {
+            if (!SignInLauncher.available()) return;
             if ("1".equals(Store.get(a).setting(NOTICE_ACK, "0"))) openSignIn(a);
             else notice(a);
             return;
@@ -112,7 +113,7 @@ final class PekoraSession {
     }
 
     private static void openSignIn(Activity a) {
-        a.startActivity(new Intent(a, SignInActivity.class));
+        SignInLauncher.open(a);
     }
 
     /** Shows the privacy notice; Continue unlocks after a 5 second countdown. */
