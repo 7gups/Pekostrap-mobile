@@ -1061,6 +1061,14 @@
     <string name="home_welcome">Welcome, %1$s</string>
     <string name="home_account_title">Your account</string>
     <string name="home_account_robux">Robux</string>
-    <string name="home_account_tickets">Tickets</string>
+    <string name="home_account_tickets">Tix</string>
     <string name="home_github_caption">%1$s commits in the last year · %2$s stars</string>
+    <string name="home_hello">Hello, %1$s!</string>
+    <string name="home_hello_fallback">Hello!</string>
+    <string name="home_robux_amount">R$ %1$s</string>
+    <string name="home_tix_amount">TIX %1$s</string>
+    <string name="home_legend_less">Less</string>
+    <string name="home_legend_more">More</string>
+    <string name="home_github_less">Less</string>
+    <string name="home_github_more">More</string>
 </resources>

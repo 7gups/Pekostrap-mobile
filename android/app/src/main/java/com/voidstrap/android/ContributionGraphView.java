@@ -10,7 +10,7 @@ import android.view.View;
 /** GitHub-style commit calendar: 52 week columns of 7 day cells, with month labels and Mon/Wed/Fri labels. */
 public final class ContributionGraphView extends View {
     static final int WEEKS = 52;
-    private static final int[] PALETTE = {0xFFEBEDF0, 0xFFC6E48B, 0xFF7BC96F, 0xFF239A3B, 0xFF196127};
+    private static final int[] PALETTE = {0xFF161B22, 0xFF0E4429, 0xFF006D32, 0xFF26A641, 0xFF39D353};
     private static final String[] DAY_LABELS = {"", "Mon", "", "Wed", "", "Fri", ""};
 
     private final Paint cellPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -37,7 +37,7 @@ public final class ContributionGraphView extends View {
         topPad = 18 * density;
         gap = 3 * density;
         corner = 2 * density;
-        textPaint.setColor(0xFF6E7781);
+        textPaint.setColor(0xFF8B949E);
         textPaint.setTextSize(11 * density);
     }
 

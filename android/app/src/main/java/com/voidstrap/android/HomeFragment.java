@@ -61,7 +61,8 @@ public final class HomeFragment extends Page {
     private long githubStars = -1;
     private long githubCommitCount = -1;
     private long githubDueAt;
-    private TextView welcome;
+    private TextView accountGreeting;
+    private ImageView accountAvatar;
     private long welcomeDueAt;
     private View accountCard;
     private TextView accountRobux;
@@ -158,7 +159,8 @@ public final class HomeFragment extends Page {
         catalogSignIn.setOnClickListener(x -> PekoraSession.toggle(requireActivity()));
         catalogSignIn.setVisibility(SignInLauncher.available() ? View.VISIBLE : View.GONE);
         v.findViewById(R.id.catalog_refresh).setOnClickListener(x -> forceRefresh());
-        welcome = v.findViewById(R.id.home_welcome);
+        accountGreeting = v.findViewById(R.id.account_greeting);
+        accountAvatar = v.findViewById(R.id.account_avatar);
         accountCard = v.findViewById(R.id.account_card);
         accountRobux = v.findViewById(R.id.account_robux);
         accountTickets = v.findViewById(R.id.account_tickets);
@@ -353,10 +355,9 @@ public final class HomeFragment extends Page {
     }
 
     private void bindWelcome() {
-        if (welcome == null) return;
+        if (accountGreeting == null) return;
         String name = PekoraSession.signedIn(requireContext()) ? store.setting(PekoraSession.NAME_SETTING, "") : "";
-        welcome.setText(getString(R.string.home_welcome, name));
-        welcome.setVisibility(name.isEmpty() ? View.GONE : View.VISIBLE);
+        accountGreeting.setText(name.isEmpty() ? getString(R.string.home_hello_fallback) : getString(R.string.home_hello, name));
     }
 
     private void loadWelcome() {
@@ -420,11 +421,22 @@ public final class HomeFragment extends Page {
             JSONObject cur = PekoraApi.currency(id, session);
             long robux = cur == null ? -1 : cur.optLong("robux", -1);
             long tickets = cur == null ? -1 : cur.optLong("tickets", -1);
+            String avatarUrl = headshotUrl(id);
             store.main.post(() -> {
+                if (avatarUrl != null) Net.image(accountAvatar, avatarUrl, R.color.vs_subtle_pressed, Ui.dp(requireContext(), 56));
                 accountRobux.setText(count(robux));
                 accountTickets.setText(count(tickets));
             });
         });
+    }
+
+    /** Headshot URL for the account avatar, or null when unavailable. */
+    private static String headshotUrl(long userId) {
+        JSONObject o = PekoraApi.headshots(String.valueOf(userId), "150x150");
+        JSONArray data = o == null ? null : o.optJSONArray("data");
+        JSONObject first = data == null ? null : data.optJSONObject(0);
+        String url = first == null ? "" : first.optString("imageUrl", "");
+        return url.startsWith("https://") ? url : null;
     }
 
     private void clearAccount() {
