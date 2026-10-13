@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -434,6 +435,16 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
             JSONObject info = o.optJSONObject("info");
             if (info != null) g.location = Integrations.location(info);
         } catch (IOException ignored) {
+        }
+        if (g.name.isEmpty()) {
+            // The Rust lookup returned no name: fall back to the apisite place details.
+            JSONArray places = PekoraApi.placeDetails(String.valueOf(d.placeId));
+            JSONObject place = places == null ? null : places.optJSONObject(0);
+            if (place != null) {
+                g.name = place.optString("name", "");
+                if (g.creator.isEmpty()) g.creator = place.optString("builder", "");
+                if (g.description.isEmpty()) g.description = place.optString("description", "");
+            }
         }
         return g;
     }

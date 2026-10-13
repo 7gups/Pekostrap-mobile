@@ -5,12 +5,17 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
-/** GitHub-style commit calendar: 52 week columns of 7 day cells, with month labels and Mon/Wed/Fri labels. */
+/**
+ * GitHub-style commit calendar: 52 week columns of day cells with month labels and Mon/Wed/Fri labels.
+ * Empty cells and label text follow the active app theme; the green activity levels stay fixed.
+ */
 public final class ContributionGraphView extends View {
     static final int WEEKS = 52;
-    private static final int[] PALETTE = {0xFF161B22, 0xFF0E4429, 0xFF006D32, 0xFF26A641, 0xFF39D353};
+    private static final int[] LEVELS = {0xFF0E4429, 0xFF006D32, 0xFF26A641, 0xFF39D353};
+    private static final float ROW_STRETCH = 1.6f; // cells are taller than they are wide
     private static final String[] DAY_LABELS = {"", "Mon", "", "Wed", "", "Fri", ""};
 
     private final Paint cellPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -21,6 +26,7 @@ public final class ContributionGraphView extends View {
     private final float topPad;
     private final float gap;
     private final float corner;
+    private final int emptyColor;
 
     private int[][] counts = new int[WEEKS][7];
     private String[] months = new String[WEEKS];
@@ -37,8 +43,18 @@ public final class ContributionGraphView extends View {
         topPad = 18 * density;
         gap = 3 * density;
         corner = 2 * density;
-        textPaint.setColor(0xFF8B949E);
+        emptyColor = themeColor(context, R.attr.vsInput, 0xFF161B22);
+        textPaint.setColor(themeColor(context, R.attr.vsTextSecondary, 0xFF8B949E));
         textPaint.setTextSize(11 * density);
+    }
+
+    private static int themeColor(Context c, int attr, int fallback) {
+        TypedValue tv = new TypedValue();
+        if (c.getTheme().resolveAttribute(attr, tv, true)
+                && tv.type >= TypedValue.TYPE_FIRST_COLOR_INT && tv.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            return tv.data;
+        }
+        return fallback;
     }
 
     /** counts[week][day] with day 0 = Sunday, and a month label where a new month starts (otherwise null). */
@@ -51,44 +67,46 @@ public final class ContributionGraphView extends View {
         invalidate();
     }
 
-    private float pitch(int width) {
+    private float pitchX(int width) {
         return (width - labelWidth) / WEEKS;
     }
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         int width = MeasureSpec.getSize(widthSpec);
-        float pitch = pitch(width);
-        setMeasuredDimension(width, Math.round(topPad + 7 * pitch));
+        float px = pitchX(width);
+        setMeasuredDimension(width, Math.round(topPad + 7 * px * ROW_STRETCH));
     }
 
     private int colorFor(int count) {
-        if (count <= 0 || max <= 0) return PALETTE[0];
+        if (count <= 0 || max <= 0) return emptyColor;
         int level = (int) Math.ceil(4.0 * count / max);
-        return PALETTE[Math.max(1, Math.min(4, level))];
+        return LEVELS[Math.max(1, Math.min(4, level)) - 1];
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float pitch = pitch(getWidth());
-        float size = pitch - gap;
+        float px = pitchX(getWidth());
+        float py = px * ROW_STRETCH;
+        float cellW = px - gap;
+        float cellH = py - gap;
 
         for (int w = 0; w < WEEKS; w++) {
             if (months[w] != null) {
-                canvas.drawText(months[w], labelWidth + w * pitch, topPad - 6 * density, textPaint);
+                canvas.drawText(months[w], labelWidth + w * px, topPad - 6 * density, textPaint);
             }
             for (int d = 0; d < 7; d++) {
-                float left = labelWidth + w * pitch;
-                float top = topPad + d * pitch;
-                rect.set(left, top, left + size, top + size);
+                float left = labelWidth + w * px;
+                float top = topPad + d * py;
+                rect.set(left, top, left + cellW, top + cellH);
                 cellPaint.setColor(colorFor(counts[w][d]));
                 canvas.drawRoundRect(rect, corner, corner, cellPaint);
             }
         }
         for (int d = 0; d < 7; d++) {
             if (DAY_LABELS[d].isEmpty()) continue;
-            canvas.drawText(DAY_LABELS[d], 0, topPad + d * pitch + size * 0.85f, textPaint);
+            canvas.drawText(DAY_LABELS[d], 0, topPad + d * py + cellH * 0.85f, textPaint);
         }
     }
 }

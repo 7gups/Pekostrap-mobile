@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#000000"
+            app:cardBackgroundColor="?attr/vsCard"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp">
 
@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textAppearance="?attr/textAppearanceBodyLarge"
-                    android:textColor="#FFFFFF"
+                    android:textColor="?attr/vsTextPrimary"
                     android:textStyle="bold" />
 
                 <com.google.android.material.button.MaterialButton
@@ -45,7 +45,7 @@
                     style="@style/Widget.Voidstrap.Button.Subtle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
+                    android:textColor="?attr/vsTextPrimary"
                     android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#000000"
+            app:cardBackgroundColor="?attr/vsCard"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp">
 
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:cardBackgroundColor="#000000"
+                app:cardBackgroundColor="?attr/vsWindow"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp">
 
@@ -93,7 +93,7 @@
                         android:layout_weight="1"
                         android:accessibilityHeading="true"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#FFFFFF"
+                        android:textColor="?attr/vsTextPrimary"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         tools:targetApi="p" />
@@ -112,14 +112,14 @@
                             android:gravity="end"
                             android:text="@string/home_github_empty"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="#FFFFFF" />
+                            android:textColor="?attr/vsTextPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/home_account_robux"
                             android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="#FFFFFF" />
+                            android:textColor="?attr/vsTextSecondary" />
 
                         <TextView
                             android:id="@+id/account_tickets"
@@ -129,14 +129,14 @@
                             android:gravity="end"
                             android:text="@string/home_github_empty"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="#FFFFFF" />
+                            android:textColor="?attr/vsTextPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/home_account_tickets"
                             android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="#FFFFFF" />
+                            android:textColor="?attr/vsTextSecondary" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -205,7 +205,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="#0D1117"
+            app:cardBackgroundColor="#000000"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
 
@@ -234,20 +234,20 @@
                         android:layout_weight="1"
                         android:text="@string/home_github_empty"
                         android:textAppearance="?attr/textAppearanceLabelSmall"
-                        android:textColor="#8B949E" />
+                        android:textColor="?attr/vsTextSecondary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/home_github_less"
                         android:textAppearance="?attr/textAppearanceLabelSmall"
-                        android:textColor="#8B949E" />
+                        android:textColor="?attr/vsTextSecondary" />
 
                     <View
                         android:layout_width="10dp"
                         android:layout_height="10dp"
                         android:layout_marginStart="3dp"
-                        android:background="#161B22" />
+                        android:background="?attr/vsInput" />
 
                     <View
                         android:layout_width="10dp"
@@ -279,7 +279,7 @@
                         android:layout_marginStart="4dp"
                         android:text="@string/home_github_more"
                         android:textAppearance="?attr/textAppearanceLabelSmall"
-                        android:textColor="#8B949E" />
+                        android:textColor="?attr/vsTextSecondary" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

@@ -32,15 +32,39 @@ final class PekoraApi {
         return new String((byte[]) res[2], StandardCharsets.UTF_8);
     }
 
-    /** POST a JSON body. Returns the response body, or null on any non-200 result. */
+    /**
+     * POST a JSON body. The site uses a CSRF token on POST requests: the browser sends x-csrf-token, and a
+     * 403 response carries the token to retry with. Returns the response body, or null on failure.
+     */
     static String post(String path, String json, String session) {
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
-        String[] headers = session == null
-                ? new String[]{"Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"}
-                : new String[]{"Cookie", PekoraSession.COOKIE + "=" + session, "Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"};
-        Object[] res = Http.request("POST", BASE + path, headers, body, TIMEOUT_MS, LIMIT, session == null);
-        if (res == null || ((int[]) res[0])[0] != 200) return null;
-        return new String((byte[]) res[2], StandardCharsets.UTF_8);
+        String token = "";
+        for (int attempt = 0; attempt < 2; attempt++) {
+            String[] base = session == null
+                    ? new String[]{"Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"}
+                    : new String[]{"Cookie", PekoraSession.COOKIE + "=" + session, "Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"};
+            String[] headers = new String[base.length + 2];
+            System.arraycopy(base, 0, headers, 0, base.length);
+            headers[base.length] = "x-csrf-token";
+            headers[base.length + 1] = token;
+            Object[] res = Http.request("POST", BASE + path, headers, body, TIMEOUT_MS, LIMIT, session == null);
+            if (res == null) return null;
+            int code = ((int[]) res[0])[0];
+            if (code == 200) return new String((byte[]) res[2], StandardCharsets.UTF_8);
+            if (code != 403) return null;
+            String next = responseHeader(res, "x-csrf-token");
+            if (next == null || next.isEmpty() || next.equals(token)) return null;
+            token = next;
+        }
+        return null;
+    }
+
+    private static String responseHeader(Object[] res, String name) {
+        String[] pairs = (String[]) res[1];
+        for (int i = 0; i + 1 < pairs.length; i += 2) {
+            if (name.equalsIgnoreCase(pairs[i])) return pairs[i + 1];
+        }
+        return null;
     }
 
     static JSONObject postObject(String path, String json, String session) {

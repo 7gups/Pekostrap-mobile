@@ -20,8 +20,12 @@ import java.util.UUID;
 
 final class DiscordRpc {
     static final String PACKAGE = "com.discord";
-    static final DiscordRpc ROBLOX = new DiscordRpc(1005469189907173486L, "Roblox");
-    static final DiscordRpc VOIDSTRAP = new DiscordRpc(1459679943498661910L, "Voidstrap Android");
+    static final DiscordRpc ROBLOX = new DiscordRpc(1559526807596830742L, "Pekora");
+    static final DiscordRpc VOIDSTRAP = new DiscordRpc(1559522162019274795L, "Pekostrap");
+    /** Art asset key for the Pekostrap logo, uploaded under Rich Presence assets in the Discord developer portal. */
+    static final String LOGO_ASSET = "pekostrap";
+    /** Art asset key for the Pekora X, used by in-game presence. */
+    static final String PEKORA_ASSET = "pekora";
 
     private static final String SERVICE = "com.discord.socialsdk.rpc.IDiscordRpcService";
     private static final String CONNECTION = "com.discord.socialsdk.rpc.IDiscordRpcConnection";
@@ -262,6 +266,13 @@ final class DiscordRpc {
         changed();
     }
 
+    /** Default large image for each application when the user has not chosen one. */
+    private String defaultAsset() {
+        if (this == VOIDSTRAP) return LOGO_ASSET;
+        if (this == ROBLOX) return PEKORA_ASSET;
+        return "";
+    }
+
     JSONObject activity(Integrations.Presence p) {
         try {
             JSONObject a = new JSONObject();
@@ -272,7 +283,8 @@ final class DiscordRpc {
             a.put("status_display_type", p.detailsStatus ? 2 : 0);
             if (p.start > 0) a.put("timestamps", new JSONObject().put("start", p.start));
             JSONObject assets = new JSONObject();
-            if (!p.largeImage.isEmpty()) assets.put("large_image", p.largeImage);
+            String large = p.largeImage.isEmpty() ? defaultAsset() : p.largeImage;
+            if (!large.isEmpty()) assets.put("large_image", large);
             if (!p.largeText.isEmpty()) assets.put("large_text", clip(p.largeText));
             if (!p.smallImage.isEmpty()) assets.put("small_image", p.smallImage);
             if (!p.smallText.isEmpty()) assets.put("small_text", clip(p.smallText));
