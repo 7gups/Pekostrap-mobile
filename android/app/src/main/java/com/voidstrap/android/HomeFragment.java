@@ -1,7 +1,9 @@
 package com.voidstrap.android;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -26,10 +28,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.nio.charset.StandardCharsets;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public final class HomeFragment extends Page {
     private static final long FEED_REFRESH_MS = 10 * 60_000L;
     private static final long FEED_RETRY_MS = 2 * 60_000L;
+    private static final long GITHUB_REFRESH_MS = 30 * 60_000L;
+    private static final long WELCOME_REFRESH_MS = 60 * 60_000L;
+    private static final long ACCOUNT_REFRESH_MS = 10 * 60_000L;
+    private static final long ALERT_REFRESH_MS = 30 * 60_000L;
+    private static final String GITHUB_API = "https://api.github.com/repos/7gups/Pekostrap-mobile";
+    private static final String GITHUB_URL = "https://github.com/7gups/Pekostrap-mobile";
+    private static final String[] GITHUB_HEADERS = {"User-Agent", "Voidstrap Android", "Accept", "application/vnd.github+json"};
 
     private View newsHeader;
     private TextView newsCount;
@@ -37,13 +52,32 @@ public final class HomeFragment extends Page {
     private TextView catalogStatus;
     private MaterialButton catalogSignIn;
     private LinearLayout catalogGrid;
-    private View continueEmpty;
-    private LinearLayout continueGrid;
 
     private long newsDueAt;
     private long catalogDueAt;
-    private String historySignature = "";
-    private int gamesSeq;
+    private TextView githubStarsValue;
+    private TextView githubCommitsValue;
+    private long githubDueAt;
+    private TextView welcome;
+    private long welcomeDueAt;
+    private View accountCard;
+    private TextView accountRobux;
+    private TextView accountTickets;
+    private TextView accountFriendRequests;
+    private TextView accountTrades;
+    private TextView accountMessages;
+    private long accountDueAt;
+    private View alertBanner;
+    private TextView alertText;
+    private MaterialButton alertLink;
+    private String alertUrl;
+    private long alertDueAt;
+    private String githubSite;
+    private Release githubRelease;
+    private TextView githubReleaseTitle;
+    private TextView githubReleaseMeta;
+    private TextView githubReleaseNotes;
+    private MaterialButton githubReleaseOpen;
 
     private final android.net.ConnectivityManager.NetworkCallback online = new android.net.ConnectivityManager.NetworkCallback() {
         @Override
@@ -58,6 +92,14 @@ public final class HomeFragment extends Page {
     };
     private android.net.ConnectivityManager watching;
     private long watchingSince;
+
+    private static final class Release {
+        String tag = "";
+        String name = "";
+        String date = "";
+        String notes = "";
+        String url = "";
+    }
 
     public HomeFragment() {
         super(R.layout.fragment_home);
@@ -94,7 +136,6 @@ public final class HomeFragment extends Page {
         if (newsGrid.getChildCount() > 0 && catalogGrid.getChildCount() > 0) return;
         newsDueAt = 0;
         catalogDueAt = 0;
-        historySignature = "";
         refresh();
     }
 
@@ -107,12 +148,30 @@ public final class HomeFragment extends Page {
         catalogGrid = v.findViewById(R.id.catalog_grid);
         catalogSignIn = v.findViewById(R.id.catalog_sign_in);
         catalogSignIn.setOnClickListener(x -> PekoraSession.toggle(requireActivity()));
-        continueEmpty = v.findViewById(R.id.continue_empty);
-        continueGrid = v.findViewById(R.id.continue_grid);
+        welcome = v.findViewById(R.id.home_welcome);
+        accountCard = v.findViewById(R.id.account_card);
+        accountRobux = v.findViewById(R.id.account_robux);
+        accountTickets = v.findViewById(R.id.account_tickets);
+        accountFriendRequests = v.findViewById(R.id.account_friend_requests);
+        accountTrades = v.findViewById(R.id.account_trades);
+        accountMessages = v.findViewById(R.id.account_messages);
+        alertBanner = v.findViewById(R.id.alert_banner);
+        alertText = v.findViewById(R.id.alert_text);
+        alertLink = v.findViewById(R.id.alert_link);
+        alertLink.setOnClickListener(x -> openAlertLink());
+        githubStarsValue = v.findViewById(R.id.github_stars_value);
+        githubCommitsValue = v.findViewById(R.id.github_commits_value);
+        v.findViewById(R.id.github_open).setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_URL))));
+        v.findViewById(R.id.github_website).setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW,
+                Uri.parse(githubSite != null && !githubSite.isEmpty() ? githubSite : GITHUB_URL))));
+        v.findViewById(R.id.github_refresh).setOnClickListener(x -> loadGithub());
+        githubReleaseTitle = v.findViewById(R.id.release_title);
+        githubReleaseMeta = v.findViewById(R.id.release_meta);
+        githubReleaseNotes = v.findViewById(R.id.release_notes);
+        githubReleaseOpen = v.findViewById(R.id.release_open);
         v.findViewById(R.id.news_explore).setOnClickListener(x -> exploreNews());
         newsDueAt = 0;
         catalogDueAt = 0;
-        historySignature = "";
     }
 
     @Override
@@ -121,11 +180,13 @@ public final class HomeFragment extends Page {
         long now = System.currentTimeMillis();
         if (now >= newsDueAt) loadNews();
         if (now >= catalogDueAt) loadCatalog();
-        String signature = store.history.size() + ":" + (store.history.isEmpty() ? 0 : store.history.get(0).time);
-        if (!signature.equals(historySignature)) {
-            historySignature = signature;
-            loadGames();
-        }
+        if (now >= githubDueAt) loadGithub();
+        bindWelcome();
+        if (now >= welcomeDueAt && PekoraSession.signedIn(requireContext())) loadWelcome();
+        boolean in = PekoraSession.signedIn(requireContext());
+        if (accountCard != null) accountCard.setVisibility(in ? View.VISIBLE : View.GONE);
+        if (in && now >= accountDueAt) loadAccount();
+        if (now >= alertDueAt) loadAlert();
     }
 
     private int contentDp() {
@@ -284,49 +345,199 @@ public final class HomeFragment extends Page {
         fill(catalogGrid, cells, clamp(contentDp() / 150, 2, 5), 8);
     }
 
-    private void loadGames() {
-        List<Store.Launch> history = new ArrayList<>(store.history);
-        bindGames(HomeFeed.base(history));
-        int seq = ++gamesSeq;
+    private void bindWelcome() {
+        if (welcome == null) return;
+        String name = PekoraSession.signedIn(requireContext()) ? store.setting(PekoraSession.NAME_SETTING, "") : "";
+        welcome.setText(getString(R.string.home_welcome, name));
+        welcome.setVisibility(name.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void loadWelcome() {
+        welcomeDueAt = System.currentTimeMillis() + WELCOME_REFRESH_MS;
         Context app = requireContext().getApplicationContext();
         store.work.execute(() -> {
-            List<HomeFeed.GameCard> cards = HomeFeed.enrich(app, HomeFeed.base(history));
+            String name = PekoraSession.fetchUsername(app);
             store.main.post(() -> {
-                if (seq == gamesSeq) bindGames(cards);
+                if (name != null) store.putSetting(PekoraSession.NAME_SETTING, name);
+                bindWelcome();
             });
         });
     }
 
-    private void bindGames(List<HomeFeed.GameCard> games) {
-        if (getView() == null) return;
-        continueEmpty.setVisibility(games.isEmpty() ? View.VISIBLE : View.GONE);
-        continueGrid.setVisibility(games.isEmpty() ? View.GONE : View.VISIBLE);
-        List<View> cells = new ArrayList<>();
-        LayoutInflater inf = LayoutInflater.from(requireContext());
-        DateFormat when = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
-        for (HomeFeed.GameCard g : games) {
-            View card = inf.inflate(R.layout.item_game_card, continueGrid, false);
-            ((TextView) card.findViewById(R.id.game_name)).setText(g.name);
-            TextView creator = card.findViewById(R.id.game_creator);
-            creator.setText(g.creator);
-            creator.setVisibility(g.creator == null || g.creator.isEmpty() ? View.GONE : View.VISIBLE);
-            ((TextView) card.findViewById(R.id.game_likes)).setText(g.likes);
-            ((TextView) card.findViewById(R.id.game_players)).setText(g.players);
-            ((TextView) card.findViewById(R.id.game_launched)).setText(getString(R.string.home_launched, when.format(new Date(g.launched))));
-            Net.image(card.findViewById(R.id.game_thumb), g.thumbnail, R.color.vs_subtle_pressed, Ui.dp(requireContext(), 320));
-            View thumb = card.findViewById(R.id.game_thumb_host);
-            thumb.setContentDescription(getString(R.string.home_game_page, g.name));
-            thumb.setOnClickListener(x -> Actions.openInRoblox(host(), "https://pekora.pro/games/" + g.placeId));
-            MaterialButton play = card.findViewById(R.id.game_play);
-            play.setContentDescription(getString(R.string.home_play, g.name));
-            play.setOnClickListener(x -> Actions.launch(host(), Deeplink.place(g.placeId, null, null), g.name));
-            card.findViewById(R.id.game_copy).setOnClickListener(x -> {
-                Ui.copy(requireContext(), g.name, "https://pekora.pro/games/" + g.placeId);
-                Notify.say(host(), Notify.COPY, R.string.game_link_copied);
+    private String count(long v) {
+        return v < 0 ? getString(R.string.home_github_empty) : String.format(Locale.getDefault(), "%,d", v);
+    }
+
+    private void loadAccount() {
+        accountDueAt = System.currentTimeMillis() + ACCOUNT_REFRESH_MS;
+        Context app = requireContext().getApplicationContext();
+        store.work.execute(() -> {
+            String session = PekoraSession.session(app);
+            if (session == null) {
+                store.main.post(this::clearAccount);
+                return;
+            }
+            JSONObject me = PekoraApi.me(session);
+            long id = me == null ? 0 : me.optLong("id", 0);
+            if (id <= 0) {
+                // Session rejected or the call failed: show dashes instead of stale numbers.
+                accountDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
+                store.main.post(this::clearAccount);
+                return;
+            }
+            JSONObject cur = PekoraApi.currency(id, session);
+            long robux = cur == null ? -1 : cur.optLong("robux", -1);
+            long tickets = cur == null ? -1 : cur.optLong("tickets", -1);
+            long friends = PekoraApi.friendRequests(session);
+            long trades = PekoraApi.tradesInbound(session);
+            long messages = PekoraApi.unreadMessages(session);
+            store.main.post(() -> {
+                accountRobux.setText(count(robux));
+                accountTickets.setText(count(tickets));
+                accountFriendRequests.setText(count(friends));
+                accountTrades.setText(count(trades));
+                accountMessages.setText(count(messages));
             });
-            cells.add(card);
+        });
+    }
+
+    private void clearAccount() {
+        if (accountRobux == null) return;
+        String dash = getString(R.string.home_github_empty);
+        accountRobux.setText(dash);
+        accountTickets.setText(dash);
+        accountFriendRequests.setText(dash);
+        accountTrades.setText(dash);
+        accountMessages.setText(dash);
+    }
+
+    private void loadAlert() {
+        alertDueAt = System.currentTimeMillis() + ALERT_REFRESH_MS;
+        store.work.execute(() -> {
+            JSONObject info = PekoraApi.alertInfo();
+            store.main.post(() -> bindAlert(info));
+        });
+    }
+
+    private void bindAlert(JSONObject info) {
+        if (alertBanner == null) return;
+        String text = info == null ? "" : info.optString("Text", "");
+        boolean show = info != null && info.optBoolean("IsVisible", false) && !text.isEmpty();
+        alertBanner.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (!show) return;
+        alertText.setText(text);
+        String link = info.optString("LinkText", "");
+        String url = info.optString("LinkUrl", "");
+        alertUrl = PekoraApi.safeLink(url) ? url : null;
+        boolean showLink = alertUrl != null && !link.isEmpty();
+        alertLink.setText(link);
+        alertLink.setVisibility(showLink ? View.VISIBLE : View.GONE);
+    }
+
+    private void openAlertLink() {
+        if (alertUrl != null) startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(alertUrl)));
+    }
+
+    private void loadGithub() {
+        githubDueAt = System.currentTimeMillis() + GITHUB_REFRESH_MS;
+        store.work.execute(() -> {
+            Integer stars = null;
+            String site = null;
+            Integer commits = null;
+            Release rel = null;
+            boolean relFailed = false;
+            try {
+                JSONObject repo = new JSONObject(Net.text(GITHUB_API, 200_000));
+                stars = repo.getInt("stargazers_count");
+                site = repo.optString("homepage", "");
+            } catch (Exception e) {
+                android.util.Log.w("Voidstrap", "GitHub repo failed", e);
+            }
+            try {
+                commits = githubCommits();
+            } catch (Exception e) {
+                android.util.Log.w("Voidstrap", "GitHub commits failed", e);
+            }
+            try {
+                rel = githubRelease();
+            } catch (Exception e) {
+                relFailed = true;
+                android.util.Log.w("Voidstrap", "GitHub release failed", e);
+            }
+            Integer s = stars, c = commits;
+            String h = site;
+            Release r = rel;
+            boolean f = relFailed;
+            store.main.post(() -> bindGithub(s, c, h, r, f));
+        });
+    }
+
+    /** Total commits on the default branch: with per_page=1, the last page number equals the commit count. */
+    private static int githubCommits() throws Exception {
+        Object[] res = Http.request("GET", GITHUB_API + "/commits?per_page=1", GITHUB_HEADERS, null, 15_000, 200_000, true);
+        if (res == null) throw new java.io.IOException("GitHub request failed");
+        int code = ((int[]) res[0])[0];
+        if (code != 200) throw new java.io.IOException("HTTP " + code);
+        String[] pairs = (String[]) res[1];
+        for (int i = 0; i + 1 < pairs.length; i += 2) {
+            if (!"link".equalsIgnoreCase(pairs[i])) continue;
+            Matcher m = Pattern.compile("[?&]page=(\\d+)>; rel=\"last\"").matcher(pairs[i + 1]);
+            if (m.find()) return Integer.parseInt(m.group(1));
         }
-        fill(continueGrid, cells, clamp(contentDp() / 260, 1, 3), 10);
+        return new JSONArray(new String((byte[]) res[2], StandardCharsets.UTF_8)).length();
+    }
+
+    /** Latest published release, or null when the repo has none yet (GitHub answers 404). */
+    private static Release githubRelease() throws Exception {
+        Object[] res = Http.request("GET", GITHUB_API + "/releases/latest", GITHUB_HEADERS, null, 15_000, 400_000, true);
+        if (res == null) throw new java.io.IOException("GitHub request failed");
+        int code = ((int[]) res[0])[0];
+        if (code == 404) return null;
+        if (code != 200) throw new java.io.IOException("HTTP " + code);
+        JSONObject o = new JSONObject(new String((byte[]) res[2], StandardCharsets.UTF_8));
+        Release r = new Release();
+        r.tag = o.optString("tag_name", "");
+        r.name = o.optString("name", "");
+        String published = o.optString("published_at", "");
+        r.date = published.length() >= 10 ? published.substring(0, 10) : published;
+        r.notes = plainNotes(o.optString("body", ""));
+        r.url = o.optString("html_url", GITHUB_URL + "/releases");
+        return r;
+    }
+
+    /** Strips the most common markdown so release notes read as plain text in the card. */
+    private static String plainNotes(String md) {
+        String t = md.replaceAll("(?m)^\\s*#+\\s*", "").replaceAll("[*_`]", "").replaceAll("\n{3,}", "\n\n").trim();
+        return t.length() > 600 ? t.substring(0, 600).trim() + "\u2026" : t;
+    }
+
+    private void bindGithub(Integer stars, Integer commits, String site, Release rel, boolean relFailed) {
+        if (githubStarsValue == null) return;
+        if (stars == null && commits == null && rel == null && relFailed) githubDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
+        if (stars != null) githubStarsValue.setText(String.format(Locale.getDefault(), "%,d", stars));
+        if (commits != null) githubCommitsValue.setText(String.format(Locale.getDefault(), "%,d", commits));
+        if (site != null) githubSite = site;
+        bindRelease(rel, relFailed);
+    }
+
+    private void bindRelease(Release r, boolean failed) {
+        if (githubReleaseTitle == null) return;
+        if (r == null && failed && githubRelease != null) return; // keep the last good release on a failed refresh
+        githubRelease = r;
+        if (r == null) {
+            githubReleaseTitle.setText(failed ? R.string.home_release_failed : R.string.home_release_none);
+            githubReleaseMeta.setVisibility(View.GONE);
+            githubReleaseNotes.setVisibility(View.GONE);
+            githubReleaseOpen.setVisibility(View.GONE);
+            return;
+        }
+        githubReleaseTitle.setText(r.name.isEmpty() ? r.tag : r.name);
+        githubReleaseMeta.setText(getString(R.string.home_release_meta, r.tag, r.date));
+        githubReleaseMeta.setVisibility(View.VISIBLE);
+        githubReleaseNotes.setText(r.notes);
+        githubReleaseNotes.setVisibility(r.notes.isEmpty() ? View.GONE : View.VISIBLE);
+        githubReleaseOpen.setVisibility(View.VISIBLE);
+        githubReleaseOpen.setOnClickListener(x -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(r.url))));
     }
 
     private void exploreNews() {

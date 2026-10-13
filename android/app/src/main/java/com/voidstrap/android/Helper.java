@@ -20,20 +20,29 @@ public final class Helper {
     private Helper() {
     }
 
+    private static final String TOKEN_VAULT = "helper_token";
+
     public static synchronized String token(Context c) {
         if (c == null) return token;
-        Store store = Store.get(c);
-        String saved = store.setting("helperToken", "");
-        if (saved.length() != 32) {
-            byte[] b = new byte[16];
-            new java.security.SecureRandom().nextBytes(b);
-            StringBuilder sb = new StringBuilder(32);
-            for (byte x : b) sb.append(Character.forDigit((x >> 4) & 0xF, 16)).append(Character.forDigit(x & 0xF, 16));
-            saved = sb.toString();
-            store.putSetting("helperToken", saved);
+        String saved = SecureStore.get(c, TOKEN_VAULT);
+        if (saved == null || saved.length() != 32) {
+            // Older builds kept this token in plain settings: move it into the vault and remove the copy.
+            Store store = Store.get(c);
+            String legacy = store.setting("helperToken", "");
+            saved = legacy.length() == 32 ? legacy : newToken();
+            SecureStore.put(c, TOKEN_VAULT, saved);
+            if (!legacy.isEmpty()) store.putSetting("helperToken", null);
         }
         token = saved;
         return saved;
+    }
+
+    private static String newToken() {
+        byte[] b = new byte[16];
+        new java.security.SecureRandom().nextBytes(b);
+        StringBuilder sb = new StringBuilder(32);
+        for (byte x : b) sb.append(Character.forDigit((x >> 4) & 0xF, 16)).append(Character.forDigit(x & 0xF, 16));
+        return sb.toString();
     }
 
     public static String command(Context c) {

@@ -17,7 +17,7 @@ public final class Targets {
     public static final String DOWNLOAD = "https://pekora.pro/setup/android/pekora.apk";
     public static final String PEKORA_2018 = "com.roblox.clienr";
     public static final String[] ALL = {PEKORA, PEKORA_2018};
-    public static final String DOWNLOAD_2018 = "https://pekora.pro";
+    public static final String DOWNLOAD_2018 = "https://pekora.pro/setup/android/pekora2018.apk";
 
     public static final class State {
         public String pkg;
