@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
  */
 final class PekoraApi {
     static final String BASE = "https://pekora.pro/apisite/";
+    static final String COOKIE = ".PEKORASECURITY";
     private static final int TIMEOUT_MS = 15_000;
     private static final int LIMIT = 512_000;
     private static final String SAFE = "[A-Za-z0-9_,.:/=&-]*";
@@ -26,7 +27,7 @@ final class PekoraApi {
     static String get(String path, String session) {
         String[] headers = session == null
                 ? new String[]{"Accept", "application/json", "User-Agent", "Voidstrap Android"}
-                : new String[]{"Cookie", PekoraSession.COOKIE + "=" + session, "Accept", "application/json", "User-Agent", "Voidstrap Android"};
+                : new String[]{"Cookie", COOKIE + "=" + session, "Accept", "application/json", "User-Agent", "Voidstrap Android"};
         Object[] res = Http.request("GET", BASE + path, headers, null, TIMEOUT_MS, LIMIT, session == null);
         if (res == null || ((int[]) res[0])[0] != 200) return null;
         return new String((byte[]) res[2], StandardCharsets.UTF_8);
@@ -42,7 +43,7 @@ final class PekoraApi {
         for (int attempt = 0; attempt < 2; attempt++) {
             String[] base = session == null
                     ? new String[]{"Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"}
-                    : new String[]{"Cookie", PekoraSession.COOKIE + "=" + session, "Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"};
+                    : new String[]{"Cookie", COOKIE + "=" + session, "Content-Type", "application/json", "Accept", "application/json", "User-Agent", "Voidstrap Android"};
             String[] headers = new String[base.length + 2];
             System.arraycopy(base, 0, headers, 0, base.length);
             headers[base.length] = "x-csrf-token";
@@ -257,7 +258,7 @@ final class PekoraApi {
     /** True when the session is accepted, false when it is rejected (expired or revoked), null when unknown. */
     static Boolean sessionValid(String session) {
         Object[] res = Http.request("GET", BASE + "users/v1/users/authenticated",
-                new String[]{"Cookie", PekoraSession.COOKIE + "=" + session, "Accept", "application/json", "User-Agent", "Voidstrap Android"},
+                new String[]{"Cookie", COOKIE + "=" + session, "Accept", "application/json", "User-Agent", "Voidstrap Android"},
                 null, TIMEOUT_MS, LIMIT, false);
         if (res == null) return null;
         int code = ((int[]) res[0])[0];
