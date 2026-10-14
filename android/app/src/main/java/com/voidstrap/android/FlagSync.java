@@ -187,6 +187,31 @@ public final class FlagSync {
 
     private static final String AUTO_ASKED = "helperSetupOffered";
 
+    private static final String SHIZUKU_RELEASES = "https://github.com/RikkaApps/Shizuku/releases";
+
+    /** Two quick actions for the setup screen: developer options, and Shizuku. */
+    private static LinearLayout setupButtons(AppCompatActivity a) {
+        float d = a.getResources().getDisplayMetrics().density;
+        LinearLayout row = new LinearLayout(a);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        lp.setMargins(0, 0, Math.round(8 * d), Math.round(12 * d));
+        com.google.android.material.button.MaterialButton developer = new com.google.android.material.button.MaterialButton(a);
+        developer.setText(R.string.setup_btn_developer);
+        developer.setOnClickListener(v -> openDeveloperOptions(a));
+        com.google.android.material.button.MaterialButton shizuku = new com.google.android.material.button.MaterialButton(a);
+        shizuku.setText(R.string.setup_btn_shizuku);
+        shizuku.setOnClickListener(v -> {
+            if (ShizukuHelper.installed(a)) ShizukuHelper.openManager(a);
+            else Ui.openWeb(a, SHIZUKU_RELEASES);
+        });
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        rp.setMargins(Math.round(8 * d), 0, 0, Math.round(12 * d));
+        row.addView(developer, lp);
+        row.addView(shizuku, rp);
+        return row;
+    }
+
     public static void setup(AppCompatActivity a) {
         asked = true;
         if (FlagWriter.mode(a) != FlagWriter.Mode.NONE) {
@@ -205,6 +230,13 @@ public final class FlagSync {
         Row getAdb = Row.inflate(list);
         Row start = Row.inflate(list);
         Row onDevice = Row.inflate(list);
+        if (WirelessAdb.available()) {
+            com.google.android.material.button.MaterialButton wireless = new com.google.android.material.button.MaterialButton(a);
+            wireless.setText(R.string.setup_btn_wireless);
+            wireless.setOnClickListener(v -> WirelessAdbDialog.show(a));
+            list.addView(wireless);
+        }
+        list.addView(setupButtons(a));
         list.addView(shizuku.view);
         list.addView(debugging.view);
         list.addView(usb.view);

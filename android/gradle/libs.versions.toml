@@ -1,4 +1,8 @@
 [versions]
+spake2 = "2.2.1"
+bouncycastle = "1.81"
+sun-security = "1.1"
+dadb = "1.2.10"
 agp = "9.4.1"
 appcompat = "1.8.0"
 material = "1.14.0"
@@ -9,6 +13,10 @@ appupdate = "2.1.0"
 shizuku = "13.1.5"
 
 [libraries]
+spake2 = { module = "com.github.MuntashirAkon.spake2-java:spake2-android", version.ref = "spake2" }
+bouncycastle = { module = "org.bouncycastle:bcprov-jdk15to18", version.ref = "bouncycastle" }
+sun-security = { module = "com.github.MuntashirAkon:sun-security-android", version.ref = "sun-security" }
+dadb = { group = "dev.mobile", name = "dadb", version.ref = "dadb" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 core = { group = "androidx.core", name = "core", version.ref = "core" }

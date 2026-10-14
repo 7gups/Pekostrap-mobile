@@ -167,6 +167,10 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
+    implementation(libs.dadb)
+    implementation(libs.spake2)
+    implementation(libs.bouncycastle)
+    implementation(libs.sun.security)
     "playImplementation"(libs.app.update)
     coreLibraryDesugaring(libs.desugar.jdk.libs.nio)
 }
