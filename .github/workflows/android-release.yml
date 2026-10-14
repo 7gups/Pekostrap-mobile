@@ -74,8 +74,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/android-release"
-          cp app/build/outputs/apk/play/release/app-play-release.apk "$RUNNER_TEMP/android-release/Voidstrap-Android-play-$VOIDSTRAP_VERSION.apk"
-          cp app/build/outputs/apk/direct/release/app-direct-release.apk "$RUNNER_TEMP/android-release/Voidstrap-Android-direct-$VOIDSTRAP_VERSION.apk"
+          cp app/build/outputs/apk/play/release/app-play-release.apk "$RUNNER_TEMP/android-release/Pekostrap-Android-play-$VOIDSTRAP_VERSION.apk"
+          cp app/build/outputs/apk/direct/release/app-direct-release.apk "$RUNNER_TEMP/android-release/Pekostrap-Android-direct-$VOIDSTRAP_VERSION.apk"
       - name: Check that the play build carries no matchmaker code
         shell: bash
         run: |
@@ -83,7 +83,7 @@ jobs:
           work="$RUNNER_TEMP/play-check"
           rm -rf "$work"
           mkdir -p "$work"
-          unzip -o -q "$RUNNER_TEMP/android-release/Voidstrap-Android-play-$VOIDSTRAP_VERSION.apk" -d "$work"
+          unzip -o -q "$RUNNER_TEMP/android-release/Pekostrap-Android-play-$VOIDSTRAP_VERSION.apk" -d "$work"
           for term in Matchmaker RobloxLogin SignInActivity Reroute gamejoin ROBLOSECURITY; do
             if grep -qa "$term" "$work"/classes*.dex 2>/dev/null; then
               echo "the play apk contains $term in its dex"

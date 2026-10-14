@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea for Voidstrap.
+description: Suggest an idea for Pekostrap.
 title: "[Feature] "
 labels:
   - enhancement
@@ -12,7 +12,7 @@ body:
     attributes:
       label: Before you start
       options:
-        - label: I searched the [existing issues](https://github.com/KloBraticc/Voidstrap/issues) and this feature is not requested yet.
+        - label: I searched the [existing issues](https://github.com/7gups/Pekostrap-mobile/issues) and this feature is not requested yet.
           required: true
         - label: This is not a cheat, exploit or anything else that breaks Roblox's rules.
           required: true
@@ -21,10 +21,7 @@ body:
     attributes:
       label: Platform
       options:
-        - Windows
-        - Linux
         - Android
-        - All
     validations:
       required: true
   - type: textarea
@@ -37,7 +34,7 @@ body:
   - type: textarea
     id: solution
     attributes:
-      label: What should Voidstrap do?
+      label: What should Pekostrap do?
       description: Describe the feature you would like.
     validations:
       required: true
@@ -51,5 +48,5 @@ body:
     attributes:
       label: Code of Conduct
       options:
-        - label: I agree to follow the [Code of Conduct](https://github.com/KloBraticc/Voidstrap/blob/main/CODE_OF_CONDUCT.md).
+        - label: I agree to follow the [Code of Conduct](https://github.com/7gups/Pekostrap-mobile/blob/main/CODE_OF_CONDUCT.md).
           required: true
