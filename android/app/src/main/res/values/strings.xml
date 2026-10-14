@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name" translatable="false">Pekostrap</string>
     <string name="url_website" translatable="false">https://pekora.pro</string>
-    <string name="url_releases" translatable="false">https://github.com/KloBraticc/Voidstrap/releases</string>
+    <string name="url_releases" translatable="false">https://github.com/7gups/Pekostrap-mobile/releases</string>
     <string name="pair">%1$s · %2$s</string>
 
     <string name="nav_home">Home</string>
@@ -303,7 +303,7 @@
     <string name="settings_clear_history">Clear launch history</string>
     <string name="settings_clear_history_body">Remove the list of recent launches</string>
     <string name="settings_backup">Backup</string>
-    <string name="settings_backup_body">Save your pinned games, FastFlag profiles and settings to a file, or restore them on another device. Mod files are exported from the Mods page.</string>
+    <string name="settings_backup_body">Save your FastFlag profiles and settings to a file, or restore them on another device. Mod files are exported from the Mods page.</string>
     <string name="settings_backup_export">Export backup</string>
     <string name="settings_backup_import">Import backup</string>
     <string name="settings_about">About</string>
@@ -1094,4 +1094,15 @@
     <string name="account_limiteds">View limiteds</string>
     <string name="settings_use_device_colors">Use device colors</string>
     <string name="settings_use_device_colors_body">Match Pekostrap to your device\'s wallpaper colors. Needs Android 12 or newer.</string>
+    <string name="limiteds_view_list">List</string>
+    <string name="limiteds_view_grid">Grid</string>
+    <string-array name="limiteds_sort_options">
+        <item>Default order</item>
+        <item>Highest RAP</item>
+        <item>Lowest RAP</item>
+        <item>Lowest serial</item>
+        <item>Highest serial</item>
+    </string-array>
+    <string name="apk_download_failed">Could not download the Pekora APK. Check your connection and try again.</string>
+    <string name="apk_wrong_package">The downloaded file is not the expected Pekora app.</string>
 </resources>

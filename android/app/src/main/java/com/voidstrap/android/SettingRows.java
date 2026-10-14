@@ -117,7 +117,7 @@ public final class SettingRows {
         });
         if (!VoidstrapApp.colorTheme(currentTheme)) {
             boolean dynamic = android.os.Build.VERSION.SDK_INT >= 31;
-            com.google.android.material.switchmaterial.SwitchMaterial device = new com.google.android.material.switchmaterial.SwitchMaterial(a);
+            com.google.android.material.materialswitch.MaterialSwitch device = new com.google.android.material.materialswitch.MaterialSwitch(a);
             device.setChecked(dynamic && !"brand".equals(store.setting("accent", "system")));
             device.setEnabled(dynamic);
             device.setOnCheckedChangeListener((b, on) -> {

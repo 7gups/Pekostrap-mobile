@@ -1,5 +1,8 @@
 package com.voidstrap.android;
 
+import java.io.IOException;
+import java.io.File;
+import android.widget.Toast;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -101,6 +104,29 @@ public final class Launcher {
 
     public static void openStore(Context c, String pkg) {
         if (c == null) return;
-        Ui.openWeb(c, Targets.downloadUrl(pkg));
+        String url = Targets.downloadUrl(pkg);
+        if (!ApkInstall.available() || !url.startsWith("https://pekora.pro/")) {
+            Ui.openWeb(c, url);
+            return;
+        }
+        Context app = c.getApplicationContext();
+        Store store = Store.get(c);
+        store.work.execute(() -> {
+            int message;
+            try {
+                File dir = new File(app.getCacheDir(), "apks");
+                dir.mkdirs();
+                File apk = new File(dir, "pekora-" + System.currentTimeMillis() + ".apk");
+                Net.download(url, apk, 300L * 1024 * 1024, new java.util.concurrent.atomic.AtomicBoolean(false));
+                String error = ApkInstall.open(app, apk, pkg);
+                message = error == null ? 0 : R.string.apk_wrong_package;
+            } catch (IOException | RuntimeException e) {
+                message = R.string.apk_download_failed;
+            }
+            int shown = message;
+            store.main.post(() -> {
+                if (shown != 0) Toast.makeText(app, shown, Toast.LENGTH_LONG).show();
+            });
+        });
     }
 }

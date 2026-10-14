@@ -23,6 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +48,8 @@ public final class LimitedsActivity extends AppCompatActivity {
     private TextView status;
     private MaterialButton more;
     private EditText search;
+    private int sortMode;
+    private boolean gridMode;
 
     @Override
     protected void onCreate(Bundle saved) {
@@ -89,6 +93,37 @@ public final class LimitedsActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+            }
+        });
+        Spinner sort = findViewById(R.id.limiteds_sort);
+        sort.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.limiteds_sort_options)));
+        sort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != sortMode) {
+                    sortMode = position;
+                    render();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        Spinner view = findViewById(R.id.limiteds_view);
+        view.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{getString(R.string.limiteds_view_list), getString(R.string.limiteds_view_grid)}));
+        view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+                boolean grid = position == 1;
+                if (grid != gridMode) {
+                    gridMode = grid;
+                    render();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
         more.setOnClickListener(x -> loadPage());
@@ -158,16 +193,96 @@ public final class LimitedsActivity extends AppCompatActivity {
     private void render() {
         list.removeAllViews();
         String q = search.getText().toString().trim().toLowerCase(Locale.ROOT);
-        int shown = 0;
+        List<JSONObject> visible = new ArrayList<>();
         for (JSONObject o : items) {
-            if (!q.isEmpty() && !o.optString("name", "").toLowerCase(Locale.ROOT).contains(q)) continue;
-            list.addView(row(o));
-            shown++;
+            if (q.isEmpty() || o.optString("name", "").toLowerCase(Locale.ROOT).contains(q)) visible.add(o);
         }
+        sortItems(visible);
+        if (gridMode) renderGrid(visible);
+        else for (JSONObject o : visible) list.addView(row(o));
+        int shown = visible.size();
         if (items.isEmpty() && !loading) status.setText(R.string.limiteds_empty);
         else if (shown == 0 && !q.isEmpty()) status.setText(R.string.limiteds_no_match);
         else status.setText(getString(R.string.limiteds_count, shown));
         more.setVisibility(nextCursor != null && !loading ? View.VISIBLE : View.GONE);
+    }
+
+    private interface Key {
+        Long of(JSONObject o);
+    }
+
+    private static final Key RAP = o -> o.isNull("recentAveragePrice") ? null : o.optLong("recentAveragePrice", 0);
+    private static final Key SERIAL = o -> o.isNull("serialNumber") ? null : o.optLong("serialNumber", 0);
+
+    /** Sorts by RAP or serial. Items without that value always go last. */
+    private void sortItems(List<JSONObject> out) {
+        Key key;
+        boolean descending;
+        switch (sortMode) {
+            case 1: key = RAP; descending = true; break;
+            case 2: key = RAP; descending = false; break;
+            case 3: key = SERIAL; descending = false; break;
+            case 4: key = SERIAL; descending = true; break;
+            default: return;
+        }
+        Collections.sort(out, (a, b) -> {
+            Long x = key.of(a), y = key.of(b);
+            if (x == null && y == null) return 0;
+            if (x == null) return 1;
+            if (y == null) return -1;
+            return descending ? Long.compare(y, x) : Long.compare(x, y);
+        });
+    }
+
+    private void renderGrid(List<JSONObject> visible) {
+        float d = getResources().getDisplayMetrics().density;
+        int margin = Math.round(4 * d);
+        LinearLayout pair = null;
+        for (int i = 0; i < visible.size(); i++) {
+            if (i % 2 == 0) {
+                pair = new LinearLayout(this);
+                pair.setOrientation(LinearLayout.HORIZONTAL);
+                list.addView(pair, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            }
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            lp.setMargins(margin, margin, margin, margin);
+            pair.addView(cell(visible.get(i)), lp);
+        }
+        if (visible.size() % 2 == 1 && pair != null) {
+            pair.addView(new View(this), new LinearLayout.LayoutParams(0, 0, 1f));
+        }
+    }
+
+    private View cell(JSONObject o) {
+        float d = getResources().getDisplayMetrics().density;
+        LinearLayout cell = new LinearLayout(this);
+        cell.setOrientation(LinearLayout.VERTICAL);
+        int pad = Math.round(8 * d);
+        cell.setPadding(pad, pad, pad, pad);
+
+        ImageView img = new ImageView(this);
+        String url = thumbs.get(o.optLong("assetId", 0));
+        if (url != null) Net.image(img, url, R.color.vs_subtle_pressed, Math.round(120 * d));
+        cell.addView(img, new LinearLayout.LayoutParams(Math.round(120 * d), Math.round(120 * d)));
+
+        TextView name = new TextView(this);
+        name.setText(o.optString("name", ""));
+        name.setTypeface(null, Typeface.BOLD);
+        name.setMaxLines(2);
+        cell.addView(name);
+
+        TextView rap = new TextView(this);
+        String price = o.isNull("recentAveragePrice") ? "--" : String.format(Locale.getDefault(), "%,d", o.optLong("recentAveragePrice", 0));
+        rap.setText(getString(R.string.limiteds_rap, price));
+        cell.addView(rap);
+
+        if (!o.isNull("serialNumber")) {
+            TextView serial = new TextView(this);
+            String copies = o.isNull("copyCount") ? "--" : String.valueOf(o.optLong("copyCount", 0));
+            serial.setText(getString(R.string.limiteds_serial, String.valueOf(o.optLong("serialNumber", 0)), copies));
+            cell.addView(serial);
+        }
+        return cell;
     }
 
     private View row(JSONObject o) {

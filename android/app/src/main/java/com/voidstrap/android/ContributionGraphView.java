@@ -92,9 +92,15 @@ public final class ContributionGraphView extends View {
         float cellW = px - gap;
         float cellH = py - gap;
 
+        float lastLabelEnd = 0;
         for (int w = 0; w < WEEKS; w++) {
             if (months[w] != null) {
-                canvas.drawText(months[w], labelWidth + w * px, topPad - 6 * density, textPaint);
+                float x = labelWidth + w * px;
+                float width = textPaint.measureText(months[w]);
+                if (x >= lastLabelEnd) {
+                    canvas.drawText(months[w], x, topPad - 6 * density, textPaint);
+                    lastLabelEnd = x + width + 8 * density;
+                }
             }
             for (int d = 0; d < 7; d++) {
                 float left = labelWidth + w * px;
