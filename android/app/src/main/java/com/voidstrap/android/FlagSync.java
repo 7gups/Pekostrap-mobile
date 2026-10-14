@@ -230,12 +230,6 @@ public final class FlagSync {
         Row getAdb = Row.inflate(list);
         Row start = Row.inflate(list);
         Row onDevice = Row.inflate(list);
-        if (WirelessAdb.available()) {
-            com.google.android.material.button.MaterialButton pairButton = new com.google.android.material.button.MaterialButton(a);
-            pairButton.setText(R.string.setup_btn_wireless);
-            pairButton.setOnClickListener(v -> WirelessAdbDialog.show(a));
-            list.addView(pairButton);
-        }
         list.addView(setupButtons(a));
         list.addView(shizuku.view);
         list.addView(debugging.view);

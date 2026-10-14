@@ -1141,16 +1141,4 @@
     <string name="flag_env_patch">Patch method: %1$s</string>
     <string name="setup_btn_developer">Open developer options</string>
     <string name="setup_btn_shizuku">Install Shizuku</string>
-    <string name="setup_btn_wireless">Pair over Wireless debugging</string>
-    <string name="wadb_title">Pair over Wireless debugging</string>
-    <string name="wadb_instructions">On this phone, open Developer options, Wireless debugging, and tap Pair device with pairing code. Enter the address, port, and six-digit code from that screen.</string>
-    <string name="wadb_host">IP address</string>
-    <string name="wadb_port">Pairing port</string>
-    <string name="wadb_code">Six-digit pairing code</string>
-    <string name="wadb_start">Pair and start</string>
-    <string name="wadb_working">Pairing, connecting, and starting the helper. Keep the pairing dialog open.</string>
-    <string name="wadb_need_port">Enter the pairing port from the Pair device screen.</string>
-    <string name="wadb_need_code">Enter the six-digit code and the IP address.</string>
-    <string name="wadb_done">Connected. The helper is starting.</string>
-    <string name="wadb_failed">Could not finish at the %1$s step. Check the code and port, keep Wireless debugging on, and try again.</string>
 </resources>
