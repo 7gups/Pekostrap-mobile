@@ -1,36 +1,35 @@
 package com.voidstrap.android;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** The signed-in account's limiteds, with search, a category filter, and "Load more" paging. */
+/** The account's limiteds, with search, category and sort menus, a list or grid view, and paging. */
 public final class LimitedsActivity extends AppCompatActivity {
     private static final int PAGE_SIZE = 24;
     private static final String[] CATEGORY_NAMES = {"All", "Hats", "Hair", "Face", "Neck", "Shoulder", "Front", "Back", "Waist", "Heads", "Faces", "Gears", "Decals"};
@@ -44,12 +43,12 @@ public final class LimitedsActivity extends AppCompatActivity {
     private String nextCursor;
     private boolean loading;
     private String category = "null";
+    private int sortMode;
+    private boolean gridMode;
     private LinearLayout list;
     private TextView status;
     private MaterialButton more;
-    private EditText search;
-    private int sortMode;
-    private boolean gridMode;
+    private android.widget.EditText search;
 
     @Override
     protected void onCreate(Bundle saved) {
@@ -65,22 +64,39 @@ public final class LimitedsActivity extends AppCompatActivity {
         status = findViewById(R.id.limiteds_status);
         more = findViewById(R.id.limiteds_more);
         search = findViewById(R.id.limiteds_search);
-        Spinner spinner = findViewById(R.id.limiteds_category);
-        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, CATEGORY_NAMES));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String next = CATEGORY_IDS[position];
-                if (!next.equals(category)) {
-                    category = next;
-                    reload();
-                }
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+        MaterialAutoCompleteTextView categoryView = findViewById(R.id.limiteds_category);
+        categoryView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, CATEGORY_NAMES));
+        categoryView.setText(CATEGORY_NAMES[0], false);
+        categoryView.setOnItemClickListener((parent, v, position, id) -> {
+            String next = CATEGORY_IDS[position];
+            if (!next.equals(category)) {
+                category = next;
+                reload();
             }
         });
+
+        MaterialAutoCompleteTextView sortView = findViewById(R.id.limiteds_sort);
+        sortView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.limiteds_sort_options)));
+        sortView.setText(getResources().getStringArray(R.array.limiteds_sort_options)[0], false);
+        sortView.setOnItemClickListener((parent, v, position, id) -> {
+            if (position != sortMode) {
+                sortMode = position;
+                render();
+            }
+        });
+
+        MaterialButtonToggleGroup viewToggle = findViewById(R.id.limiteds_view_toggle);
+        viewToggle.check(R.id.limiteds_view_list_btn);
+        viewToggle.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            boolean grid = checkedId == R.id.limiteds_view_grid_btn;
+            if (grid != gridMode) {
+                gridMode = grid;
+                render();
+            }
+        });
+
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -95,38 +111,9 @@ public final class LimitedsActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
-        Spinner sort = findViewById(R.id.limiteds_sort);
-        sort.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.limiteds_sort_options)));
-        sort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position != sortMode) {
-                    sortMode = position;
-                    render();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        Spinner view = findViewById(R.id.limiteds_view);
-        view.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{getString(R.string.limiteds_view_list), getString(R.string.limiteds_view_grid)}));
-        view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-                boolean grid = position == 1;
-                if (grid != gridMode) {
-                    gridMode = grid;
-                    render();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
         more.setOnClickListener(x -> loadPage());
+        ScrollView scroll = findViewById(R.id.limiteds_scroll);
+        scroll.setOnScrollChangeListener((v, x, y, oldX, oldY) -> maybeLoadMore());
         reload();
     }
 
@@ -146,7 +133,6 @@ public final class LimitedsActivity extends AppCompatActivity {
         more.setVisibility(View.GONE);
         String requestCursor = cursor;
         String requestCategory = category;
-        Context app = getApplicationContext();
         store.work.execute(() -> {
             JSONObject page = PekoraApi.collectibles(userId, requestCursor, PAGE_SIZE, requestCategory, null);
             JSONArray data = page == null ? null : page.optJSONArray("data");
@@ -205,6 +191,16 @@ public final class LimitedsActivity extends AppCompatActivity {
         else if (shown == 0 && !q.isEmpty()) status.setText(R.string.limiteds_no_match);
         else status.setText(getString(R.string.limiteds_count, shown));
         more.setVisibility(nextCursor != null && !loading ? View.VISIBLE : View.GONE);
+        list.post(this::maybeLoadMore);
+    }
+
+    /** Loads the next page automatically once the list is close to its bottom edge. */
+    private void maybeLoadMore() {
+        if (nextCursor == null || loading) return;
+        ScrollView scroll = findViewById(R.id.limiteds_scroll);
+        View content = scroll.getChildAt(0);
+        int remaining = content.getHeight() - (scroll.getHeight() + scroll.getScrollY());
+        if (remaining < Math.round(600 * getResources().getDisplayMetrics().density)) loadPage();
     }
 
     private interface Key {
@@ -253,50 +249,18 @@ public final class LimitedsActivity extends AppCompatActivity {
         }
     }
 
-    private View cell(JSONObject o) {
-        float d = getResources().getDisplayMetrics().density;
-        LinearLayout cell = new LinearLayout(this);
-        cell.setOrientation(LinearLayout.VERTICAL);
-        int pad = Math.round(8 * d);
-        cell.setPadding(pad, pad, pad, pad);
-
-        ImageView img = new ImageView(this);
-        String url = thumbs.get(o.optLong("assetId", 0));
-        if (url != null) Net.image(img, url, R.color.vs_subtle_pressed, Math.round(120 * d));
-        cell.addView(img, new LinearLayout.LayoutParams(Math.round(120 * d), Math.round(120 * d)));
-
-        TextView name = new TextView(this);
-        name.setText(o.optString("name", ""));
-        name.setTypeface(null, Typeface.BOLD);
-        name.setMaxLines(2);
-        cell.addView(name);
-
-        TextView rap = new TextView(this);
-        String price = o.isNull("recentAveragePrice") ? "--" : String.format(Locale.getDefault(), "%,d", o.optLong("recentAveragePrice", 0));
-        rap.setText(getString(R.string.limiteds_rap, price));
-        cell.addView(rap);
-
-        if (!o.isNull("serialNumber")) {
-            TextView serial = new TextView(this);
-            String copies = o.isNull("copyCount") ? "--" : String.valueOf(o.optLong("copyCount", 0));
-            serial.setText(getString(R.string.limiteds_serial, String.valueOf(o.optLong("serialNumber", 0)), copies));
-            cell.addView(serial);
-        }
-        return cell;
-    }
-
     private View row(JSONObject o) {
         float d = getResources().getDisplayMetrics().density;
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        int pad = Math.round(10 * d);
-        row.setPadding(pad, pad, pad, pad);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.HORIZONTAL);
+        content.setGravity(Gravity.CENTER_VERTICAL);
+        int pad = Math.round(12 * d);
+        content.setPadding(pad, pad, pad, pad);
 
         ImageView img = new ImageView(this);
         String url = thumbs.get(o.optLong("assetId", 0));
         if (url != null) Net.image(img, url, R.color.vs_subtle_pressed, Math.round(56 * d));
-        row.addView(img, new LinearLayout.LayoutParams(Math.round(56 * d), Math.round(56 * d)));
+        content.addView(img, new LinearLayout.LayoutParams(Math.round(56 * d), Math.round(56 * d)));
 
         LinearLayout text = new LinearLayout(this);
         text.setOrientation(LinearLayout.VERTICAL);
@@ -304,20 +268,59 @@ public final class LimitedsActivity extends AppCompatActivity {
         TextView name = new TextView(this);
         name.setText(o.optString("name", ""));
         name.setTypeface(null, Typeface.BOLD);
+        name.setTextColor(Ui.attr(this, com.google.android.material.R.attr.colorOnSurface));
         text.addView(name);
+        text.addView(details(o));
+        content.addView(text, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView rap = new TextView(this);
+        return card(content, d, 8);
+    }
+
+    private View cell(JSONObject o) {
+        float d = getResources().getDisplayMetrics().density;
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        int pad = Math.round(10 * d);
+        content.setPadding(pad, pad, pad, pad);
+
+        ImageView img = new ImageView(this);
+        String url = thumbs.get(o.optLong("assetId", 0));
+        if (url != null) Net.image(img, url, R.color.vs_subtle_pressed, Math.round(120 * d));
+        content.addView(img, new LinearLayout.LayoutParams(Math.round(120 * d), Math.round(120 * d)));
+
+        TextView name = new TextView(this);
+        name.setText(o.optString("name", ""));
+        name.setTypeface(null, Typeface.BOLD);
+        name.setMaxLines(2);
+        name.setTextColor(Ui.attr(this, com.google.android.material.R.attr.colorOnSurface));
+        content.addView(name);
+        content.addView(details(o));
+        return card(content, d, 0);
+    }
+
+    private TextView details(JSONObject o) {
+        StringBuilder sb = new StringBuilder();
         String price = o.isNull("recentAveragePrice") ? "--" : String.format(Locale.getDefault(), "%,d", o.optLong("recentAveragePrice", 0));
-        rap.setText(getString(R.string.limiteds_rap, price));
-        text.addView(rap);
-
+        sb.append(getString(R.string.limiteds_rap, price));
         if (!o.isNull("serialNumber")) {
-            TextView serial = new TextView(this);
             String copies = o.isNull("copyCount") ? "--" : String.valueOf(o.optLong("copyCount", 0));
-            serial.setText(getString(R.string.limiteds_serial, String.valueOf(o.optLong("serialNumber", 0)), copies));
-            text.addView(serial);
+            sb.append('\n').append(getString(R.string.limiteds_serial, String.valueOf(o.optLong("serialNumber", 0)), copies));
         }
-        row.addView(text, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        return row;
+        TextView t = new TextView(this);
+        t.setText(sb.toString());
+        t.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodySmall);
+        t.setTextColor(Ui.attr(this, com.google.android.material.R.attr.colorOnSurfaceVariant));
+        return t;
+    }
+
+    private MaterialCardView card(View content, float d, int bottomDp) {
+        MaterialCardView card = new MaterialCardView(this);
+        card.setCardElevation(0);
+        card.setRadius(16 * d);
+        card.addView(content);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, 0, 0, Math.round(bottomDp * d));
+        card.setLayoutParams(lp);
+        return card;
     }
 }

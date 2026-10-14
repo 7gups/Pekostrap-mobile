@@ -117,7 +117,7 @@ public final class SettingsFragment extends Page {
         helper.view.setOnClickListener(x -> FlagSync.setup(host()));
         helperDetail = helper.detail;
         roblox.addView(helper.view);
-        FlagSync.rootRow(roblox, host());
+        FlagSync.patchMethodRow(roblox, host());
         if (!Ui.wide(requireContext())) row(roblox, R.drawable.ic_add, R.string.nav_integrations, R.string.integrations_open_body, () -> ((MainActivity) host()).select(R.id.nav_integrations));
         Row account = Row.inflate(roblox);
         account.set(R.drawable.ic_shield_checkmark, getString(R.string.pekora_account_title), PekoraSession.statusText(requireContext()));

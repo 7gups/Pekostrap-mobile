@@ -914,9 +914,7 @@
     <string name="integrations_idle_icon">Idle icon</string>
     <string name="integrations_idle_icon_body">Shown when you are not in a game</string>
     <string-array name="integrations_idle_icons">
-        <item>Blue Logo</item>
-        <item>Black Logo</item>
-        <item>2009 to 2011 Logo</item>
+        <item>Pekora X</item>
     </string-array>
     <string name="activity_channel">Activity tracking</string>
     <string name="activity_join_channel">Game joined</string>
@@ -1105,4 +1103,40 @@
     </string-array>
     <string name="apk_download_failed">Could not download the Pekora APK. Check your connection and try again.</string>
     <string name="apk_wrong_package">The downloaded file is not the expected Pekora app.</string>
+    <string name="presets_request_flag">Request a flag</string>
+    <string name="presets_request_title">Request a flag</string>
+    <string name="presets_request_body">Describe the flag. Submitting opens a GitHub issue with these details for you to review and submit.</string>
+    <string name="presets_request_name">Flag name, for example FFlagExample</string>
+    <string name="presets_request_value">Value (optional)</string>
+    <string name="presets_request_reason">Why it helps</string>
+    <string name="presets_request_open">Open on GitHub</string>
+    <string name="presets_request_invalid">Enter a flag name using letters, numbers, and underscores (3 to 100 characters).</string>
+    <string name="patch_method_title">Change patch method</string>
+    <string name="patch_root">Root</string>
+    <string name="patch_shizuku">Shizuku</string>
+    <string name="patch_wireless">Wireless ADB</string>
+    <string name="patch_usb">USB debugging</string>
+    <string name="patch_method_none">Not set</string>
+    <string name="limiteds_category_label">Category</string>
+    <string name="limiteds_sort_label">Sort by</string>
+    <string name="flag_request_sending">Sending your request…</string>
+    <string name="flag_request_sent">Request sent. It will appear on GitHub for review.</string>
+    <string name="flag_request_failed">Could not send the request. Try again later.</string>
+    <string name="flag_request_unavailable">Flag requests are not set up in this build yet.</string>
+    <string name="flag_group_label">Group</string>
+    <string-array name="flag_groups">
+        <item>Rendering</item>
+        <item>Geometry</item>
+        <item>Physics</item>
+        <item>Networking</item>
+        <item>Interface</item>
+        <item>Other</item>
+    </string-array>
+    <string name="flag_env_heading">Setup (sent with your request)</string>
+    <string name="flag_env_pekostrap">Pekostrap %1$s</string>
+    <string name="flag_env_android">Android %1$s (API %2$d)</string>
+    <string name="flag_env_device">Device: %1$s</string>
+    <string name="flag_env_pekora">Pekora app: %1$s</string>
+    <string name="flag_env_pekora_2018">Pekora 2018 app: %1$s</string>
+    <string name="flag_env_patch">Patch method: %1$s</string>
 </resources>

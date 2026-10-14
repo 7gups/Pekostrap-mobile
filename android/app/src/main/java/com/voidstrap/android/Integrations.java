@@ -30,7 +30,7 @@ public final class Integrations {
     public static final String ACCOUNT = "discordAccount";
     static final String USER_ID = "robloxUserId";
 
-    public static final String[] IDLE_KEYS = {"blue", "black", "old"};
+    public static final String[] IDLE_KEYS = {"pekora"};
     static final String[] PLAYER_LOG_FLAGS = {"DFLogSocialCounterpartyManager", "FStringDebugLuaLogLevel", "FStringDebugLuaLogPattern"};
     static final Object[] PLAYER_LOG_VALUES = {7L, "trace", "ExpChat/mountClientApp"};
 
@@ -167,7 +167,7 @@ public final class Integrations {
     }
 
     public static Presence idle(Store s, long start, JSONObject account, boolean loading) {
-        return presence("presence.idle", Core.args("icon", s.setting(IDLE_ICON, "blue"), "start", start, "settings", Core.args("account", on(s, ACCOUNT), "loading", loading), "account", account));
+        return presence("presence.idle", Core.args("icon", s.setting(IDLE_ICON, "pekora"), "start", start, "settings", Core.args("account", on(s, ACCOUNT), "loading", loading), "account", account));
     }
 
     public static Presence applyRpc(Presence current, Presence original, String json) {

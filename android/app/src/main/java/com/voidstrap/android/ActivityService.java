@@ -437,7 +437,7 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
         } catch (IOException ignored) {
         }
         if (g.name.isEmpty()) {
-            // The Rust lookup returned no name: fall back to the apisite place details.
+            // The Rust lookup returned no name: ask the apisite place details first.
             JSONArray places = PekoraApi.placeDetails(String.valueOf(d.placeId));
             JSONObject place = places == null ? null : places.optJSONObject(0);
             if (place != null) {
@@ -446,6 +446,19 @@ public final class ActivityService extends Service implements ActivityWatcher.Li
                 if (g.description.isEmpty()) g.description = place.optString("description", "");
             }
         }
+        if (g.name.isEmpty() && d.universeId > 0) {
+            // Then the universe details, which return the game name in data[0].
+            JSONArray games = PekoraApi.gamesByUniverse(String.valueOf(d.universeId));
+            JSONObject game = games == null ? null : games.optJSONObject(0);
+            if (game != null) {
+                g.name = game.optString("name", "");
+                Object creator = game.opt("creator");
+                if (g.creator.isEmpty() && creator instanceof JSONObject) g.creator = ((JSONObject) creator).optString("name", "");
+                else if (g.creator.isEmpty() && creator instanceof String) g.creator = (String) creator;
+                if (g.description.isEmpty()) g.description = game.optString("description", "");
+            }
+        }
+        if (g.name.isEmpty()) ModLog.add("game name unavailable for place " + d.placeId + " universe " + d.universeId);
         return g;
     }
 }

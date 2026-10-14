@@ -1,16 +1,14 @@
 use crate::java::{self, opt_bool, opt_long, opt_str, regex_space, trim, utf16_len, utf16_prefix, word_boundary};
 use serde_json::{Value, json};
 
-const DOWNLOAD: &str = "https://github.com/KloBraticc/Voidstrap/releases";
+const DOWNLOAD: &str = "https://github.com/7gups/Pekostrap-mobile/releases";
 const DISCORD: &str = "https://discord.gg/bzdbHHytFR";
-const GITHUB: &str = "https://github.com/KloBraticc/Voidstrap";
+const GITHUB: &str = "https://github.com/7gups/Pekostrap-mobile";
 const LOGO: &str = "https://raw.githubusercontent.com/7gups/Pekostrap-mobile/main/branding/pekostrap-logo.png";
 const LOADING: &str = "https://raw.githubusercontent.com/KloBraticc/Voidstrap/main/assets/Images/rpc-loading.gif";
 
-const IDLE: [(&str, &str); 3] = [
-    ("blue", "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Roblox_%282025%29_%28App_Icon%29.svg/250px-Roblox_%282025%29_%28App_Icon%29.svg.png"),
-    ("black", "https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/5X/c/4/c/2/c4c28132e4907f73ea0430d18d769c06276e39cc.png"),
-    ("old", "https://static.wikia.nocookie.net/logopedia/images/b/b7/ROBLOX_2006-2009.svg/revision/latest/scale-to-width-down/1000?cb=20250403121056"),
+const IDLE: [(&str, &str); 1] = [
+    ("pekora", "https://raw.githubusercontent.com/7gups/Pekostrap-mobile/main/branding/pekora-x.png"),
 ];
 
 #[derive(Clone, Copy)]
@@ -227,7 +225,7 @@ pub fn shown(custom: &str, name: &str) -> String {
     if !custom.is_empty() {
         return custom.to_string();
     }
-    if trim(name).is_empty() { "Private experience".to_string() } else { name.to_string() }
+    if trim(name).is_empty() { "Unknown game".to_string() } else { name.to_string() }
 }
 
 fn small(settings: &Value, account: &Value) -> (String, String) {
@@ -236,7 +234,7 @@ fn small(settings: &Value, account: &Value) -> (String, String) {
         return (LOADING.to_string(), String::new());
     }
     if !on(settings, "account") || image.is_empty() {
-        return (LOGO.to_string(), "Voidstrap".to_string());
+        return (LOGO.to_string(), "Pekostrap".to_string());
     }
     (image, opt_str(account, "text", ""))
 }
@@ -335,7 +333,7 @@ pub fn game(settings: &Value, data: &Value, game: &Value, account: &Value, flag_
 
 pub fn idle(icon: &str, start: i64, settings: &Value, account: &Value) -> Value {
     let url = IDLE.iter().find(|(k, _)| *k == icon).unwrap_or(&IDLE[0]).1;
-    presence("Inside Voidstrap".into(), "Browsing Roblox".into(), url.into(), "Roblox".into(), small(settings, account), start, true, Vec::new())
+    presence("Inside Pekostrap".into(), "Browsing Pekora".into(), url.into(), "Pekora".into(), small(settings, account), start, true, Vec::new())
 }
 
 fn field(current: &str, value: &str, original: &str) -> String {
@@ -393,13 +391,13 @@ pub fn app(a: &Value) -> Value {
     let mut details = clip(&opt_str(a, "details", ""));
     let mut state = clip(&opt_str(a, "state", ""));
     if utf16_len(&details) < 2 {
-        details = "Voidstrap".into();
+        details = "Pekostrap".into();
     }
     if utf16_len(&state) < 2 {
-        state = "Exploring Voidstrap".into();
+        state = "Exploring Pekostrap".into();
     }
     let https = |k: &str| Some(opt_str(a, k, "")).filter(|v| scene && v.starts_with("https://"));
-    let version = format!("Voidstrap Android v{}", opt_str(a, "version", ""));
+    let version = format!("Pekostrap Android v{}", opt_str(a, "version", ""));
     let avatar = a.get("avatar").cloned().unwrap_or(Value::Null);
     let (image, text, small) = match https("image") {
         Some(image) => {
@@ -417,7 +415,7 @@ pub fn app(a: &Value) -> Value {
         Some(url) => {
             let label = opt_str(a, "buttonLabel", "");
             let label = if label.is_empty() { "Open".to_string() } else { utf16_prefix(&label, 32).to_string() };
-            vec![[label, url], ["Get Voidstrap".to_string(), DOWNLOAD.to_string()]]
+            vec![[label, url], ["Get Pekostrap".to_string(), DOWNLOAD.to_string()]]
         }
         None => vec![["Discord".to_string(), DISCORD.to_string()], ["Github".to_string(), GITHUB.to_string()]],
     };

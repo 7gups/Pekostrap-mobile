@@ -217,7 +217,7 @@ public final class OnboardingActivity extends AppCompatActivity {
         info(unlocks, R.drawable.ic_wrench_screwdriver, R.string.onboarding_root_mods, R.string.onboarding_root_mods_body);
         info(unlocks, R.drawable.ic_options, R.string.onboarding_root_flags, R.string.onboarding_root_flags_body);
         info(unlocks, R.drawable.ic_people, R.string.onboarding_root_activity, R.string.onboarding_root_activity_body);
-        FlagSync.rootRow(card(0), this);
+        FlagSync.patchMethodRow(card(0), this);
         TextView note = new TextView(this);
         note.setTextAppearance(R.style.TextAppearance_Voidstrap_Caption);
         note.setText(R.string.onboarding_root_note);

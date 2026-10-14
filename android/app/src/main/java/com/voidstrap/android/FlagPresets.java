@@ -416,6 +416,12 @@ public final class FlagPresets {
         row.setOnClickListener(v -> {
             LinearLayout list = new LinearLayout(a);
             list.setOrientation(LinearLayout.VERTICAL);
+            com.google.android.material.button.MaterialButton request = new com.google.android.material.button.MaterialButton(a);
+            request.setText(R.string.presets_request_flag);
+            request.setOnClickListener(x -> requestFlag());
+            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            rp.setMargins(0, 0, 0, Math.round(12 * a.getResources().getDisplayMetrics().density));
+            list.addView(request, rp);
             for (Map.Entry<String, String> e : FlagWriter.ALLOWLIST.entrySet()) {
                 if (!ok(e.getKey())) continue;
                 Row item = Row.inflate(list);
@@ -427,6 +433,82 @@ public final class FlagPresets {
                 list.addView(item.view);
             }
             Ui.surface(a, R.string.presets_allowlist, R.string.presets_allowlist_body, list).show();
+        });
+    }
+
+    /** Opens a form for a missing flag. Submitting opens a prefilled GitHub issue for review; nothing is sent by the app. */
+    private void requestFlag() {
+        float d = a.getResources().getDisplayMetrics().density;
+        LinearLayout form = new LinearLayout(a);
+        form.setOrientation(LinearLayout.VERTICAL);
+        int pad = Math.round(20 * d);
+        form.setPadding(pad, Math.round(8 * d), pad, 0);
+        android.widget.EditText name = new android.widget.EditText(a);
+        name.setHint(R.string.presets_request_name);
+        name.setSingleLine(true);
+        name.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        android.widget.EditText value = new android.widget.EditText(a);
+        value.setHint(R.string.presets_request_value);
+        value.setSingleLine(true);
+        value.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        android.widget.EditText reason = new android.widget.EditText(a);
+        reason.setHint(R.string.presets_request_reason);
+        reason.setMinLines(3);
+        form.addView(name);
+        form.addView(value);
+        form.addView(reason);
+        android.widget.TextView groupLabel = new android.widget.TextView(a);
+        groupLabel.setText(R.string.flag_group_label);
+        groupLabel.setPadding(0, Math.round(12 * d), 0, 0);
+        android.widget.Spinner groupSpinner = new android.widget.Spinner(a);
+        groupSpinner.setAdapter(new android.widget.ArrayAdapter<>(a, android.R.layout.simple_spinner_dropdown_item, a.getResources().getStringArray(R.array.flag_groups)));
+        android.widget.TextView setup = new android.widget.TextView(a);
+        setup.setText(R.string.flag_env_heading);
+        setup.setPadding(0, Math.round(12 * d), 0, 0);
+        android.widget.TextView env = new android.widget.TextView(a);
+        env.setText(FlagRequests.summary(a));
+        form.addView(groupLabel);
+        form.addView(groupSpinner);
+        form.addView(setup);
+        form.addView(env);
+        androidx.appcompat.app.AlertDialog dialog = Ui.alert(a)
+                .setTitle(R.string.presets_request_title)
+                .setMessage(R.string.presets_request_body)
+                .setView(form)
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.presets_request_open, null)
+                .show();
+        android.widget.Button send = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
+        send.setOnClickListener(x -> {
+            String flag = name.getText().toString().trim();
+            if (!flag.matches("[A-Za-z0-9_]{3,100}")) {
+                Notify.say(a, Notify.GENERAL, R.string.presets_request_invalid);
+                return;
+            }
+            if (!FlagRequests.configured()) {
+                Notify.say(a, Notify.GENERAL, R.string.flag_request_unavailable);
+                return;
+            }
+            String valueText = value.getText().toString().trim();
+            String reasonText = reason.getText().toString().trim();
+            String groupText = String.valueOf(groupSpinner.getSelectedItem());
+            send.setEnabled(false);
+            Notify.say(a, Notify.GENERAL, R.string.flag_request_sending);
+            store.work.execute(() -> {
+                int message;
+                try {
+                    FlagRequests.send(a, flag, valueText, reasonText, groupText);
+                    message = R.string.flag_request_sent;
+                } catch (java.io.IOException | RuntimeException e) {
+                    message = R.string.flag_request_failed;
+                }
+                int shown = message;
+                store.main.post(() -> {
+                    send.setEnabled(true);
+                    Notify.say(a, Notify.GENERAL, shown);
+                    if (shown == R.string.flag_request_sent) dialog.dismiss();
+                });
+            });
         });
     }
 }

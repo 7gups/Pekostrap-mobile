@@ -402,6 +402,92 @@ public final class FlagSync {
         });
     }
 
+    private static final String[] PATCH_KEYS = {"root", "shizuku", "wireless", "usb"};
+    private static final int[] PATCH_LABELS = {R.string.patch_root, R.string.patch_shizuku, R.string.patch_wireless, R.string.patch_usb};
+
+    /** One row showing the chosen patch method. Tapping it opens the list of methods. */
+    public static void patchMethodRow(LinearLayout parent, AppCompatActivity a) {
+        String current = Store.get(a).setting("patchMethod", "");
+        android.widget.ImageView chevron = new android.widget.ImageView(a);
+        chevron.setImageResource(R.drawable.ic_chevron_right);
+        chevron.setImageTintList(android.content.res.ColorStateList.valueOf(Ui.attr(a, R.attr.vsTextTertiary)));
+        chevron.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        LinearLayout row = SettingRows.row(parent, a.getString(R.string.patch_method_title), a.getString(patchLabel(current)), chevron);
+        row.setOnClickListener(v -> showPatchMethods(a));
+    }
+
+    private static int patchLabel(String key) {
+        for (int i = 0; i < PATCH_KEYS.length; i++) if (PATCH_KEYS[i].equals(key)) return PATCH_LABELS[i];
+        return R.string.patch_method_none;
+    }
+
+    private static void showPatchMethods(AppCompatActivity a) {
+        String current = Store.get(a).setting("patchMethod", "");
+        String[] labels = new String[PATCH_KEYS.length];
+        int checked = -1;
+        for (int i = 0; i < PATCH_KEYS.length; i++) {
+            labels[i] = a.getString(PATCH_LABELS[i]);
+            if (PATCH_KEYS[i].equals(current)) checked = i;
+        }
+        Ui.alert(a)
+                .setTitle(R.string.patch_method_title)
+                .setSingleChoiceItems(labels, checked, (d, which) -> {
+                    d.dismiss();
+                    choosePatch(a, PATCH_KEYS[which]);
+                })
+                .setNegativeButton(R.string.common_cancel, null)
+                .show();
+    }
+
+    private static void choosePatch(AppCompatActivity a, String key) {
+        Store store = Store.get(a);
+        switch (key) {
+            case "root":
+                enableRoot(a);
+                break;
+            case "shizuku":
+                ShizukuHelper.start(a, (started, message) -> {
+                    if (a.isFinishing() || a.isDestroyed()) return;
+                    if (started) {
+                        store.putSetting("patchMethod", key);
+                        Notify.say(a, Notify.GENERAL, message);
+                    } else {
+                        Ui.say(a, message);
+                    }
+                    Helper.uidNow();
+                    store.changed();
+                });
+                break;
+            default:
+                // Wireless ADB and USB debugging use the setup steps below.
+                store.putSetting("patchMethod", key);
+                store.changed();
+                setup(a);
+                break;
+        }
+    }
+
+    private static void enableRoot(AppCompatActivity a) {
+        Store store = Store.get(a);
+        Context app = a.getApplicationContext();
+        store.work.execute(() -> {
+            int r = FlagWriter.testRoot();
+            if (r == FlagWriter.OK) {
+                FlagWriter.setRootEnabled(app, true);
+                Helper.keepRootHelper(app);
+                store.putSetting("patchMethod", "root");
+            } else {
+                FlagWriter.setRootEnabled(app, false);
+            }
+            store.main.post(() -> {
+                store.changed();
+                if (a.isFinishing() || a.isDestroyed()) return;
+                if (r == FlagWriter.OK) Notify.say(a, Notify.GENERAL, R.string.settings_root_ready);
+                else rootFailed(a);
+            });
+        });
+    }
+
     private static void rootFailed(AppCompatActivity a) {
         boolean rooted = FlagWriter.rootAvailable();
         boolean helper = FlagWriter.mode(a) != FlagWriter.Mode.NONE;
