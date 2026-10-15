@@ -13,7 +13,7 @@ import android.view.View;
  * Empty cells and label text follow the active app theme; the green activity levels stay fixed.
  */
 public final class ContributionGraphView extends View {
-    static final int WEEKS = 53; // a calendar year can span 53 Sunday-start weeks
+    static final int WEEKS = 52;
     private static final int[] LEVELS = {0xFF0E4429, 0xFF006D32, 0xFF26A641, 0xFF39D353};
     private static final float ROW_STRETCH = 1.6f; // cells are taller than they are wide
     private static final String[] DAY_LABELS = {"", "Mon", "", "Wed", "", "Fri", ""};

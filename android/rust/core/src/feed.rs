@@ -7,8 +7,7 @@ use std::sync::Mutex;
 
 const MINUTE: i64 = 60_000;
 const NEWS_FEED: &str = "https://devforum.pekora.pro/c/updates/announcements/46.json";
-const CATALOG_SEARCH: &str = "https://catalog.octane.wtf/v1/search/items?category=Featured&limit=10";
-const CATALOG_DETAILS: &str = "https://catalog.octane.wtf/v1/catalog/items/details";
+const CATALOG: &str = "https://pekora.pro/apisite/catalog/v1/search/items/details?Category=1&Limit=10&SortType=3";
 const ACRONYMS: [&str; 15] = ["rdc", "ip", "ugc", "api", "sdk", "ai", "ui", "ux", "vr", "ar", "os", "fps", "cdn", "npc", "id"];
 const LIMITED: [&str; 3] = ["limited", "limitedunique", "collectible"];
 const TYPES: &[(i32, &str)] = &[
@@ -25,7 +24,7 @@ pub fn forget(cache: &Path, url: &str) {
     let _ = std::fs::remove_file(cache.join("feeds").join(format!("{}.json", sha1_hex(url.as_bytes()))));
 }
 
-const PLACE_DETAILS: &str = "https://octane.wtf/apisite/games/v1/games/multiget-place-details?placeIds=";
+const PLACE_DETAILS: &str = "https://pekora.pro/apisite/games/v1/games/multiget-place-details?placeIds=";
 
 fn universe_from_details(v: &Value) -> i64 {
     let first = match v.as_array() {
@@ -47,7 +46,7 @@ pub fn universe_of(c: &Client, cache: &Path, place: i64, max_age_ms: i64) -> i64
         return found;
     }
     forget(cache, &url);
-    let legacy = format!("https://octane.wtf/apisite/universes/v1/places/{place}/universe");
+    let legacy = format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe");
     let found = c.cached_json(cache, &legacy, max_age_ms).map_or(0, |o| opt_long(&o, "universeId", 0));
     if found <= 0 {
         forget(cache, &legacy);
@@ -63,7 +62,7 @@ pub fn universe_uncached(c: &Client, place: i64) -> i64 {
     if found > 0 {
         return found;
     }
-    c.json(&format!("https://octane.wtf/apisite/universes/v1/places/{place}/universe")).map_or(0, |o| opt_long(&o, "universeId", 0))
+    c.json(&format!("https://pekora.pro/apisite/universes/v1/places/{place}/universe")).map_or(0, |o| opt_long(&o, "universeId", 0))
 }
 
 pub fn time(iso: &str) -> i64 {
@@ -164,8 +163,8 @@ pub fn enrich(c: &Client, cache: &Path, games: &mut [Game]) {
     }
     for chunk in order.chunks(50) {
         let ids = join(chunk);
-        let games_url = format!("https://octane.wtf/apisite/games/v1/games?universeIds={ids}");
-        let icons_url = format!("https://octane.wtf/apisite/thumbnails/v1/games/icons?universeIds={ids}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false");
+        let games_url = format!("https://pekora.pro/apisite/games/v1/games?universeIds={ids}");
+        let icons_url = format!("https://pekora.pro/apisite/thumbnails/v1/games/icons?universeIds={ids}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false");
         let d = c.cached_json(cache, &games_url, 5 * MINUTE);
         for o in strict(&d, "data") {
             for &i in by.get(&opt_long(o, "id", 0)).into_iter().flatten() {
@@ -185,7 +184,7 @@ pub fn enrich(c: &Client, cache: &Path, games: &mut [Game]) {
                 g.genre = if genre.is_empty() { opt_str(o, "genre", "") } else { genre };
             }
         }
-        let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/games/v1/games/votes?universeIds={ids}"), 5 * MINUTE);
+        let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/games/v1/games/votes?universeIds={ids}"), 5 * MINUTE);
         for o in strict(&d, "data") {
             let up = opt_long(o, "upVotes", 0);
             let total = up.wrapping_add(opt_long(o, "downVotes", 0));
@@ -216,7 +215,7 @@ pub fn enrich(c: &Client, cache: &Path, games: &mut [Game]) {
         }
         let d = c.cached_json(
             cache,
-            &format!("https://octane.wtf/apisite/thumbnails/v1/games/multiget/thumbnails?universeIds={ids}&countPerUniverse=1&defaults=true&size=768x432&format=png&isCircular=false"),
+            &format!("https://pekora.pro/apisite/thumbnails/v1/games/multiget/thumbnails?universeIds={ids}&countPerUniverse=1&defaults=true&size=768x432&format=png&isCircular=false"),
             24 * 60 * MINUTE,
         );
         for o in strict(&d, "data") {
@@ -246,7 +245,7 @@ pub fn enrich(c: &Client, cache: &Path, games: &mut [Game]) {
 fn asset_images(c: &Client, cache: &Path, ids: &[i64], size: &str, format: &str) -> HashMap<i64, String> {
     let mut out = HashMap::new();
     for chunk in ids.chunks(50) {
-        let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/thumbnails/v1/assets?assetIds={}&size={size}&format={format}&isCircular=false", join(chunk)), 24 * 60 * MINUTE);
+        let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/thumbnails/v1/assets?assetIds={}&size={size}&format={format}&isCircular=false", join(chunk)), 24 * 60 * MINUTE);
         for o in strict(&d, "data") {
             let url = opt_str(o, "imageUrl", "");
             if url.starts_with("https://") {
@@ -275,7 +274,7 @@ pub fn events(c: &Client, cache: &Path, games: &[Game], now: i64) -> Vec<Value> 
         if checked > 12 {
             continue;
         }
-        let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/virtual-events/v1/universes/{}/virtual-events", g.universe), 20 * MINUTE);
+        let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/virtual-events/v1/universes/{}/virtual-events", g.universe), 20 * MINUTE);
         for o in strict(&d, "data") {
             if opt_str(o, "eventStatus", "") != "active" || opt_str(o, "eventVisibility", "") != "public" {
                 continue;
@@ -313,7 +312,7 @@ pub fn events(c: &Client, cache: &Path, games: &[Game], now: i64) -> Vec<Value> 
 }
 
 pub fn passes(c: &Client, cache: &Path, universe: i64) -> Vec<Value> {
-    let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/game-passes/v1/universes/{universe}/game-passes?passView=Full&pageSize=100"), 10 * MINUTE);
+    let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/game-passes/v1/universes/{universe}/game-passes?passView=Full&pageSize=100"), 10 * MINUTE);
     let mut out: Vec<(i64, String, bool, i64, i64)> = Vec::new();
     for o in strict(&d, "gamePasses") {
         let id = opt_long(o, "id", 0);
@@ -555,41 +554,8 @@ fn thumbs(c: &Client, cache: &Path, base: &str, ids: &[i64], images: &mut HashMa
     }
 }
 
-/// Octane's search returns only item ids, so fetch the ids first and then the details for them.
-fn catalog_details(c: &Client, cache: &Path) -> Option<Value> {
-    let found = Some(c.cached_json(cache, CATALOG_SEARCH, 10 * MINUTE)?);
-    let mut items: Vec<Value> = Vec::new();
-    for o in loose(&found, "data") {
-        let id = opt_long(o, "id", 0);
-        if id > 0 && items.len() < 10 {
-            items.push(json!({ "itemType": opt_str(o, "itemType", "Asset"), "id": id }));
-        }
-    }
-    if items.is_empty() {
-        return None;
-    }
-    let body = json!({ "items": items }).to_string();
-    let mut token = String::new();
-    for _ in 0..2 {
-        let headers = [("Content-Type", "application/json"), ("Accept", "application/json"), ("User-Agent", c.agent.as_str()), ("x-csrf-token", token.as_str())];
-        let r = crate::http::request("POST", CATALOG_DETAILS, &headers, Some(body.as_bytes()), 8000, 1024 * 1024, false)?;
-        if r.code == 200 {
-            return serde_json::from_slice::<Value>(&r.body).ok().filter(Value::is_object);
-        }
-        if r.code != 403 {
-            return None;
-        }
-        let next = r.header("x-csrf-token")?.to_string();
-        if next.is_empty() || next == token {
-            return None;
-        }
-        token = next;
-    }
-    None
-}
-
 pub fn catalog(c: &Client, cache: &Path) -> Option<Vec<Value>> {
-    let d = Some(catalog_details(c, cache)?);
+    let d = Some(c.cached_json(cache, CATALOG, 10 * MINUTE)?);
     let mut out: Vec<(i64, Map<String, Value>)> = Vec::new();
     let (mut ids, mut bundles) = (Vec::new(), Vec::new());
     for o in loose(&d, "data") {
@@ -622,8 +588,8 @@ pub fn catalog(c: &Client, cache: &Path) -> Option<Vec<Value>> {
         out.push((id, m));
     }
     let mut images = HashMap::new();
-    thumbs(c, cache, "https://octane.wtf/apisite/thumbnails/v1/assets?assetIds=", &ids, &mut images);
-    thumbs(c, cache, "https://octane.wtf/apisite/thumbnails/v1/bundles/thumbnails?bundleIds=", &bundles, &mut images);
+    thumbs(c, cache, "https://pekora.pro/apisite/thumbnails/v1/assets?assetIds=", &ids, &mut images);
+    thumbs(c, cache, "https://pekora.pro/apisite/thumbnails/v1/bundles/thumbnails?bundleIds=", &bundles, &mut images);
     Some(
         out.into_iter()
             .map(|(id, mut m)| {
@@ -656,7 +622,7 @@ pub fn cards(c: &Client, cache: &Path, cards: &[Value]) -> Vec<Value> {
     }
     if !order.is_empty() {
         let ids = join(&order);
-        let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/games/v1/games?universeIds={ids}"), 5 * MINUTE);
+        let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/games/v1/games?universeIds={ids}"), 5 * MINUTE);
         for o in loose(&d, "data") {
             let Some(&i) = by.get(&opt_long(o, "id", 0)) else { continue };
             let name = opt_str(o, "name", "");
@@ -669,14 +635,14 @@ pub fn cards(c: &Client, cache: &Path, cards: &[Value]) -> Vec<Value> {
             let playing = opt_long(o, "playing", 0);
             out[i].insert("players".into(), (if playing > 0 { count(playing) } else { "?".into() }).into());
         }
-        let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/games/v1/games/votes?universeIds={ids}"), 5 * MINUTE);
+        let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/games/v1/games/votes?universeIds={ids}"), 5 * MINUTE);
         for o in loose(&d, "data") {
             let Some(&i) = by.get(&opt_long(o, "id", 0)) else { continue };
             let up = opt_long(o, "upVotes", 0);
             let total = up.wrapping_add(opt_long(o, "downVotes", 0));
             out[i].insert("likes".into(), (if total > 0 { format!("{}%", java::round(up as f64 * 100.0 / total as f64)) } else { "?".into() }).into());
         }
-        let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/thumbnails/v1/games/multiget/thumbnails?universeIds={ids}&countPerUniverse=1&size=768x432&format=png&isCircular=false"), 24 * 60 * MINUTE);
+        let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/thumbnails/v1/games/multiget/thumbnails?universeIds={ids}&countPerUniverse=1&size=768x432&format=png&isCircular=false"), 24 * 60 * MINUTE);
         for o in loose(&d, "data") {
             let i = by.get(&opt_long(o, "universeId", 0));
             let t = o.get("thumbnails").and_then(Value::as_array);
@@ -693,7 +659,7 @@ pub fn cards(c: &Client, cache: &Path, cards: &[Value]) -> Vec<Value> {
             }
         }
         if order.iter().any(|u| by.get(u).is_some_and(|&i| !out[i].contains_key("thumbnail"))) {
-            let d = c.cached_json(cache, &format!("https://octane.wtf/apisite/thumbnails/v1/games/icons?universeIds={ids}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"), 24 * 60 * MINUTE);
+            let d = c.cached_json(cache, &format!("https://pekora.pro/apisite/thumbnails/v1/games/icons?universeIds={ids}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"), 24 * 60 * MINUTE);
             for o in loose(&d, "data") {
                 let Some(&i) = by.get(&opt_long(o, "targetId", 0)) else { continue };
                 let url = opt_str(o, "imageUrl", "");
@@ -716,7 +682,7 @@ pub fn meta(c: &Client, place: i64) -> Option<Value> {
     if universe <= 0 {
         return None;
     }
-    let games = c.json(&format!("https://octane.wtf/apisite/games/v1/games?universeIds={universe}"))?;
+    let games = c.json(&format!("https://pekora.pro/apisite/games/v1/games?universeIds={universe}"))?;
     let mut m = Map::new();
     m.insert("universeId".into(), universe.into());
     if let Some(first) = games.get("data").and_then(Value::as_array).and_then(|a| a.first()) {
@@ -725,7 +691,7 @@ pub fn meta(c: &Client, place: i64) -> Option<Value> {
         }
         m.insert("name".into(), clip(&opt_str(first, "name", ""), 200).into());
     }
-    let icons = c.json(&format!("https://octane.wtf/apisite/thumbnails/v1/games/icons?universeIds={universe}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"));
+    let icons = c.json(&format!("https://pekora.pro/apisite/thumbnails/v1/games/icons?universeIds={universe}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"));
     if let Some(first) = icons.as_ref().and_then(|v| v.get("data")).and_then(Value::as_array).and_then(|a| a.first()).filter(|o| o.is_object()) {
         let url = opt_str(first, "imageUrl", "");
         if url.starts_with("https://") {
@@ -749,7 +715,7 @@ pub fn game(c: &Client, place: i64, universe: i64, address: &str, location: bool
         if universe <= 0 {
             return None;
         }
-        let games = c.json(&format!("https://octane.wtf/apisite/games/v1/games?universeIds={universe}"))?;
+        let games = c.json(&format!("https://pekora.pro/apisite/games/v1/games?universeIds={universe}"))?;
         if let Some(g) = games.get("data").and_then(Value::as_array).and_then(|a| a.first()).filter(|o| o.is_object()) {
             m.insert("name".into(), clip(&opt_str(g, "name", ""), 200).into());
             m.insert("description".into(), clip(&opt_str(g, "description", ""), 1000).into());
@@ -758,7 +724,7 @@ pub fn game(c: &Client, place: i64, universe: i64, address: &str, location: bool
                 m.insert("verified".into(), opt_bool(cr, "hasVerifiedBadge", false).into());
             }
         }
-        let icons = c.json(&format!("https://octane.wtf/apisite/thumbnails/v1/games/icons?universeIds={universe}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"))?;
+        let icons = c.json(&format!("https://pekora.pro/apisite/thumbnails/v1/games/icons?universeIds={universe}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"))?;
         if let Some(i) = icons.get("data").and_then(Value::as_array).and_then(|a| a.first()).filter(|o| o.is_object()) {
             let url = opt_str(i, "imageUrl", "");
             if url.starts_with("https://") {
@@ -770,7 +736,7 @@ pub fn game(c: &Client, place: i64, universe: i64, address: &str, location: bool
     fetch();
     if !m.contains_key("icon")
         && place > 0
-        && let Some(icons) = c.json(&format!("https://octane.wtf/apisite/thumbnails/v1/places/gameicons?placeIds={place}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"))
+        && let Some(icons) = c.json(&format!("https://pekora.pro/apisite/thumbnails/v1/places/gameicons?placeIds={place}&returnPolicy=PlaceHolder&size=420x420&format=png&isCircular=false"))
         && let Some(i) = icons.get("data").and_then(Value::as_array).and_then(|a| a.first())
     {
         let url = opt_str(i, "imageUrl", "");

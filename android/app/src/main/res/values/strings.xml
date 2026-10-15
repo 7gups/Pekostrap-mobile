@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Pekostrap</string>
-    <string name="url_website" translatable="false">https://octane.wtf</string>
-    <string name="url_releases" translatable="false">https://github.com/7gups/Octifine/releases</string>
+    <string name="url_website" translatable="false">https://pekora.pro</string>
+    <string name="url_releases" translatable="false">https://github.com/7gups/Pekostrap-mobile/releases</string>
     <string name="pair">%1$s · %2$s</string>
 
     <string name="nav_home">Home</string>
@@ -37,7 +37,8 @@
     <string name="export_failed">Saving failed. Try a different location.</string>
     <string name="export_denied">That location did not let Pekostrap save the file. Choose a folder on your device storage instead.</string>
 
-    <string name="target_pekora">Octane (2021)</string>
+    <string name="target_pekora">Pekora (2021)</string>
+    <string name="target_pekora_2018" translatable="false">Pekora (2018)</string>
     <string name="target_version">Installed · version %1$s</string>
     <string name="target_not_installed">Not installed on this device</string>
     <string name="target_disabled">Disabled in Android settings</string>
@@ -478,6 +479,10 @@
     <string name="setup_usb_charge_only">This device is charging from the computer but gets no data over the cable, which is why adb devices shows nothing. The cable is most likely charge only. Use the cable that came with your phone or another data cable, and plug it straight into the computer instead of a hub or a front panel port.</string>
     <string name="setup_usb_no_adb">The computer is connected, but USB debugging is not active on this connection. Pull down the notifications, tap the USB notification and pick File transfer, or unplug the cable and plug it back in. Tap to open Developer options.</string>
     <string name="setup_usb_ready">Connected, and USB debugging is active on this device. If adb devices shows unauthorized or nothing at all, unlock this device and tap Allow on the Allow USB debugging prompt. No prompt? In Developer options, tap Revoke USB debugging authorizations, then unplug and plug in again. On Windows the phone may also need its USB driver. Tap for the driver guide.</string>
+    <string name="setup_wireless">Or connect without a cable</string>
+    <string name="setup_wireless_body">Use WiFi instead of a cable. Turn on Wireless debugging and tap Pair device with pairing code. On the computer, run these with the ports and code from that screen, then run the start command below. Tap to open Developer options.\nadb pair %1$s:PORT CODE\nadb connect %1$s:PORT</string>
+    <string name="setup_wireless_legacy">Use WiFi instead of a cable. This Android version has no Wireless debugging, so plug in the cable once and run adb tcpip 5555, unplug it, then run this and the start command below.\nadb connect %1$s:5555</string>
+    <string name="setup_wireless_no_wifi">Connect this device to WiFi to use adb without a cable. The computer must be on the same network.</string>
     <string name="setup_get_adb">Get adb on your computer</string>
     <string name="setup_get_adb_body">No adb yet? Tap to open Google\'s SDK Platform Tools page, download it for your computer and unzip it. Open a terminal in the unzipped platform-tools folder and run the start command there. In PowerShell, type .\\adb instead of adb.</string>
     <string name="setup_run">Run the start command</string>
@@ -486,7 +491,7 @@
     <string name="setup_run_unavailable">Shared storage is not available, so the start script could not be created.</string>
     <string name="setup_copied">Start command copied</string>
     <string name="setup_device">Run on this device</string>
-    <string name="setup_device_body">In aShell, LADB or Termux with rish, run this exactly, without quotes. Start with Shizuku is easier. Tap to copy it.
+    <string name="setup_device_body">In aShell, LADB or Termux with rish, run this exactly, without quotes. In Termux with adb, first pair it in Developer options, Wireless debugging (adb pair, then adb connect), then use the computer command above. Start with Shizuku is easier. Tap to copy it.
 %1$s</string>
     <string name="setup_shizuku">Start with Shizuku</string>
     <string name="setup_shizuku_ready">No computer needed. Tap to start the helper through Shizuku.</string>
@@ -548,18 +553,6 @@
     <string name="presets_allowlist_short">Flags that work with Pekora</string>
     <string name="presets_section_interface">Interface</string>
     <string name="presets_section_debug">Debug</string>
-    <string name="presets_section_quality">Quality</string>
-    <string name="presets_allowlist_all">All categories</string>
-    <string name="presets_async_textures">Async textures</string>
-    <string name="presets_async_textures_short">Loads textures on background threads</string>
-    <string name="presets_mesh_optimizer">Mesh optimizer</string>
-    <string name="presets_mesh_optimizer_short">Optimizes mesh geometry as it loads</string>
-    <string name="presets_alpha_prepass">Alpha depth pass</string>
-    <string name="presets_alpha_prepass_short">Experimental. Depth pass for see-through geometry</string>
-    <string name="presets_ambient_occlusion">Ambient occlusion</string>
-    <string name="presets_ambient_occlusion_short">Adds contact shadows, costs some frame rate</string>
-    <string name="presets_indoor_specular">Indoor specular fix</string>
-    <string name="presets_indoor_specular_short">Corrects reflections inside buildings</string>
     <string name="presets_shadows">Disable shadows</string>
     <string name="presets_shadows_short">Turns off Pekora shadows</string>
     <string name="presets_remove_grass">Remove grass</string>
@@ -1121,6 +1114,7 @@
     <string name="patch_method_title">Change patch method</string>
     <string name="patch_root">Root</string>
     <string name="patch_shizuku">Shizuku</string>
+    <string name="patch_wireless">Wireless ADB</string>
     <string name="patch_usb">USB debugging</string>
     <string name="patch_method_none">Not set</string>
     <string name="limiteds_category_label">Category</string>
@@ -1143,8 +1137,8 @@
     <string name="flag_env_android">Android %1$s (API %2$d)</string>
     <string name="flag_env_device">Device: %1$s</string>
     <string name="flag_env_pekora">Pekora app: %1$s</string>
+    <string name="flag_env_pekora_2018">Pekora 2018 app: %1$s</string>
     <string name="flag_env_patch">Patch method: %1$s</string>
     <string name="setup_btn_developer">Open developer options</string>
     <string name="setup_btn_shizuku">Install Shizuku</string>
-    <string name="home_github_caption_year">%1$s commits in %2$d · %3$s stars</string>
 </resources>

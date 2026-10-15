@@ -105,7 +105,7 @@ public final class Launcher {
     public static void openStore(Context c, String pkg) {
         if (c == null) return;
         String url = Targets.downloadUrl(pkg);
-        if (!ApkInstall.available() || !url.startsWith("https://")) {
+        if (!ApkInstall.available() || !url.startsWith("https://pekora.pro/")) {
             Ui.openWeb(c, url);
             return;
         }

@@ -5,9 +5,9 @@ use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 
 pub const PORT_FILE: &str = "/data/local/tmp/voidstrap_helper_port";
-pub const FLAGS_PATH: &str = "/data/data/wtf.octane.client/files/exe/ClientSettings/ClientAppSettings.json";
-const FLAGS_PKG: &str = "wtf.octane.client";
-const TARGETS: [&str; 1] = ["wtf.octane.client"];
+pub const FLAGS_PATH: &str = "/data/data/pro.pekora.client/files/exe/ClientSettings/ClientAppSettings.json";
+const FLAGS_PKG: &str = "pro.pekora.client";
+const TARGETS: [&str; 2] = ["pro.pekora.client", "com.roblox.clienr"];
 
 fn known(pkg: &str) -> &str {
     if TARGETS.contains(&pkg) { pkg } else { FLAGS_PKG }

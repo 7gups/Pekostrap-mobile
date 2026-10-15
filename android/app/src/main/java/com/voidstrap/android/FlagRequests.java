@@ -32,6 +32,7 @@ final class FlagRequests {
                 + c.getString(R.string.flag_env_android, Build.VERSION.RELEASE, Build.VERSION.SDK_INT) + "\n"
                 + c.getString(R.string.flag_env_device, Build.MANUFACTURER + " " + Build.MODEL) + "\n"
                 + c.getString(R.string.flag_env_pekora, versionOf(c, Targets.PEKORA)) + "\n"
+                + c.getString(R.string.flag_env_pekora_2018, versionOf(c, Targets.PEKORA_2018)) + "\n"
                 + c.getString(R.string.flag_env_patch, c.getString(patchLabel(c)));
     }
 
@@ -47,6 +48,7 @@ final class FlagRequests {
                     .put("androidVersion", Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")")
                     .put("device", Build.MANUFACTURER + " " + Build.MODEL)
                     .put("pekoraVersion", versionOf(c, Targets.PEKORA))
+                    .put("pekora2018Version", versionOf(c, Targets.PEKORA_2018))
                     .put("patchMethod", c.getString(patchLabel(c)));
         } catch (JSONException e) {
             throw new IOException("bad request");
@@ -77,6 +79,7 @@ final class FlagRequests {
         switch (Store.get(c).setting("patchMethod", "")) {
             case "root": return R.string.patch_root;
             case "shizuku": return R.string.patch_shizuku;
+            case "wireless": return R.string.patch_wireless;
             case "usb": return R.string.patch_usb;
             default: return R.string.patch_method_none;
         }

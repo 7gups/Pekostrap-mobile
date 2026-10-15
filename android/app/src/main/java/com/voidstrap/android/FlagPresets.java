@@ -11,15 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.slider.Slider;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public final class FlagPresets {
@@ -50,11 +46,6 @@ public final class FlagPresets {
             "FFlagRenderUnifiedLighting12", "DFIntAssetPreloading", "FFlagEnablePreferredTextSizeScale",
             "FFlagEnablePreferredTextSizeSettingInMenus2", "DFIntCSGLevelOfDetailSwitchingDistanceStatic"};
     private static final String FLAG_STATE = "FStringDebugShowFlagState";
-    private static final String ASYNC_TEX = "FFlagAsyncTasksEnabledForTextures";
-    private static final String MESH_OPT = "DFFlagMeshOptimizerV015";
-    private static final String ALPHA_PREPASS = "FFlagRenderPrepassOpaqueWithAlpha2";
-    private static final String AO = "FFlagRenderEnableHbao";
-    private static final String INDOOR_SPEC = "FFlagRenderFixIndoorSpecIBL";
     private static final long[][] PROFILES = {{2, 0, 0}, {1, 1, 1}, {4, 0, 0}};
 
     static final java.util.Set<String> KEYS = new java.util.HashSet<>();
@@ -63,7 +54,6 @@ public final class FlagPresets {
         java.util.Collections.addAll(KEYS, MSAA, MSAA_OPTIONAL, DPI, GRASS_MIN, GRASS_MAX, VULKAN, OPENGL, D3D11, NO_D3D11,
                 SHOW_FPS, BLUR, FONT_PADDING, FLAG_STATE);
         java.util.Collections.addAll(KEYS, LOD);
-        java.util.Collections.addAll(KEYS, ASYNC_TEX, MESH_OPT, ALPHA_PREPASS, AO, INDOOR_SPEC);
         java.util.Collections.addAll(KEYS, SHADOWS);
     }
 
@@ -184,13 +174,6 @@ public final class FlagPresets {
             put(SHOW_FPS, checked ? Boolean.TRUE : null);
             commit.run();
         });
-        defaultOff(performance, R.string.presets_async_textures, R.string.presets_async_textures_short, ASYNC_TEX);
-        defaultOff(performance, R.string.presets_mesh_optimizer, R.string.presets_mesh_optimizer_short, MESH_OPT);
-        defaultOff(performance, R.string.presets_alpha_prepass, R.string.presets_alpha_prepass_short, ALPHA_PREPASS);
-
-        LinearLayout quality = section(R.string.presets_section_quality);
-        defaultOff(quality, R.string.presets_ambient_occlusion, R.string.presets_ambient_occlusion_short, AO);
-        defaultOff(quality, R.string.presets_indoor_specular, R.string.presets_indoor_specular_short, INDOOR_SPEC);
 
         boolean detailAny = ok(LOD[0]) || ok(GRASS_MIN);
         LinearLayout detail = detailAny ? section(R.string.presets_section_detail) : null;
@@ -255,15 +238,6 @@ public final class FlagPresets {
         s.setContentDescription(a.getString(title));
         s.setOnCheckedChangeListener((b, c) -> change.on(c));
         row(parent, title, summary, s).setOnClickListener(v -> s.toggle());
-    }
-
-    /** A switch for a flag that ships off. Turning it on writes true; turning it off removes the override. */
-    private void defaultOff(LinearLayout parent, int title, int summary, String key) {
-        if (!ok(key)) return;
-        toggle(parent, title, summary, on(key), checked -> {
-            put(key, checked ? Boolean.TRUE : null);
-            commit.run();
-        });
     }
 
     private void choice(LinearLayout parent, int title, int summary, String[] labels, int selected, String key, IntChoice change) {
@@ -448,88 +422,18 @@ public final class FlagPresets {
             LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rp.setMargins(0, 0, 0, Math.round(12 * a.getResources().getDisplayMetrics().density));
             list.addView(request, rp);
-            // Categories come from the data so new ones show up without touching this code.
-            java.util.Set<String> found = new java.util.TreeSet<>();
-            List<Map.Entry<String, String>> all = new ArrayList<>();
             for (Map.Entry<String, String> e : FlagWriter.ALLOWLIST.entrySet()) {
                 if (!ok(e.getKey())) continue;
-                all.add(e);
-                found.add(e.getValue());
+                Row item = Row.inflate(list);
+                item.set(R.drawable.ic_flag, e.getKey(), e.getValue());
+                item.view.setOnClickListener(x -> {
+                    Ui.copy(a, e.getKey(), e.getKey());
+                    Notify.say(a, Notify.COPY, a.getString(R.string.presets_copied, e.getKey()));
+                });
+                list.addView(item.view);
             }
-            List<String> categories = new ArrayList<>();
-            categories.add(null);
-            for (String c : CATEGORY_ORDER) if (found.remove(c)) categories.add(c);
-            categories.addAll(found);
-            CharSequence[] labels = new CharSequence[categories.size()];
-            labels[0] = a.getString(R.string.presets_allowlist_all);
-            for (int k = 1; k < labels.length; k++) labels[k] = categories.get(k);
-
-            // The list can hold thousands of flags, so it is recycled in a RecyclerView with a fixed height
-            // instead of inflating every row up front inside the scrolling sheet.
-            AllowAdapter adapter = new AllowAdapter(all);
-            RecyclerView rv = new RecyclerView(a);
-            rv.setLayoutManager(new LinearLayoutManager(a));
-            rv.setAdapter(adapter);
-            rv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    (int) (a.getResources().getDisplayMetrics().heightPixels * 0.55f)));
-
-            Dropdown filter = new Dropdown(a, labels, 0, i -> adapter.setCategory(categories.get(i)));
-            LinearLayout.LayoutParams fp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            fp.setMargins(0, 0, 0, Math.round(12 * a.getResources().getDisplayMetrics().density));
-            list.addView(filter.view, fp);
-            list.addView(rv);
             Ui.surface(a, R.string.presets_allowlist, R.string.presets_allowlist_body, list).show();
         });
-    }
-
-    private static final String[] CATEGORY_ORDER = {
-            "Rendering", "Geometry", "Physics", "Performance", "Network", "Audio", "User Interface", "Scripting", "Debug", "Other"};
-
-    private final class AllowAdapter extends RecyclerView.Adapter<AllowAdapter.Holder> {
-        private final List<Map.Entry<String, String>> all;
-        private final List<Map.Entry<String, String>> shown = new ArrayList<>();
-
-        AllowAdapter(List<Map.Entry<String, String>> all) {
-            this.all = all;
-            shown.addAll(all);
-        }
-
-        void setCategory(String category) {
-            shown.clear();
-            for (Map.Entry<String, String> e : all) {
-                if (category == null || category.equals(e.getValue())) shown.add(e);
-            }
-            notifyDataSetChanged();
-        }
-
-        final class Holder extends RecyclerView.ViewHolder {
-            final Row row;
-
-            Holder(Row row) {
-                super(row.view);
-                this.row = row;
-            }
-        }
-
-        @Override
-        public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new Holder(Row.inflate(parent));
-        }
-
-        @Override
-        public void onBindViewHolder(Holder h, int position) {
-            Map.Entry<String, String> e = shown.get(position);
-            h.row.set(R.drawable.ic_flag, e.getKey(), e.getValue());
-            h.row.view.setOnClickListener(x -> {
-                Ui.copy(a, e.getKey(), e.getKey());
-                Notify.say(a, Notify.COPY, a.getString(R.string.presets_copied, e.getKey()));
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return shown.size();
-        }
     }
 
     /** Opens a form for a missing flag. Submitting opens a prefilled GitHub issue for review; nothing is sent by the app. */

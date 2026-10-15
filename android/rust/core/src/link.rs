@@ -289,7 +289,7 @@ pub fn parse(input: &str) -> Option<Link> {
     if lower.starts_with("roblox://") || lower.starts_with("robloxmobile://") {
         return from_scheme(s);
     }
-    let owned = if lower.starts_with("www.octane.wtf/") || lower.starts_with("octane.wtf/") { format!("https://{s}") } else { s.to_string() };
+    let owned = if lower.starts_with("www.pekora.pro/") || lower.starts_with("pekora.pro/") { format!("https://{s}") } else { s.to_string() };
     let u = Uri::parse(&owned);
     if !u.scheme().is_some_and(|x| java::eq_ignore_case("https", x)) {
         return None;
@@ -298,7 +298,7 @@ pub fn parse(input: &str) -> Option<Link> {
     if host == "ro.blox.com" {
         return pass(owned.clone());
     }
-    if host != "octane.wtf" && host != "www.octane.wtf" {
+    if host != "pekora.pro" && host != "www.pekora.pro" {
         return None;
     }
     let seg = u.segments();
@@ -321,7 +321,7 @@ pub fn parse(input: &str) -> Option<Link> {
     if let Some(first) = seg.first().map(|x| x.to_lowercase())
         && matches!(first.as_str(), "share" | "share-links" | "join" | "shortlink")
     {
-        let mut out = format!("https://octane.wtf{}", u.path().unwrap_or(""));
+        let mut out = format!("https://pekora.pro{}", u.path().unwrap_or(""));
         if let Some(q) = u.query().filter(|q| !q.is_empty()) {
             out.push('?');
             out.push_str(q);

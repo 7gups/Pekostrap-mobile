@@ -127,17 +127,7 @@
     </style>
 
     <style name="Widget.Voidstrap.BottomNav" parent="Widget.Material3.BottomNavigationView">
-        <item name="backgroundTint">?attr/vsMenu</item>
-        <item name="android:minHeight">72dp</item>
-        <item name="elevation">8dp</item>
-        <item name="android:paddingStart">8dp</item>
-        <item name="android:paddingEnd">8dp</item>
-        <item name="itemPaddingTop">10dp</item>
-        <item name="itemPaddingBottom">10dp</item>
-        <item name="paddingBottomSystemWindowInsets">false</item>
-        <item name="paddingLeftSystemWindowInsets">false</item>
-        <item name="paddingRightSystemWindowInsets">false</item>
-        <item name="shapeAppearance">@style/Shape.Voidstrap.Pill</item>
+        <item name="backgroundTint">?attr/vsSidebar</item>
         <item name="itemIconTint">@color/vs_nav_icon</item>
         <item name="itemTextColor">@color/vs_nav_item</item>
         <item name="itemActiveIndicatorStyle">@style/Widget.Voidstrap.NavIndicator</item>
