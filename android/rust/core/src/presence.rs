@@ -1,14 +1,14 @@
 use crate::java::{self, opt_bool, opt_long, opt_str, regex_space, trim, utf16_len, utf16_prefix, word_boundary};
 use serde_json::{Value, json};
 
-const DOWNLOAD: &str = "https://github.com/7gups/Pekostrap-mobile/releases";
+const DOWNLOAD: &str = "https://github.com/7gups/Octifine/releases";
 const DISCORD: &str = "https://discord.gg/bzdbHHytFR";
-const GITHUB: &str = "https://github.com/7gups/Pekostrap-mobile";
-const LOGO: &str = "https://raw.githubusercontent.com/7gups/Pekostrap-mobile/main/branding/pekostrap-logo.png";
+const GITHUB: &str = "https://github.com/7gups/Octifine";
+const LOGO: &str = "https://raw.githubusercontent.com/7gups/Octifine/main/branding/pekostrap-logo.png";
 const LOADING: &str = "https://raw.githubusercontent.com/KloBraticc/Voidstrap/main/assets/Images/rpc-loading.gif";
 
 const IDLE: [(&str, &str); 1] = [
-    ("pekora", "https://raw.githubusercontent.com/7gups/Pekostrap-mobile/main/branding/pekora-x.png"),
+    ("pekora", "https://raw.githubusercontent.com/7gups/Octifine/main/branding/pekora-x.png"),
 ];
 
 #[derive(Clone, Copy)]
@@ -249,7 +249,7 @@ static ACCOUNTS: std::sync::Mutex<Vec<(i64, bool, Value)>> = std::sync::Mutex::n
 fn roblox_image(url: &str) -> bool {
     let host = url.strip_prefix("https://").and_then(|r| r.split(['/', '?', '#']).next()).unwrap_or("");
     let host = host.rsplit('@').next().unwrap_or(host).split(':').next().unwrap_or("");
-    url.len() <= 250 && (host == "pekora.pro" || host.ends_with(".pekora.pro"))
+    url.len() <= 250 && (host == "octane.wtf" || host.ends_with(".octane.wtf"))
 }
 
 pub fn account(client: &crate::net::Client, user: i64, circular: bool) -> Option<Value> {
@@ -259,9 +259,9 @@ pub fn account(client: &crate::net::Client, user: i64, circular: bool) -> Option
     if let Some(hit) = ACCOUNTS.lock().ok()?.iter().find(|(id, c, _)| *id == user && *c == circular).map(|(_, _, v)| v.clone()) {
         return Some(hit);
     }
-    let data = client.json(&format!("https://pekora.pro/apisite/users/v1/users/{user}")).filter(Value::is_object)?;
+    let data = client.json(&format!("https://octane.wtf/apisite/users/v1/users/{user}")).filter(Value::is_object)?;
     let size = if circular { "150x150" } else { "180x180" };
-    let thumbs = client.json(&format!("https://pekora.pro/apisite/thumbnails/v1/users/avatar-headshot?userIds={user}&size={size}&format=png&isCircular={circular}"))?;
+    let thumbs = client.json(&format!("https://octane.wtf/apisite/thumbnails/v1/users/avatar-headshot?userIds={user}&size={size}&format=png&isCircular={circular}"))?;
     let head = thumbs.get("data")?.as_array()?.first().cloned().unwrap_or(Value::Null);
     let image = opt_str(&head, "imageUrl", "");
     if !image.starts_with("https://") || (circular && !roblox_image(&image)) {
@@ -320,13 +320,13 @@ pub fn game(settings: &Value, data: &Value, game: &Value, account: &Value, flag_
     let job = opt_str(data, "jobId", "");
     let mut buttons = Vec::new();
     if on(settings, "joining") && (kind == "PUBLIC" || (kind == "RESERVED" && !launch.is_empty())) && !job.is_empty() {
-        let mut link = format!("https://pekora.pro/games/start?placeId={place}&gameInstanceId={job}");
+        let mut link = format!("https://octane.wtf/games/start?placeId={place}&gameInstanceId={job}");
         if !launch.is_empty() {
             link += &format!("&launchData={}", crate::net::uri_encode(&launch));
         }
         buttons.push(["Join server".to_string(), link]);
     }
-    buttons.push(["Game Page".to_string(), format!("https://pekora.pro/games/{place}")]);
+    buttons.push(["Game Page".to_string(), format!("https://octane.wtf/games/{place}")]);
     let status = !trim(&detail).is_empty();
     presence(detail, state, image, text, small(settings, account), opt_long(data, "joined", 0), status, buttons)
 }
@@ -361,7 +361,7 @@ pub fn apply_rpc(current: &Value, original: &Value, text: &str) -> Option<Value>
         } else {
             let asset = opt_long(image, "assetId", 0);
             if asset > 0 {
-                p[image_key] = format!("https://pekora.pro/apisite/assetdelivery/v1/asset/?id={asset}").into();
+                p[image_key] = format!("https://octane.wtf/apisite/assetdelivery/v1/asset/?id={asset}").into();
             }
             let hover = get(image, "hoverText");
             if !hover.is_empty() {

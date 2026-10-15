@@ -1,7 +1,7 @@
 // Pekostrap flag bot. Receives a flag request from the app and opens a GitHub issue for review.
 // The GitHub token is stored as a Worker secret (GITHUB_TOKEN); it never reaches the app.
 
-const REPO = "7gups/Pekostrap-mobile";
+const REPO = "7gups/Octifine";
 const FLAG = /^[A-Za-z0-9_]{3,100}$/;
 const MAX_BYTES = 4000;
 const GROUPS = ["Rendering", "Geometry", "Physics", "Networking", "Interface", "Other"];
@@ -33,7 +33,7 @@ export default {
     // Setup details come from the app. They are free text, so keep them short and plain.
     const setup = [
       ["Pekostrap", body.pekostrapVersion], ["Android", body.androidVersion], ["Device", body.device],
-      ["Pekora app", body.pekoraVersion], ["Pekora 2018 app", body.pekora2018Version], ["Patch method", body.patchMethod],
+      ["Pekora app", body.pekoraVersion], ["Patch method", body.patchMethod],
     ].map(([k, v]) => `- ${k}: ${String(v ?? "unknown").replace(/[\r\n`]/g, " ").slice(0, 80)}`).join("\n");
 
     // Same sections as the flag_request issue form, so reviewers see one format.

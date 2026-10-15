@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.nio.charset.StandardCharsets;
@@ -43,8 +44,8 @@ public final class HomeFragment extends Page {
     private static final long ACCOUNT_REFRESH_MS = 10 * 60_000L;
     private static final long ALERT_REFRESH_MS = 30 * 60_000L;
     private static final long AUTO_REFRESH_MS = 15 * 60_000L;
-    private static final String GITHUB_API = "https://api.github.com/repos/7gups/Pekostrap-mobile";
-    private static final String GITHUB_URL = "https://github.com/7gups/Pekostrap-mobile";
+    private static final String GITHUB_API = "https://api.github.com/repos/7gups/Octifine";
+    private static final String GITHUB_URL = "https://github.com/7gups/Octifine";
     private static final String[] GITHUB_HEADERS = {"User-Agent", "Voidstrap Android", "Accept", "application/vnd.github+json"};
 
     private View newsHeader;
@@ -56,6 +57,7 @@ public final class HomeFragment extends Page {
     private TextView githubCaption;
     private long githubStars = -1;
     private long githubCommitCount = -1;
+    private int githubYear = Calendar.getInstance(TimeZone.getTimeZone("UTC")).get(Calendar.YEAR);
     private long githubDueAt;
     private LinearLayout catalogGrid;
     private TextView catalogStatus;
@@ -428,6 +430,7 @@ public final class HomeFragment extends Page {
         int[][] counts;
         String[] months;
         int total;
+        int year;
     }
 
     private void loadGithub() {
@@ -476,23 +479,35 @@ public final class HomeFragment extends Page {
         if (code == 202) return null;
         if (code != 200) throw new java.io.IOException("HTTP " + code);
         JSONArray weeks = new JSONArray(new String((byte[]) res[2], StandardCharsets.UTF_8));
+        // Calendar year, January to December: each week goes in the column for its Wednesday's day of the year.
+        int year = Calendar.getInstance(TimeZone.getTimeZone("UTC")).get(Calendar.YEAR);
         CommitActivity out = new CommitActivity();
+        out.year = year;
         out.counts = new int[ContributionGraphView.WEEKS][7];
         out.months = new String[ContributionGraphView.WEEKS];
         SimpleDateFormat fmt = new SimpleDateFormat("MMM", Locale.getDefault());
-        String last = "";
-        int n = Math.min(ContributionGraphView.WEEKS, weeks.length());
-        for (int i = 0; i < n; i++) {
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String[] monthOfColumn = new String[ContributionGraphView.WEEKS];
+        for (int i = 0; i < weeks.length(); i++) {
             JSONObject week = weeks.getJSONObject(i);
+            long mid = week.optLong("week", 0) * 1000L + 3L * 86400000L;
+            Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            c.setTimeInMillis(mid);
+            if (c.get(Calendar.YEAR) != year) continue;
+            int col = (c.get(Calendar.DAY_OF_YEAR) - 1) / 7;
+            if (col < 0 || col >= ContributionGraphView.WEEKS) continue;
             JSONArray days = week.optJSONArray("days");
             for (int d = 0; days != null && d < 7 && d < days.length(); d++) {
-                out.counts[i][d] = days.optInt(d, 0);
-                out.total += out.counts[i][d];
+                out.counts[col][d] = days.optInt(d, 0);
+                out.total += out.counts[col][d];
             }
-            String m = fmt.format(new Date(week.optLong("week", 0) * 1000L));
-            if (!m.equals(last)) {
-                out.months[i] = m;
-                last = m;
+            monthOfColumn[col] = fmt.format(new Date(mid));
+        }
+        String last = "";
+        for (int col = 0; col < ContributionGraphView.WEEKS; col++) {
+            if (monthOfColumn[col] != null && !monthOfColumn[col].equals(last)) {
+                out.months[col] = monthOfColumn[col];
+                last = monthOfColumn[col];
             }
         }
         return out;
@@ -529,10 +544,11 @@ public final class HomeFragment extends Page {
         if (activity != null) {
             githubGraph.setData(activity.counts, activity.months);
             githubCommitCount = activity.total;
+            githubYear = activity.year;
         } else {
             githubDueAt = System.currentTimeMillis() + FEED_RETRY_MS;
         }
-        githubCaption.setText(getString(R.string.home_github_caption, count(githubCommitCount), count(githubStars)));
+        githubCaption.setText(getString(R.string.home_github_caption_year, count(githubCommitCount), githubYear, count(githubStars)));
         bindRelease(rel, relFailed);
     }
 

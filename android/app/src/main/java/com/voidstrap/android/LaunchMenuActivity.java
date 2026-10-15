@@ -18,7 +18,7 @@ public final class LaunchMenuActivity extends AppCompatActivity {
     static final int SETTINGS = RESULT_FIRST_USER + 1;
     static final int ABOUT = RESULT_FIRST_USER + 2;
     private static final String DONATE = "https://github.com/sponsors/KloBraticc";
-    private static final String GITHUB = "https://github.com/7gups/Pekostrap-mobile";
+    private static final String GITHUB = "https://github.com/7gups/Octifine";
 
     static boolean due(Intent intent) {
         return intent != null && Intent.ACTION_MAIN.equals(intent.getAction()) && intent.hasCategory(Intent.CATEGORY_LAUNCHER);

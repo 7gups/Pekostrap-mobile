@@ -10,8 +10,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <queries>
-        <package android:name="pro.pekora.client" />
-        <package android:name="com.roblox.clienr" />
+        <package android:name="wtf.octane.client" />
         <package android:name="com.discord" />
         <package android:name="moe.shizuku.privileged.api" />
         <intent>

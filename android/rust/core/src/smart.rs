@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Mutex;
 
-const PAGE_LIMIT: i64 = 100;
 const MAX_PAGES: usize = 3;
 const UNKNOWN_PING: f64 = 250.0;
 const MAX_PING: f64 = 300.0;
@@ -263,41 +262,45 @@ fn quality(s: &Server, prefer_empty: bool) -> f64 {
 }
 
 fn servers(client: &Client, place: i64, prefer_empty: bool) -> Vec<Server> {
-    let mut out = Vec::new();
-    let mut cursor = String::new();
+    // Octane serves the legacy game-instance list; it has no sort or cursor params,
+    // so paging uses startIndex and sorting/filtering happens here.
+    let mut out: Vec<Server> = Vec::new();
+    let mut start: i64 = 0;
     for _ in 0..MAX_PAGES {
-        let mut url = format!("https://pekora.pro/apisite/games/v1/games/{place}/servers/Public?excludeFullGames=true&limit={PAGE_LIMIT}&sortOrder={}", if prefer_empty { "Asc" } else { "Desc" });
-        if !cursor.is_empty() {
-            url.push_str(&format!("&cursor={}", net::uri_encode(&cursor)));
-        }
+        let url = format!("https://octane.wtf/games/getgameinstancesjson?placeId={place}&startIndex={start}");
         let Some(body) = client.json(&url) else {
             break;
         };
-        let Some(data) = body.get("data").and_then(Value::as_array) else {
+        let Some(data) = body.get("Collection").and_then(Value::as_array) else {
             break;
         };
+        if data.is_empty() {
+            break;
+        }
         for o in data.iter().filter(|o| o.is_object()) {
-            let id = java::opt_str(o, "id", "");
+            let id = java::opt_str(o, "jobId", "");
             if id.is_empty() {
                 continue;
             }
+            // "PlayersCapacity" reads like "18 of 100"; fall back to the player list length.
+            let playing = o
+                .get("PlayersCapacity")
+                .and_then(Value::as_str)
+                .and_then(|t| t.split_whitespace().next())
+                .and_then(|n| n.parse::<i64>().ok())
+                .unwrap_or_else(|| o.get("CurrentPlayers").and_then(Value::as_array).map_or(0, |a| a.len() as i64));
             out.push(Server {
                 id,
-                playing: java::opt_long(o, "playing", 0),
-                max: java::opt_long(o, "maxPlayers", 0),
-                ping: java::opt_long(o, "ping", 0),
-                fps: match o.get("fps") {
-                    Some(Value::Number(n)) => n.as_f64().unwrap_or(0.0),
-                    Some(Value::String(s)) => s.trim().parse().unwrap_or(0.0),
-                    _ => 0.0,
-                },
+                playing,
+                max: java::opt_long(o, "Capacity", 0),
+                ping: java::opt_long(o, "Ping", 0),
+                fps: o.get("Fps").and_then(Value::as_f64).unwrap_or(0.0),
             });
         }
-        cursor = java::opt_str(&body, "nextPageCursor", "");
-        if cursor.is_empty() || cursor == "null" {
-            break;
-        }
+        start += data.len() as i64;
     }
+    out.retain(|s| s.max <= 0 || s.playing < s.max);
+    out.sort_by_key(|s| if prefer_empty { s.playing } else { -s.playing });
     out
 }
 
@@ -386,7 +389,7 @@ fn game_name(client: &Client, cache: &Path, place: i64, universe: i64) -> String
     if universe <= 0 {
         return String::new();
     }
-    let Some(games) = client.cached_json(cache, &format!("https://pekora.pro/apisite/games/v1/games?universeIds={universe}"), 5 * 60 * 1000) else {
+    let Some(games) = client.cached_json(cache, &format!("https://octane.wtf/apisite/games/v1/games?universeIds={universe}"), 5 * 60 * 1000) else {
         return String::new();
     };
     games.get("data").and_then(Value::as_array).and_then(|a| a.first()).filter(|g| g.is_object()).map_or(String::new(), |g| java::utf16_prefix(&java::opt_str(g, "name", ""), 120).to_string())

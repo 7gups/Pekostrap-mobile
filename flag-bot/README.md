@@ -5,7 +5,7 @@ The GitHub token stays on the server. The app only sends the flag name, value, a
 
 ## Set up
 
-1. Create a fine-grained GitHub token for `7gups/Pekostrap-mobile` with **Issues: Read and write** only, and set an expiry.
+1. Create a fine-grained GitHub token for `7gups/Octifine` with **Issues: Read and write** only, and set an expiry.
 2. Create the `flag-request` label in the repo (Issues → Labels).
 3. Deploy (needs a free Cloudflare account and Node.js):
 

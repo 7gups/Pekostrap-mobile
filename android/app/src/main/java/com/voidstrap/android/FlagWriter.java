@@ -12,7 +12,7 @@ public final class FlagWriter {
     public static final int DENIED = 1;
     public static final int FAILED = 2;
 
-    public static final String PATH = "/data/data/pro.pekora.client/files/exe/ClientSettings/ClientAppSettings.json";
+    public static final String PATH = "/data/data/wtf.octane.client/files/exe/ClientSettings/ClientAppSettings.json";
     private static final String REFRESH_BACKUP = "/data/local/tmp/voidstrap_refresh_backup";
     static final String GAME_FPS_CAP = "debug.graphics.game_default_frame_rate.disabled";
 
@@ -53,6 +53,7 @@ public final class FlagWriter {
         ALLOWLIST.put("DFIntDebugRestrictGCDistance", "Performance");
         ALLOWLIST.put("FFlagPreloadAllFonts", "Performance");
         ALLOWLIST.put("FFlagDebugDoNotLoadHumanoidSounds", "Performance");
+        AllowlistCompat.addAll(ALLOWLIST);
     }
 
     private static final long SU_CACHE_MS = 10000;

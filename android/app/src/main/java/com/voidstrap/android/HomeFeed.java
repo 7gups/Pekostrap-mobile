@@ -42,7 +42,7 @@ public final class HomeFeed {
         public boolean bundle;
 
         public String link() {
-            return "https://pekora.pro/" + (bundle ? "bundles/" : "catalog/") + id;
+            return "https://octane.wtf/" + (bundle ? "bundles/" : "catalog/") + id;
         }
 
         public String appLink() {

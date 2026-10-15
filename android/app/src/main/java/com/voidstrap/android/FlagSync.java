@@ -142,23 +142,6 @@ public final class FlagSync {
         }
     }
 
-    private static void openWirelessDebugging(AppCompatActivity a) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            openDeveloperOptions(a);
-            return;
-        }
-        Bundle args = new Bundle();
-        args.putString(":settings:fragment_args_key", "toggle_adb_wireless");
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
-                .putExtra(":settings:fragment_args_key", "toggle_adb_wireless")
-                .putExtra(":settings:show_fragment_args", args);
-        try {
-            a.startActivity(intent);
-        } catch (RuntimeException e) {
-            openDeveloperOptions(a);
-        }
-    }
-
     @Nullable
     private static String wifiAddress(Context c) {
         ConnectivityManager cm = c.getSystemService(ConnectivityManager.class);
@@ -226,7 +209,6 @@ public final class FlagSync {
         Row shizuku = Row.inflate(list);
         Row debugging = Row.inflate(list);
         Row usb = Row.inflate(list);
-        Row wireless = Row.inflate(list);
         Row getAdb = Row.inflate(list);
         Row start = Row.inflate(list);
         Row onDevice = Row.inflate(list);
@@ -234,7 +216,6 @@ public final class FlagSync {
         list.addView(shizuku.view);
         list.addView(debugging.view);
         list.addView(usb.view);
-        list.addView(wireless.view);
         list.addView(getAdb.view);
         list.addView(start.view);
         list.addView(onDevice.view);
@@ -245,13 +226,6 @@ public final class FlagSync {
             boolean adb = running || debuggingOn(a);
             step(a, debugging, R.drawable.ic_bug, R.string.setup_debugging, R.string.setup_debugging_body, adb, true, () -> openDeveloperOptions(a));
             usbStep(a, usb, running);
-            String ip = wifiAddress(a);
-            step(a, wireless, R.drawable.ic_wifi, R.string.setup_wireless, 0, running, ip != null, () -> openWirelessDebugging(a));
-            wireless.detail.setText(running ? a.getString(R.string.setup_run_done)
-                    : ip == null ? a.getString(R.string.setup_wireless_no_wifi)
-                    : a.getString(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? R.string.setup_wireless_body : R.string.setup_wireless_legacy, ip));
-            wireless.detail.setMaxLines(Integer.MAX_VALUE);
-            wireless.detail.setVisibility(View.VISIBLE);
             step(a, getAdb, R.drawable.ic_arrow_download, R.string.setup_get_adb, R.string.setup_get_adb_body, running, true, () -> Ui.openWeb(a, PLATFORM_TOOLS));
             getAdb.detail.setMaxLines(Integer.MAX_VALUE);
             step(a, start, R.drawable.ic_play, R.string.setup_run, 0, running, true, () -> {
@@ -428,8 +402,8 @@ public final class FlagSync {
         });
     }
 
-    private static final String[] PATCH_KEYS = {"root", "shizuku", "wireless", "usb"};
-    private static final int[] PATCH_LABELS = {R.string.patch_root, R.string.patch_shizuku, R.string.patch_wireless, R.string.patch_usb};
+    private static final String[] PATCH_KEYS = {"root", "shizuku", "usb"};
+    private static final int[] PATCH_LABELS = {R.string.patch_root, R.string.patch_shizuku, R.string.patch_usb};
 
     /** One row showing the chosen patch method. Tapping it opens the list of methods. */
     public static void patchMethodRow(LinearLayout parent, AppCompatActivity a) {
@@ -485,7 +459,7 @@ public final class FlagSync {
                 });
                 break;
             default:
-                // Wireless ADB and USB debugging use the setup steps below.
+                // USB debugging uses the setup steps below.
                 store.putSetting("patchMethod", key);
                 store.changed();
                 setup(a);

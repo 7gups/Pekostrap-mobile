@@ -25,6 +25,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.RelativeCornerSize;
+import com.google.android.material.shape.ShapeAppearanceModel;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_TAB = "tab";
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         nav = findViewById(R.id.nav);
         sidebarItems = findViewById(R.id.sidebar_items);
         if (nav != null) {
+            floatNav();
             nav.setOnItemSelectedListener(item -> {
                 show(item.getItemId());
                 return true;
@@ -484,6 +488,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Turns the bottom bar into a floating, fully rounded Material 3 pill. */
+    private void floatNav() {
+        if (nav.getBackground() instanceof MaterialShapeDrawable) {
+            MaterialShapeDrawable bg = (MaterialShapeDrawable) nav.getBackground();
+            bg.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(new RelativeCornerSize(0.5f)).build());
+        }
+        nav.setClipToOutline(true);
+    }
+
     private void applyInsets() {
         View root = findViewById(R.id.root);
         View content = findViewById(R.id.column);
@@ -502,6 +515,11 @@ public class MainActivity extends AppCompatActivity {
                 root.setPadding(bars.left, bars.top, bars.right, imeVisible ? ime.bottom : bars.bottom);
             } else {
                 nav.setVisibility(visibility);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) nav.getLayoutParams();
+                lp.leftMargin = Ui.dp(this, 16) + bars.left;
+                lp.rightMargin = Ui.dp(this, 16) + bars.right;
+                lp.bottomMargin = Ui.dp(this, 12) + bars.bottom;
+                nav.setLayoutParams(lp);
                 content.setPadding(bars.left, bars.top, bars.right, imeVisible ? ime.bottom : 0);
             }
             return insets;

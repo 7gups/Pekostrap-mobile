@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Targets {
-    public static final String PEKORA = "pro.pekora.client";
-    public static final String DOWNLOAD = "https://pekora.pro/setup/android/pekora.apk";
-    public static final String PEKORA_2018 = "com.roblox.clienr";
-    public static final String[] ALL = {PEKORA, PEKORA_2018};
-    public static final String DOWNLOAD_2018 = "https://pekora.pro/setup/android/pekora2018.apk";
+    public static final String PEKORA = "wtf.octane.client"; // Octane 2.463.417004 (2021 Roblox client)
+    public static final String DOWNLOAD = "https://octane.wtf/setup/android/Octane.apk";
+    public static final String[] ALL = {PEKORA};
 
     public static final class State {
         public String pkg;
@@ -39,31 +37,23 @@ public final class Targets {
     }
 
     public static int nameRes(String pkg) {
-        return PEKORA_2018.equals(pkg) ? R.string.target_pekora_2018 : R.string.target_pekora;
+        return R.string.target_pekora;
     }
 
-    private static final java.util.Set<String> NOT_IN_2018 = new java.util.HashSet<>(java.util.Arrays.asList(
-            "DFIntCSGLevelOfDetailSwitchingDistance", "DFIntCSGLevelOfDetailSwitchingDistanceL12",
-            "DFIntCSGLevelOfDetailSwitchingDistanceL23", "DFIntCSGLevelOfDetailSwitchingDistanceL34",
-            "DFFlagDisableDPIScale", "FFlagDebugGraphicsPreferD3D11", "DFFlagDebugPauseVoxelizer",
-            "FIntFRMMaxGrassDistance", "FIntFRMMinGrassDistance", "FFlagDebugGraphicsPreferVulkan",
-            "FFlagDebugGraphicsPreferOpenGL", "FIntRenderShadowmapBias", "FIntRenderLocalLightUpdatesMax",
-            "FIntRenderLocalLightUpdatesMin", "DFFlagDebugSkipMeshVoxelizer", "FFlagDebugForceModelMeshRendering",
-            "FFlagPreloadAllFonts"));
     private static final java.util.Set<String> NOT_IN_2021 = new java.util.HashSet<>(java.util.Arrays.asList(
             "FIntDebugForceMSAASamples"));
 
     public static boolean is2018(Context c) {
-        return PEKORA_2018.equals(selected(c));
+        return false;
     }
 
     /** False only when the selected app's engine does not contain this flag (checked against each libroblox.so). */
     public static boolean flagSupported(Context c, String flag) {
-        return is2018(c) ? !NOT_IN_2018.contains(flag) : !NOT_IN_2021.contains(flag);
+        return !NOT_IN_2021.contains(flag);
     }
 
     public static String downloadUrl(String pkg) {
-        return PEKORA_2018.equals(pkg) ? DOWNLOAD_2018 : DOWNLOAD;
+        return DOWNLOAD;
     }
 
     public static State resolve(Context c, String pkg) {

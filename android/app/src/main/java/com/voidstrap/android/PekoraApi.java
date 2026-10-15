@@ -9,13 +9,13 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Typed calls for the pekora.pro apisite endpoints seen in the sampled responses. Account calls take the
+ * Typed calls for the octane.wtf apisite endpoints seen in the sampled responses. Account calls take the
  * session value, which is sent only as a Cookie header on that request and is never logged. Authenticated
  * calls do not follow redirects, so the cookie cannot be sent to another host. String arguments are
  * checked against a strict character set before they are placed in a URL.
  */
 final class PekoraApi {
-    static final String BASE = "https://pekora.pro/apisite/";
+    static final String BASE = "https://octane.wtf/apisite/";
     static final String COOKIE = ".PEKORASECURITY";
     private static final int TIMEOUT_MS = 15_000;
     private static final int LIMIT = 512_000;
@@ -309,10 +309,10 @@ final class PekoraApi {
         return o == null ? null : o.optJSONArray("data");
     }
 
-    /** Only pekora.pro links may be opened from API content. */
+    /** Only octane.wtf links may be opened from API content. */
     static boolean safeLink(String url) {
         Uri u = Uri.parse(url == null ? "" : url);
         String host = u.getHost();
-        return "https".equals(u.getScheme()) && host != null && (host.equals("pekora.pro") || host.endsWith(".pekora.pro"));
+        return "https".equals(u.getScheme()) && host != null && (host.equals("octane.wtf") || host.endsWith(".octane.wtf"));
     }
 }
